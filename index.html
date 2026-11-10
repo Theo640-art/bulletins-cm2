@@ -14,10 +14,10 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
     :root {
-      --system-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --system-font: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
       --spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -57,14 +57,6 @@
       transition: all 0.3s var(--spring);
     }
 
-    .ios-card:hover {
-      transform: translateY(-2.5px);
-      box-shadow: 
-        0 4px 10px rgba(0, 0, 0, 0.03),
-        0 16px 36px rgba(15, 23, 42, 0.07),
-        inset 0 1px 1px rgba(255, 255, 255, 1);
-    }
-
     .ios-btn {
       transition: all 0.18s var(--spring);
     }
@@ -87,16 +79,16 @@
     }
     .shake { animation: appleShake 0.4s var(--spring) both; }
 
-    /* Bulletins A4 stricts */
+    /* Page format A4 strict : une page garantie sans débordement */
     .bulletin-page {
       width: 210mm;
       height: 296mm;
       max-height: 296mm;
-      padding: 12mm 14mm;
+      padding: 10mm 12mm;
       margin: 0 auto 30px auto;
       background: #ffffff;
       box-sizing: border-box;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.09);
       position: relative;
       display: flex;
       flex-direction: column;
@@ -116,7 +108,7 @@
       }
       .no-print { display: none !important; }
       #tabApercu { display: block !important; padding: 0 !important; background: transparent !important; }
-      #tabGrille, #tabStats, #authOverlay, #modalSaisie, #modalCreation, #apercuBarreActions, #menuActionsPopover { display: none !important; }
+      #tabGrille, #tabStats, #authOverlay, #modalSaisie, #modalCreation, #studioSidebar, #studioTopActions, #menuActionsPopover { display: none !important; }
       #apercuBulletins { background: transparent !important; padding: 0 !important; }
       
       .bulletin-page {
@@ -128,7 +120,7 @@
         max-height: 296mm !important;
         page-break-after: always !important;
         break-after: page !important;
-        padding: 10mm 12mm !important;
+        padding: 9mm 11mm !important;
         overflow: hidden !important;
       }
       @page {
@@ -175,7 +167,7 @@
   <!-- ================= APPLICATION PRINCIPALE ================= -->
   <div id="mainApp" class="hidden min-h-screen flex flex-col">
 
-    <!-- En-tête Translucide Apple 2026 Ultra-Épurée -->
+    <!-- En-tête Translucide Apple 2026 -->
     <header class="ios-glass sticky top-0 z-30 no-print border-b border-black/5">
       <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
         
@@ -202,7 +194,7 @@
             Évaluations
           </button>
           <button id="btnTabApercu" onclick="basculerVue('apercu')" class="ios-btn px-3 sm:px-4 py-1.5 rounded-xl text-slate-500 hover:text-slate-900">
-            Bulletins A4
+            Studio Bulletins
           </button>
           <button id="btnTabStats" onclick="basculerVue('stats')" class="ios-btn px-3 sm:px-4 py-1.5 rounded-xl text-slate-500 hover:text-slate-900">
             Statistiques
@@ -212,7 +204,6 @@
         <!-- Outils & Sélecteur de Période -->
         <div class="flex items-center gap-2 relative">
           
-          <!-- Sélecteur de Période compact -->
           <div class="flex items-center bg-black/[0.04] hover:bg-black/[0.07] transition rounded-xl px-2.5 py-1.5 text-xs border border-black/5">
             <span class="text-slate-400 font-semibold mr-1">Période</span>
             <select id="selectPeriode" onchange="changerPeriode(this.value)" class="bg-transparent font-bold text-slate-900 outline-none cursor-pointer">
@@ -224,12 +215,10 @@
             </select>
           </div>
 
-          <!-- Bouton Menu Actions (•••) -->
           <button onclick="basculerMenuActions(event)" class="ios-btn w-8 h-8 rounded-xl bg-black/[0.04] hover:bg-black/[0.08] flex items-center justify-center text-slate-700 font-bold border border-black/5" title="Options et données">
             •••
           </button>
 
-          <!-- Popover Menu Contextuel -->
           <div id="menuActionsPopover" class="hidden absolute right-0 top-11 w-56 ios-glass rounded-2xl p-2 shadow-xl border border-white/80 space-y-1 z-40 text-xs font-semibold animate-spring">
             <label class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-black/5 cursor-pointer text-slate-700">
               <span id="txtSignature">Importer signature</span>
@@ -270,53 +259,87 @@
 
       <!-- ================= VUE 1 : ÉVALUATIONS ================= -->
       <section id="tabGrille" class="space-y-4">
-
-        <!-- Barre de commande & filtres par matière -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 ios-card p-4 sm:p-5 rounded-[24px]">
-          
-          <!-- Filtres pilules -->
-          <div class="flex flex-wrap items-center gap-1.5" id="conteneurFiltresMatieres">
-            <!-- Rempli en JS : Tous (15), Français (10)... -->
-          </div>
+          <div class="flex flex-wrap items-center gap-1.5" id="conteneurFiltresMatieres"></div>
 
           <button onclick="ouvrirModalCreation()" class="ios-btn bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold py-2 px-4 rounded-xl text-xs shadow-md shadow-[#0071e3]/20 flex items-center gap-1.5 self-start sm:self-auto">
             <span>+</span><span>Nouvelle évaluation</span>
           </button>
         </div>
 
-        <!-- Grille des cartes avec tokens de couleurs -->
         <div id="listeEvalsCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
-
       </section>
 
-      <!-- ================= VUE 2 : APERÇU ET EXPORTATION PDF ================= -->
-      <section id="tabApercu" class="hidden space-y-6">
+      <!-- ================= VUE 2 : STUDIO BULLETINS A4 (2026) ================= -->
+      <section id="tabApercu" class="hidden space-y-4">
         
-        <div id="apercuBarreActions" class="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-3 ios-card p-4 rounded-2xl">
-          <div>
-            <h2 class="text-sm font-bold text-slate-900">Aperçu officiel (Période <span id="lblApercuPeriode">1</span>)</h2>
-            <p class="text-xs text-slate-500">Mise en page certifiée 1 page A4 par élève garantie &bull; Téléchargement PDF ou impression.</p>
+        <!-- Barre d'options supérieure du Studio -->
+        <div id="studioTopActions" class="no-print ios-card p-3.5 sm:p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3">
+          
+          <!-- Toggles d'options d'affichage sur la feuille -->
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-slate-400 font-semibold mr-1">Options du bulletin :</span>
+
+            <button id="toggleOptMoyClasse" onclick="inverserOptionBulletin('moyClasse')" class="ios-btn px-3 py-1.5 rounded-xl border border-black/10 bg-white font-medium text-slate-700 shadow-xs flex items-center gap-1.5">
+              <span id="dotOptMoyClasse" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>Moyenne classe</span>
+            </button>
+
+            <button id="toggleOptJauges" onclick="inverserOptionBulletin('jauges')" class="ios-btn px-3 py-1.5 rounded-xl border border-black/10 bg-white font-medium text-slate-700 shadow-xs flex items-center gap-1.5">
+              <span id="dotOptJauges" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>Micro-jauges</span>
+            </button>
+
+            <button id="toggleOptHisto" onclick="inverserOptionBulletin('histo')" class="ios-btn px-3 py-1.5 rounded-xl border border-black/10 bg-white font-medium text-slate-700 shadow-xs flex items-center gap-1.5">
+              <span id="dotOptHisto" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>Historique</span>
+            </button>
           </div>
 
+          <!-- Boutons d'exportation -->
           <div class="flex items-center gap-2">
-            <button id="btnTelechargerPDF" onclick="telechargerTousLesBulletinsPDF()" class="ios-btn bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2.5 px-4 rounded-xl shadow-md shadow-emerald-600/20">
-              <span id="txtBtnTelecharger">Télécharger tout en PDF</span>
+            <button onclick="telechargerBulletinEleveActifPDF()" class="ios-btn bg-white hover:bg-slate-50 border border-black/10 text-slate-800 text-xs font-semibold py-2 px-3.5 rounded-xl shadow-xs">
+              PDF de cet élève
             </button>
-            <button onclick="lancerImpressionNavigateur()" class="ios-btn bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold py-2.5 px-4 rounded-xl shadow-md">
+            <button id="btnTelechargerPDF" onclick="telechargerTousLesBulletinsPDF()" class="ios-btn bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-4 rounded-xl shadow-md shadow-emerald-600/20">
+              <span id="txtBtnTelecharger">Télécharger tout (17 PDF)</span>
+            </button>
+            <button onclick="lancerImpressionNavigateur()" class="ios-btn bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold py-2 px-3.5 rounded-xl shadow-md">
               Imprimer
             </button>
           </div>
+
         </div>
 
-        <div id="apercuBulletins" class="bg-[#dcdce2] p-4 sm:p-8 rounded-[28px] overflow-x-auto flex flex-col items-center"></div>
+        <!-- Espace Studio : Volet Latéral + Prévisualisation A4 -->
+        <div class="flex flex-col lg:flex-row gap-5 items-start">
+          
+          <!-- Volet latéral de sélection des 17 élèves -->
+          <div id="studioSidebar" class="no-print w-full lg:w-72 ios-card p-3 rounded-[24px] flex flex-col shrink-0">
+            <div class="px-2 pt-1 pb-2">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Élèves (17)</div>
+              <input type="text" id="filtreRechercheEleve" placeholder="Rechercher un élève..." oninput="filtrerListeElevesSidebar(this.value)"
+                     class="w-full bg-black/[0.04] border border-black/5 rounded-xl px-3 py-1.5 text-xs outline-none focus:border-[#0071e3] transition">
+            </div>
+
+            <div id="listeElevesSidebar" class="space-y-1 mt-1 max-h-[72vh] overflow-y-auto pr-1"></div>
+          </div>
+
+          <!-- Zone centrale de visualisation du bulletin -->
+          <div class="flex-1 w-full flex flex-col items-center overflow-x-auto bg-slate-200/60 p-4 sm:p-8 rounded-[30px] border border-black/5">
+            <div id="zoneApercuInteractif" class="w-full flex justify-center"></div>
+          </div>
+
+        </div>
+
+        <!-- Conteneur masqué utilisé pour l'export groupé des 17 pages -->
+        <div id="exportCacheGlobal" class="hidden"></div>
 
       </section>
 
       <!-- ================= VUE 3 : STATISTIQUES & GRAPHIQUES ================= -->
       <section id="tabStats" class="hidden space-y-6">
-        
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          
           <div class="ios-card rounded-[24px] p-5">
             <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Moyenne de la période</div>
             <div id="statMoyennePeriode" class="text-3xl font-extrabold tracking-tight text-slate-900 mt-1.5">-</div>
@@ -340,26 +363,21 @@
             <div id="statPireNote" class="text-3xl font-extrabold tracking-tight text-amber-600 mt-1.5">-</div>
             <div id="statPireEleve" class="text-xs font-bold text-slate-800 mt-1 truncate">Élève : -</div>
           </div>
-
         </div>
 
-        <!-- Graphique des Moyennes par Matière -->
         <div class="ios-card rounded-[26px] p-6">
           <div class="mb-4">
             <h3 class="text-sm font-bold text-slate-900">Moyenne de classe par matière &bull; Graphique comparatif</h3>
             <p class="text-xs text-slate-500">Visualisez les résultats par matière pour la période <span id="statNumPeriodeGraphe">1</span>.</p>
           </div>
-
           <div id="graphiqueMatieresConteneur" class="space-y-3 pt-2"></div>
         </div>
 
-        <!-- Tableau comparatif des 17 élèves -->
         <div class="ios-card rounded-[26px] p-6 overflow-hidden">
           <div class="mb-4">
             <h3 class="text-sm font-bold text-slate-900">Comparatif des 17 élèves sur les 5 périodes</h3>
             <p class="text-xs text-slate-500">Moyennes de chaque période (P1 à P5) et moyenne générale annuelle.</p>
           </div>
-
           <div class="overflow-x-auto">
             <table class="w-full text-xs text-left border-collapse">
               <thead>
@@ -378,16 +396,13 @@
           </div>
         </div>
 
-        <!-- Détails par évaluation -->
         <div class="ios-card rounded-[26px] p-6">
           <div class="mb-4">
             <h3 class="text-sm font-bold text-slate-900">Détails par évaluation faite (Période <span id="statNumPeriode2">1</span>)</h3>
             <p class="text-xs text-slate-500">Moyenne, plus haute et plus basse note obtenues pour chaque devoir.</p>
           </div>
-
           <div id="statGrilleEvalsDetails" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
         </div>
-
       </section>
 
     </main>
@@ -440,7 +455,6 @@
   <!-- ================= MODALE : SAISIE DES NOTES RAPIDE ================= -->
   <div id="modalSaisie" class="fixed inset-0 bg-slate-900/30 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
     <div class="ios-glass rounded-[30px] max-w-xl w-full border border-white/80 overflow-hidden flex flex-col max-h-[92vh] animate-spring">
-      
       <div class="p-4 border-b border-black/5 bg-white/50 flex items-center justify-between">
         <div>
           <div class="flex items-center gap-2">
@@ -483,7 +497,6 @@
     const db = firebase.firestore();
     const docRef = db.collection("bulletins_scolaires").doc("cm2_data");
 
-    // Liste complète des 17 élèves CM2
     const ELEVES_CM2 = [
       "BONIN Nathan", "COSTE Stanislas", "CRESPO Gabriel", "GIANNINI Lison", "HADDAD Sofia",
       "HEITZMANN Gauthier", "HERODET Mathias", "KHELIFI Camil", "LEJEUNE Lila",
@@ -491,7 +504,6 @@
       "PIERRE Louca", "TALAGHZI Safiyah", "TALAGHZI Younes", "ZUBER Léon"
     ];
 
-    // Tokens de Couleurs par Matière (Design System 2026)
     const THEME_MATIERES = {
       "Français": { bg: "bg-blue-500/10", text: "text-blue-700", border: "border-blue-500/20", dot: "bg-blue-600", bar: "bg-blue-600" },
       "Maths": { bg: "bg-purple-500/10", text: "text-purple-700", border: "border-purple-500/20", dot: "bg-purple-600", bar: "bg-purple-600" },
@@ -515,10 +527,17 @@
     let baseDonnees = { "1": { evals: [], notes: {} }, "2": { evals: [], notes: {} }, "3": { evals: [], notes: {} }, "4": { evals: [], notes: {} }, "5": { evals: [], notes: {} } };
     let periodeActive = "1";
     let matiereFiltreeActive = "TOUS";
+    let eleveStudioActif = "BONIN Nathan";
     let signatureDirectriceBase64 = null;
     let evalEnCoursId = null;
 
-    // Fermeture du popover au clic externe
+    // Options du Studio
+    let optionsBulletin = {
+      moyClasse: true,
+      jauges: true,
+      histo: true
+    };
+
     document.addEventListener('click', (e) => {
       const popover = document.getElementById("menuActionsPopover");
       if (!e.target.closest('#menuActionsPopover') && !e.target.closest('button[onclick*="basculerMenuActions"]')) {
@@ -528,8 +547,7 @@
 
     function basculerMenuActions(e) {
       if (e) e.stopPropagation();
-      const pop = document.getElementById("menuActionsPopover");
-      pop.classList.toggle("hidden");
+      document.getElementById("menuActionsPopover").classList.toggle("hidden");
     }
 
     const inputPassEl = document.getElementById("inputPass");
@@ -588,7 +606,7 @@
       } else if (vue === 'apercu') {
         document.getElementById("tabApercu").classList.remove("hidden");
         bApercu.className = "ios-btn px-3 sm:px-4 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs";
-        genererApercu();
+        actualiserStudioBulletins();
       } else if (vue === 'stats') {
         document.getElementById("tabStats").classList.remove("hidden");
         bStats.className = "ios-btn px-3 sm:px-4 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs";
@@ -600,12 +618,11 @@
       periodeActive = String(val);
       matiereFiltreeActive = "TOUS";
       document.getElementById("lblResetPeriode").textContent = periodeActive;
-      document.getElementById("lblApercuPeriode").textContent = periodeActive;
       document.getElementById("statNumPeriode1").textContent = periodeActive;
       document.getElementById("statNumPeriode2").textContent = periodeActive;
       document.getElementById("statNumPeriodeGraphe").textContent = periodeActive;
       rafraichirCartesEvals();
-      genererApercu();
+      actualiserStudioBulletins();
       calculerEtAfficherStats();
     }
 
@@ -653,7 +670,7 @@
       sauvegarderCloud();
       fermerModalCreation();
       rafraichirCartesEvals();
-      genererApercu();
+      actualiserStudioBulletins();
       calculerEtAfficherStats();
       ouvrirModalSaisie(evalId);
     }
@@ -668,7 +685,7 @@
             majAffichageBoutonSignature();
           }
           rafraichirCartesEvals();
-          genererApercu();
+          actualiserStudioBulletins();
           calculerEtAfficherStats();
         } else {
           sauvegarderCloud();
@@ -684,7 +701,7 @@
       }, { merge: true });
     }
 
-    // Gestion des Cartes et Filtres par Matière
+    // Gestion des cartes d'évaluations
     function rafraichirCartesEvals() {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
       const conteneur = document.getElementById("listeEvalsCards");
@@ -695,7 +712,6 @@
       const totalEleves = ELEVES_CM2.length;
       const evals = current.evals || [];
 
-      // Construction des filtres pilules dynamiques
       const countsParMatiere = { "TOUS": evals.length };
       evals.forEach(ev => {
         countsParMatiere[ev.matiere] = (countsParMatiere[ev.matiere] || 0) + 1;
@@ -735,7 +751,6 @@
         const themeMat = THEME_MATIERES[ev.matiere] || { bg: "bg-blue-500/10", text: "text-blue-700", border: "border-blue-500/20", dot: "bg-blue-600", bar: "bg-blue-600" };
         const estComplet = nbRemplies === totalEleves;
 
-        // Score Badge
         let badgeScoreColor = "text-slate-800 bg-black/5";
         if (moyDevoir !== "-") {
           const m = parseFloat(moyDevoir);
@@ -796,7 +811,7 @@
       delete baseDonnees[periodeActive].notes[evalId];
       sauvegarderCloud();
       rafraichirCartesEvals();
-      genererApercu();
+      actualiserStudioBulletins();
       calculerEtAfficherStats();
     }
 
@@ -905,7 +920,7 @@
       document.getElementById("modalSaisie").classList.add("hidden");
       evalEnCoursId = null;
       rafraichirCartesEvals();
-      genererApercu();
+      actualiserStudioBulletins();
       calculerEtAfficherStats();
     }
 
@@ -929,7 +944,7 @@
 
           majAffichageBoutonSignature();
           sauvegarderCloud();
-          genererApercu();
+          actualiserStudioBulletins();
         };
         img.src = e.target.result;
       };
@@ -941,7 +956,7 @@
       signatureDirectriceBase64 = null;
       majAffichageBoutonSignature();
       sauvegarderCloud();
-      genererApercu();
+      actualiserStudioBulletins();
     }
 
     function majAffichageBoutonSignature() {
@@ -977,7 +992,7 @@
             baseDonnees = importData;
             sauvegarderCloud();
             rafraichirCartesEvals();
-            genererApercu();
+            actualiserStudioBulletins();
             calculerEtAfficherStats();
             alert("Restauration terminée avec succès !");
           }
@@ -995,7 +1010,7 @@
       }
       sauvegarderCloud();
       rafraichirCartesEvals();
-      genererApercu();
+      actualiserStudioBulletins();
       calculerEtAfficherStats();
     }
 
@@ -1004,6 +1019,448 @@
       if (v.length === 0) return "-";
       return (v.reduce((a, b) => a + b, 0) / v.length).toFixed(2);
     }
+
+    // =========================================================================
+    // STUDIO BULLETINS 2026 : GESTION INTERACTIVE ET PERSONNALISATION
+    // =========================================================================
+
+    function inverserOptionBulletin(optKey) {
+      optionsBulletin[optKey] = !optionsBulletin[optKey];
+      
+      const dotId = "dotOpt" + optKey.charAt(0).toUpperCase() + optKey.slice(1);
+      const dot = document.getElementById(dotId);
+      if (dot) {
+        dot.className = `w-2 h-2 rounded-full ${optionsBulletin[optKey] ? 'bg-emerald-500' : 'bg-slate-300'}`;
+      }
+      
+      actualiserStudioBulletins();
+    }
+
+    function actualiserStudioBulletins() {
+      genererSidebarEleves();
+      genererBulletinApercuInteractif();
+    }
+
+    function genererSidebarEleves() {
+      const conteneur = document.getElementById("listeElevesSidebar");
+      const recherche = (document.getElementById("filtreRechercheEleve")?.value || "").toLowerCase();
+      conteneur.innerHTML = "";
+
+      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
+
+      ELEVES_CM2.forEach((eleve) => {
+        if (recherche && !eleve.toLowerCase().includes(recherche)) return;
+
+        const allNotes = [];
+        (current.evals || []).forEach(ev => {
+          const val = (current.notes[ev.id] || {})[eleve];
+          if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) {
+            allNotes.push(parseFloat(val));
+          }
+        });
+        const moy = calculerMoyenne(allNotes);
+        const estActif = eleve === eleveStudioActif;
+
+        let dotColor = "bg-slate-300";
+        if (moy !== "-") {
+          const m = parseFloat(moy);
+          if (m >= 15) dotColor = "bg-emerald-500";
+          else if (m >= 12) dotColor = "bg-blue-500";
+          else dotColor = "bg-amber-500";
+        }
+
+        const div = document.createElement("div");
+        div.className = `flex items-center justify-between p-2 rounded-xl cursor-pointer transition ${estActif ? 'bg-slate-900 text-white shadow-xs' : 'hover:bg-black/[0.04] text-slate-800'}`;
+        div.onclick = () => {
+          eleveStudioActif = eleve;
+          genererSidebarEleves();
+          genererBulletinApercuInteractif();
+        };
+
+        div.innerHTML = `
+          <div class="flex items-center gap-2 truncate pr-1">
+            <span class="w-2 h-2 rounded-full ${dotColor} shrink-0"></span>
+            <span class="text-xs font-semibold truncate">${eleve}</span>
+          </div>
+          <span class="text-[11px] font-bold ${estActif ? 'text-slate-300' : 'text-slate-500'} shrink-0">${moy !== '-' ? moy : '-'}</span>
+        `;
+        conteneur.appendChild(div);
+      });
+    }
+
+    function filtrerListeElevesSidebar(val) {
+      genererSidebarEleves();
+    }
+
+    // Génère le bulletin de l'élève actuellement sélectionné dans le visualiseur
+    function genererBulletinApercuInteractif() {
+      const conteneur = document.getElementById("zoneApercuInteractif");
+      conteneur.innerHTML = "";
+      
+      const pageHTML = construireHTMLBulletinUnique(eleveStudioActif);
+      conteneur.innerHTML = pageHTML;
+    }
+
+    // Calculateur de la moyenne collective de classe par évaluation
+    function getMoyennesClasseParEval() {
+      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
+      const mapMoy = {};
+      (current.evals || []).forEach(ev => {
+        const notesObj = current.notes[ev.id] || {};
+        const nums = Object.values(notesObj).map(v => parseFloat(v)).filter(v => !isNaN(v));
+        mapMoy[ev.id] = calculerMoyenne(nums);
+      });
+      return mapMoy;
+    }
+
+    // Moteur de rendu A4 d'un bulletin unique
+    function construireHTMLBulletinUnique(eleveNom) {
+      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
+      const dateStr = new Date().toLocaleDateString("fr-FR");
+      const moyClasseMap = getMoyennesClasseParEval();
+
+      const matieresMap = {};
+      const allNotesEleve = [];
+
+      (current.evals || []).forEach(ev => {
+        const val = (current.notes[ev.id] || {})[eleveNom] || "";
+        const thKey = ev.theme || "";
+        if (!matieresMap[ev.matiere]) matieresMap[ev.matiere] = {};
+        if (!matieresMap[ev.matiere][thKey]) matieresMap[ev.matiere][thKey] = [];
+
+        matieresMap[ev.matiere][thKey].push({ 
+          id: ev.id,
+          titre: ev.titre, 
+          note: val, 
+          moyClasse: moyClasseMap[ev.id] || "-" 
+        });
+        if (val !== "" && !isNaN(parseFloat(val))) allNotesEleve.push(parseFloat(val));
+      });
+
+      const nbEvals = current.evals ? current.evals.length : 0;
+      
+      // Adaptation dynamique des interlignes pour garantir 1 seule page A4
+      let paddingRow = "3px 6px";
+      let fontSizeRow = "8pt";
+      let headerPadding = "4px 6px";
+      let sigHeight = "64px";
+
+      if (nbEvals > 8) {
+        paddingRow = "2px 5px";
+        fontSizeRow = "7.5pt";
+        headerPadding = "3px 5px";
+        sigHeight = "58px";
+      }
+      if (nbEvals > 13) {
+        paddingRow = "1.5px 4px";
+        fontSizeRow = "7pt";
+        headerPadding = "2px 4px";
+        sigHeight = "52px";
+      }
+
+      let corpsTableauHTML = "";
+
+      for (const [matiere, themes] of Object.entries(matieresMap)) {
+        let notesMatiere = [];
+        let sousLignesHTML = "";
+
+        for (const [theme, devoirs] of Object.entries(themes)) {
+          if (theme && theme.trim() !== "") {
+            sousLignesHTML += `
+              <tr style="background-color: #fafbfc;">
+                <td colspan="${optionsBulletin.moyClasse ? 3 : 2}" style="padding: 1px 5px; font-size: 6.8pt; font-style: italic; color: #64748b; border: 1px solid #e2e8f0; line-height: 1.1;">
+                  ${theme}
+                </td>
+              </tr>
+            `;
+          }
+
+          devoirs.forEach(dev => {
+            const numVal = dev.note !== "" && !isNaN(parseFloat(dev.note)) ? parseFloat(dev.note) : null;
+            if (numVal !== null) notesMatiere.push(numVal);
+
+            const estStatutTexte = ["NE", "NN", "ABS", "DISP"].includes(dev.note);
+            const affichageNote = dev.note !== "" 
+              ? (estStatutTexte ? `<span style="color:#64748b; font-weight:700;">${dev.note}</span>` : `${dev.note}`) 
+              : "-";
+
+            // Micro-jauge graphique
+            let jaugeHTML = "";
+            if (optionsBulletin.jauges && numVal !== null) {
+              const pct = Math.min(Math.max((numVal / 20) * 100, 0), 100);
+              let clr = "#0071e3";
+              if (numVal >= 16) clr = "#10b981";
+              else if (numVal < 10) clr = "#f59e0b";
+              jaugeHTML = `
+                <div style="width: 32px; height: 3.5px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-left: 6px; display: inline-block; vertical-align: middle;">
+                  <div style="width: ${pct}%; height: 100%; background: ${clr}; border-radius: 2px;"></div>
+                </div>
+              `;
+            }
+
+            sousLignesHTML += `
+              <tr>
+                <td style="padding: ${paddingRow}; font-size: ${fontSizeRow}; color: #1e293b; border: 1px solid #e2e8f0; line-height: 1.15;">
+                  ${dev.titre}
+                </td>
+                <td style="padding: ${paddingRow}; font-size: ${fontSizeRow}; font-weight: 700; text-align: center; border: 1px solid #e2e8f0; width: 75px; white-space: nowrap;">
+                  ${affichageNote} ${jaugeHTML}
+                </td>
+                ${optionsBulletin.moyClasse ? `
+                  <td style="padding: ${paddingRow}; font-size: ${fontSizeRow}; color: #64748b; text-align: center; border: 1px solid #e2e8f0; width: 65px;">
+                    ${dev.moyClasse !== '-' ? dev.moyClasse : '-'}
+                  </td>
+                ` : ''}
+              </tr>
+            `;
+          });
+        }
+
+        const moyMat = calculerMoyenne(notesMatiere);
+
+        corpsTableauHTML += `
+          <tr style="background-color: #f1f5f9; font-weight: 700;">
+            <td style="padding: ${headerPadding}; font-size: ${fontSizeRow}; color: #0f172a; border: 1px solid #cbd5e1; text-transform: uppercase; letter-spacing: 0.4px;">
+              ${matiere}
+            </td>
+            <td style="padding: ${headerPadding}; font-size: ${fontSizeRow}; text-align: center; border: 1px solid #cbd5e1; color: #0f172a;">
+              ${moyMat !== '-' ? moyMat : '-'}
+            </td>
+            ${optionsBulletin.moyClasse ? `
+              <td style="padding: ${headerPadding}; font-size: ${fontSizeRow}; text-align: center; border: 1px solid #cbd5e1; color: #475569;">
+                -
+              </td>
+            ` : ''}
+          </tr>
+          ${sousLignesHTML}
+        `;
+      }
+
+      const moyGen = calculerMoyenne(allNotesEleve);
+      const histoStr = calculerHistorique(eleveNom);
+
+      return `
+        <div class="bulletin-page" id="bulletin-${eleveNom.replace(/\s+/g, '-')}">
+          <div>
+            <!-- En-tête Institutionnel Moderne -->
+            <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 32px; height: 32px; background: #0f172a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: 900; font-size: 10pt;">
+                  JDVR
+                </div>
+                <div>
+                  <div style="font-size: 10.5pt; font-weight: 700; color: #0f172a; font-family: 'Libre Baskerville', serif;">École élémentaire Jean des Vignes Rouges</div>
+                  <div style="font-size: 7.5pt; color: #64748b;">21200 Bligny-lès-Beaune &bull; Académie de Dijon</div>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 10pt; font-weight: 800; color: #0f172a; letter-spacing: 0.5px;">BULLETIN SCOLAIRE</div>
+                <div style="font-size: 7.5pt; color: #334155;">Année 2026/2027 &bull; <b>Période ${periodeActive}</b></div>
+              </div>
+            </div>
+
+            <!-- Carte Élève -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; border: 1px solid #cbd5e1; border-radius: 4px;">
+              <tr style="background-color: #f8fafc;">
+                <td style="padding: 4px 8px; width: 65%; border-right: 1px solid #cbd5e1;">
+                  <span style="font-size: 6.8pt; text-transform: uppercase; color: #64748b; font-weight: 700;">Élève</span>
+                  <div style="font-size: 10pt; font-weight: 800; color: #0f172a;">${eleveNom}</div>
+                </td>
+                <td style="padding: 4px 8px;">
+                  <span style="font-size: 6.8pt; text-transform: uppercase; color: #64748b; font-weight: 700;">Classe</span>
+                  <div style="font-size: 10pt; font-weight: 800; color: #0f172a;">CM2 &bull; 17 élèves</div>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Tableau d'évaluations -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px;">
+              <thead>
+                <tr style="background-color: #e2e8f0; border: 1px solid #cbd5e1;">
+                  <th style="padding: 3.5px 6px; text-align: left; font-size: 7.2pt; text-transform: uppercase; letter-spacing: 0.4px; color: #0f172a;">
+                    Domaines d'enseignement & Évaluations
+                  </th>
+                  <th style="padding: 3.5px 6px; text-align: center; font-size: 7.2pt; text-transform: uppercase; letter-spacing: 0.4px; width: 75px; color: #0f172a;">
+                    Note / 20
+                  </th>
+                  ${optionsBulletin.moyClasse ? `
+                    <th style="padding: 3.5px 6px; text-align: center; font-size: 7.2pt; text-transform: uppercase; letter-spacing: 0.4px; width: 65px; color: #475569;">
+                      Moy. Classe
+                    </th>
+                  ` : ''}
+                </tr>
+              </thead>
+              <tbody>
+                ${corpsTableauHTML || `<tr><td colspan="${optionsBulletin.moyClasse ? 3 : 2}" style="padding: 14px; text-align: center; color: #94a3b8; font-style: italic; border: 1px solid #cbd5e1;">Aucune évaluation enregistrée pour cette période.</td></tr>`}
+                
+                <tr style="background-color: #e2e8f0; border-top: 2px solid #0f172a; font-weight: 800;">
+                  <td style="padding: 4px 6px; font-size: 8pt; text-align: right; text-transform: uppercase; letter-spacing: 0.5px; color: #0f172a; border: 1px solid #cbd5e1;">
+                    Moyenne générale de la période :
+                  </td>
+                  <td style="padding: 4px 6px; font-size: 8.5pt; text-align: center; color: #0f172a; border: 1px solid #cbd5e1;">
+                    ${moyGen} / 20
+                  </td>
+                  ${optionsBulletin.moyClasse ? `<td style="padding: 4px 6px; border: 1px solid #cbd5e1;"></td>` : ''}
+                </tr>
+              </tbody>
+            </table>
+
+            ${optionsBulletin.histo ? `
+              <div style="font-size: 6.8pt; color: #64748b; text-align: right; margin-bottom: 4px;">
+                Historique des périodes précédentes : <span>${histoStr}</span>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Pied de page & Signatures -->
+          <div>
+            <div style="font-size: 7.2pt; color: #475569; margin-bottom: 4px;">
+              Fait à Bligny-lès-Beaune, le ${dateStr}
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="width: 48%; vertical-align: top; border: 1px solid #cbd5e1; padding: 4px 6px; height: ${sigHeight}; border-radius: 4px;">
+                  <div style="font-size: 7pt; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.4px;">
+                    Signature des parents :
+                  </div>
+                </td>
+                <td style="width: 4%;"></td>
+                <td style="width: 48%; vertical-align: top; border: 1.5px solid #0f172a; background-color: #ffffff; padding: 4px 6px; height: ${sigHeight}; position: relative; border-radius: 4px;">
+                  <div style="font-size: 7pt; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.4px;">
+                    La Directrice d'école :
+                  </div>
+                  
+                  <div style="position: absolute; top: 6px; right: 10px; bottom: 14px; left: 20px; display: flex; align-items: center; justify-content: flex-end;">
+                    ${signatureDirectriceBase64 ? `
+                      <img src="${signatureDirectriceBase64}" alt="Signature" style="max-height: 40px; max-width: 120px; object-fit: contain;">
+                    ` : ''}
+                  </div>
+
+                  <div style="position: absolute; bottom: 2px; right: 6px; font-size: 7.2pt; font-weight: 700; color: #0f172a;">
+                    Mme Estelle CHIRAT
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // Télécharger le PDF de l'élève actuellement visualisé
+    function telechargerBulletinEleveActifPDF() {
+      const el = document.querySelector("#zoneApercuInteractif .bulletin-page");
+      if (!el) return;
+
+      const opt = {
+        margin: 0,
+        filename: `bulletin_${eleveStudioActif.replace(/\s+/g, '_')}_P${periodeActive}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(el).save();
+    }
+
+    // Télécharger les 17 bulletins d'un coup
+    function telechargerTousLesBulletinsPDF() {
+      const btn = document.getElementById("btnTelechargerPDF");
+      const txt = document.getElementById("txtBtnTelecharger");
+
+      txt.textContent = "Création du livret...";
+      btn.disabled = true;
+
+      const exportZone = document.createElement("div");
+      exportZone.style.width = "210mm";
+      exportZone.style.margin = "0";
+      exportZone.style.padding = "0";
+      exportZone.style.background = "#ffffff";
+
+      ELEVES_CM2.forEach((eleve) => {
+        const pageWrapper = document.createElement("div");
+        pageWrapper.innerHTML = construireHTMLBulletinUnique(eleve);
+        const p = pageWrapper.firstElementChild;
+        p.style.margin = "0";
+        p.style.boxShadow = "none";
+        p.style.borderRadius = "0";
+        p.style.pageBreakAfter = "always";
+        p.style.breakAfter = "page";
+        exportZone.appendChild(p);
+      });
+
+      document.body.appendChild(exportZone);
+
+      const opt = {
+        margin: 0,
+        filename: `bulletins_CM2_periode_${periodeActive}_complet.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(exportZone).save().then(() => {
+        document.body.removeChild(exportZone);
+        txt.textContent = "Télécharger tout (17 PDF)";
+        btn.disabled = false;
+      }).catch(err => {
+        console.error(err);
+        if (exportZone.parentNode) document.body.removeChild(exportZone);
+        alert("Erreur lors de la génération. Utilisez le bouton 'Imprimer'.");
+        txt.textContent = "Télécharger tout (17 PDF)";
+        btn.disabled = false;
+      });
+    }
+
+    function lancerImpressionNavigateur() {
+      // Pour imprimer le livret complet
+      const cache = document.getElementById("exportCacheGlobal");
+      cache.innerHTML = "";
+      
+      ELEVES_CM2.forEach(eleve => {
+        const w = document.createElement("div");
+        w.innerHTML = construireHTMLBulletinUnique(eleve);
+        const p = w.firstElementChild;
+        p.style.margin = "0";
+        p.style.boxShadow = "none";
+        p.style.borderRadius = "0";
+        cache.appendChild(p);
+      });
+
+      cache.classList.remove("hidden");
+      document.getElementById("zoneApercuInteractif").classList.add("hidden");
+
+      setTimeout(() => {
+        window.print();
+        cache.classList.add("hidden");
+        cache.innerHTML = "";
+        document.getElementById("zoneApercuInteractif").classList.remove("hidden");
+      }, 350);
+    }
+
+    function calculerHistorique(eleve) {
+      const histo = [];
+      const numPeriode = parseInt(periodeActive);
+
+      for (let p = 1; p < numPeriode; p++) {
+        const dataP = baseDonnees[String(p)];
+        if (!dataP || !dataP.evals || dataP.evals.length === 0) continue;
+        const notesP = [];
+        dataP.evals.forEach(ev => {
+          const val = (dataP.notes[ev.id] || {})[eleve];
+          if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) notesP.push(parseFloat(val));
+        });
+        if (notesP.length > 0) histo.push(`P${p} : <b>${calculerMoyenne(notesP)}/20</b>`);
+      }
+
+      if (histo.length === 0) return numPeriode === 1 ? "Première période de l'année scolaire" : "Aucune note antérieure";
+      return histo.join("&nbsp;&nbsp;&bull;&nbsp;&nbsp;");
+    }
+
+    // =========================================================================
+    // STATISTIQUES & GRAPHIQUE
+    // =========================================================================
 
     function calculerEtAfficherStats() {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
@@ -1201,271 +1658,6 @@
           grilleEvals.appendChild(d);
         });
       }
-    }
-
-    function calculerHistorique(eleve) {
-      const histo = [];
-      const numPeriode = parseInt(periodeActive);
-
-      for (let p = 1; p < numPeriode; p++) {
-        const dataP = baseDonnees[String(p)];
-        if (!dataP || !dataP.evals || dataP.evals.length === 0) continue;
-        const notesP = [];
-        dataP.evals.forEach(ev => {
-          const val = (dataP.notes[ev.id] || {})[eleve];
-          if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) notesP.push(parseFloat(val));
-        });
-        if (notesP.length > 0) histo.push(`Période ${p} : <b>${calculerMoyenne(notesP)}/20</b>`);
-      }
-
-      if (histo.length === 0) return numPeriode === 1 ? "Première période de l'année scolaire" : "Aucune note antérieure";
-      return histo.join("&nbsp;&nbsp;&bull;&nbsp;&nbsp;");
-    }
-
-    function telechargerTousLesBulletinsPDF() {
-      basculerVue('apercu');
-      const conteneur = document.getElementById("apercuBulletins");
-      const btn = document.getElementById("btnTelechargerPDF");
-      const txt = document.getElementById("txtBtnTelecharger");
-
-      txt.textContent = "Génération du PDF...";
-      btn.disabled = true;
-
-      const exportZone = document.createElement("div");
-      exportZone.style.width = "210mm";
-      exportZone.style.margin = "0";
-      exportZone.style.padding = "0";
-      exportZone.style.background = "#ffffff";
-
-      const pages = conteneur.querySelectorAll('.bulletin-page');
-      pages.forEach(p => {
-        const clone = p.cloneNode(true);
-        clone.style.margin = "0";
-        clone.style.boxShadow = "none";
-        clone.style.borderRadius = "0";
-        clone.style.pageBreakAfter = "always";
-        clone.style.breakAfter = "page";
-        exportZone.appendChild(clone);
-      });
-
-      document.body.appendChild(exportZone);
-
-      const opt = {
-        margin: 0,
-        filename: `bulletins_CM2_periode_${periodeActive}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(exportZone).save().then(() => {
-        document.body.removeChild(exportZone);
-        txt.textContent = "Télécharger tout en PDF";
-        btn.disabled = false;
-      }).catch(err => {
-        console.error("Erreur PDF:", err);
-        if (exportZone.parentNode) document.body.removeChild(exportZone);
-        alert("Erreur lors de la génération. Utilisez le bouton 'Imprimer' pour enregistrer en PDF via le navigateur.");
-        txt.textContent = "Télécharger tout en PDF";
-        btn.disabled = false;
-      });
-    }
-
-    function lancerImpressionNavigateur() {
-      basculerVue('apercu');
-      setTimeout(() => {
-        window.print();
-      }, 350);
-    }
-
-    function genererApercu() {
-      const conteneur = document.getElementById("apercuBulletins");
-      conteneur.innerHTML = "";
-
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const dateStr = new Date().toLocaleDateString("fr-FR");
-      const nbEvalsTotal = current.evals.length;
-
-      let cellPad = "3px 6px";
-      let fontSize = "8.5pt";
-      let headerPad = "3.5px 6px";
-      let signatureHeight = "70px";
-
-      if (nbEvalsTotal > 6) {
-        cellPad = "2px 5px";
-        fontSize = "8pt";
-        headerPad = "3px 5px";
-        signatureHeight = "64px";
-      }
-      if (nbEvalsTotal > 10) {
-        cellPad = "1px 4px";
-        fontSize = "7.5pt";
-        headerPad = "2px 4px";
-        signatureHeight = "56px";
-      }
-
-      ELEVES_CM2.forEach((eleveNom, idx) => {
-        const matieresMap = {};
-        const allNotesEleve = [];
-
-        current.evals.forEach(ev => {
-          const val = (current.notes[ev.id] || {})[eleveNom] || "";
-          const thKey = ev.theme || "";
-          if (!matieresMap[ev.matiere]) matieresMap[ev.matiere] = {};
-          if (!matieresMap[ev.matiere][thKey]) matieresMap[ev.matiere][thKey] = [];
-
-          matieresMap[ev.matiere][thKey].push({ titre: ev.titre, note: val });
-          if (val !== "" && !isNaN(parseFloat(val))) allNotesEleve.push(parseFloat(val));
-        });
-
-        let corpsTableauHTML = "";
-        for (const [matiere, themes] of Object.entries(matieresMap)) {
-          let notesMatiere = [];
-          let sousLignesHTML = "";
-
-          for (const [theme, devoirs] of Object.entries(themes)) {
-            if (theme && theme.trim() !== "") {
-              sousLignesHTML += `
-                <tr style="background-color: #fafafa;">
-                  <td colspan="2" style="padding: 1px 4px; font-size: 7pt; font-style: italic; color: #4b5563; border: 1px solid #d1d5db; line-height: 1.1;">
-                    ${theme}
-                  </td>
-                </tr>
-              `;
-            }
-
-            devoirs.forEach(dev => {
-              const numVal = dev.note !== "" && !isNaN(parseFloat(dev.note)) ? parseFloat(dev.note) : null;
-              if (numVal !== null) notesMatiere.push(numVal);
-
-              const estStatutTexte = ["NE", "NN", "ABS", "DISP"].includes(dev.note);
-              const affichageNote = dev.note !== "" ? (estStatutTexte ? `<span style="color:#6b7280; font-size:7pt; font-weight:700;">${dev.note}</span>` : `${dev.note}`) : "-";
-
-              sousLignesHTML += `
-                <tr>
-                  <td style="padding: ${cellPad}; font-size: ${fontSize}; color: #111827; border: 1px solid #d1d5db; line-height: 1.15;">
-                    ${dev.titre}
-                  </td>
-                  <td style="padding: ${cellPad}; font-size: ${fontSize}; font-weight: 600; text-align: center; border: 1px solid #d1d5db; width: 65px;">
-                    ${affichageNote}
-                  </td>
-                </tr>
-              `;
-            });
-          }
-
-          const moyMatiere = calculerMoyenne(notesMatiere);
-
-          corpsTableauHTML += `
-            <tr style="background-color: #f3f4f6; font-weight: 700;">
-              <td style="padding: ${headerPad}; font-size: ${fontSize}; color: #111827; border: 1px solid #9ca3af; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.15;">
-                ${matiere}
-              </td>
-              <td style="padding: ${headerPad}; font-size: ${fontSize}; text-align: center; border: 1px solid #9ca3af; color: #111827;">
-                ${moyMatiere !== '-' ? moyMatiere : '-'}
-              </td>
-            </tr>
-            ${sousLignesHTML}
-          `;
-        }
-
-        const moyGen = calculerMoyenne(allNotesEleve);
-        const histoStr = calculerHistorique(eleveNom);
-
-        const page = document.createElement("div");
-        page.className = "bulletin-page";
-        page.id = `bulletin-page-${idx}`;
-        page.innerHTML = `
-          <div>
-            <div style="border-bottom: 1.5px solid #111827; padding-bottom: 3px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: flex-end;">
-              <div>
-                <div style="font-size: 10.5pt; font-weight: 700; color: #111827; font-family: 'Libre Baskerville', serif;">École élémentaire Jean des Vignes Rouges</div>
-                <div style="font-size: 7.5pt; color: #4b5563;">21200 Bligny-lès-Beaune</div>
-              </div>
-              <div style="text-align: right;">
-                <div style="font-size: 9.5pt; font-weight: 700; color: #111827;">BULLETIN SCOLAIRE</div>
-                <div style="font-size: 7.5pt; color: #374151;">Année scolaire 2026/2027 &bull; <b>Période ${periodeActive}</b></div>
-              </div>
-            </div>
-
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: 1px solid #111827;">
-              <tr>
-                <td style="padding: 3px 6px; background-color: #f9fafb; width: 65%; border-right: 1px solid #111827;">
-                  <span style="font-size: 7pt; text-transform: uppercase; color: #4b5563;">Élève :</span>
-                  <div style="font-size: 9.5pt; font-weight: 700; color: #111827;">${eleveNom}</div>
-                </td>
-                <td style="padding: 3px 6px; background-color: #f9fafb;">
-                  <span style="font-size: 7pt; text-transform: uppercase; color: #4b5563;">Niveau / Classe :</span>
-                  <div style="font-size: 9.5pt; font-weight: 700; color: #111827;">CM2</div>
-                </td>
-              </tr>
-            </table>
-
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 4px;">
-              <thead>
-                <tr style="background-color: #e5e7eb; border: 1px solid #9ca3af;">
-                  <th style="padding: 3px 5px; text-align: left; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.5px; color: #111827;">
-                    Domaines d'enseignement & Évaluations
-                  </th>
-                  <th style="padding: 3px 5px; text-align: center; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.5px; width: 65px; color: #111827;">
-                    Note / 20
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                ${corpsTableauHTML || '<tr><td colspan="2" style="padding: 12px; text-align: center; color: #6b7280; font-style: italic; border: 1px solid #d1d5db;">Aucune évaluation enregistrée pour cette période.</td></tr>'}
-                
-                <tr style="background-color: #e5e7eb; border-top: 1.5px solid #111827; font-weight: 700;">
-                  <td style="padding: 3px 5px; font-size: 8pt; text-align: right; text-transform: uppercase; letter-spacing: 0.5px; color: #111827; border: 1px solid #9ca3af;">
-                    Moyenne générale de la période :
-                  </td>
-                  <td style="padding: 3px 5px; font-size: 8.5pt; text-align: center; color: #111827; border: 1px solid #9ca3af;">
-                    ${moyGen} / 20
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div style="font-size: 7pt; color: #4b5563; text-align: right; margin-bottom: 3px;">
-              Historique des périodes précédentes : <span>${histoStr}</span>
-            </div>
-          </div>
-
-          <div>
-            <div style="font-size: 7.5pt; color: #374151; margin-bottom: 4px;">
-              Fait à Bligny-lès-Beaune, le ${dateStr}
-            </div>
-
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="width: 48%; vertical-align: top; border: 1px solid #9ca3af; padding: 4px 6px; height: ${signatureHeight};">
-                  <div style="font-size: 7.5pt; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">
-                    Signature des parents :
-                  </div>
-                </td>
-                <td style="width: 4%;"></td>
-                <td style="width: 48%; vertical-align: top; border: 1px solid #111827; background-color: #ffffff; padding: 4px 6px; height: ${signatureHeight}; position: relative;">
-                  <div style="font-size: 7.5pt; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">
-                    La Directrice d'école :
-                  </div>
-                  
-                  <div style="position: absolute; top: 8px; right: 10px; bottom: 14px; left: 20px; display: flex; align-items: center; justify-content: flex-end;">
-                    ${signatureDirectriceBase64 ? `
-                      <img src="${signatureDirectriceBase64}" alt="Signature" style="max-height: 40px; max-width: 115px; object-fit: contain;">
-                    ` : ''}
-                  </div>
-
-                  <div style="position: absolute; bottom: 3px; right: 6px; font-size: 7.5pt; font-weight: 600; color: #1f2937;">
-                    Mme Estelle CHIRAT
-                  </div>
-                </td>
-              </tr>
-            </table>
-          </div>
-        `;
-
-        conteneur.appendChild(page);
-      });
     }
   </script>
 </body>
