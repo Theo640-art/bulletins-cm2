@@ -33,7 +33,6 @@
       background-attachment: fixed;
     }
 
-    /* Effet Liquid Glass 2026 */
     .ios-glass {
       background: rgba(255, 255, 255, 0.82);
       backdrop-filter: blur(35px) saturate(190%);
@@ -55,6 +54,14 @@
         0 8px 24px rgba(15, 23, 42, 0.035),
         inset 0 1px 1px rgba(255, 255, 255, 0.9);
       transition: all 0.3s var(--spring);
+    }
+
+    .ios-card:hover {
+      transform: translateY(-2.5px);
+      box-shadow: 
+        0 4px 10px rgba(0, 0, 0, 0.03),
+        0 16px 36px rgba(15, 23, 42, 0.07),
+        inset 0 1px 1px rgba(255, 255, 255, 1);
     }
 
     .ios-btn {
@@ -79,21 +86,21 @@
     }
     .shake { animation: appleShake 0.4s var(--spring) both; }
 
-    /* Page format A4 strict : une page garantie sans débordement */
+    /* Page format A4 sobre et officiel : 1 page stricte */
     .bulletin-page {
       width: 210mm;
       height: 296mm;
       max-height: 296mm;
-      padding: 10mm 12mm;
+      padding: 12mm 14mm;
       margin: 0 auto 30px auto;
       background: #ffffff;
       box-sizing: border-box;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.09);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      border-radius: 4px;
+      border-radius: 2px;
       overflow: hidden !important;
       page-break-inside: avoid !important;
       break-inside: avoid !important;
@@ -120,7 +127,7 @@
         max-height: 296mm !important;
         page-break-after: always !important;
         break-after: page !important;
-        padding: 9mm 11mm !important;
+        padding: 11mm 13mm !important;
         overflow: hidden !important;
       }
       @page {
@@ -167,43 +174,35 @@
   <!-- ================= APPLICATION PRINCIPALE ================= -->
   <div id="mainApp" class="hidden min-h-screen flex flex-col">
 
-    <!-- En-tête Translucide Apple 2026 -->
     <header class="ios-glass sticky top-0 z-30 no-print border-b border-black/5">
       <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
         
-        <!-- Identité École -->
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-slate-900 to-slate-700 flex items-center justify-center text-white text-[11px] font-black shadow-xs">
-            JDVR
-          </div>
+        <div class="flex items-center gap-2.5">
           <div>
             <div class="flex items-center gap-2">
-              <h1 class="text-xs sm:text-sm font-bold tracking-tight text-slate-900">Jean des Vignes Rouges</h1>
+              <h1 class="text-xs sm:text-sm font-bold tracking-tight text-slate-900">École Jean des Vignes Rouges</h1>
               <span class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-700 rounded-full border border-emerald-500/20">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>En direct</span>
               </span>
             </div>
-            <p class="text-[11px] text-slate-400 font-medium">CM2 &bull; 2026/2027 &bull; 17 élèves</p>
+            <p class="text-[11px] text-slate-400 font-medium">CM2 &bull; Année scolaire 2026/2027</p>
           </div>
         </div>
 
-        <!-- Onglets segmentés flottants -->
         <div class="flex items-center bg-black/[0.04] p-1 rounded-2xl text-xs font-semibold border border-black/5">
           <button id="btnTabGrille" onclick="basculerVue('grille')" class="ios-btn px-3 sm:px-4 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs">
             Évaluations
           </button>
           <button id="btnTabApercu" onclick="basculerVue('apercu')" class="ios-btn px-3 sm:px-4 py-1.5 rounded-xl text-slate-500 hover:text-slate-900">
-            Studio Bulletins
+            Bulletins A4
           </button>
           <button id="btnTabStats" onclick="basculerVue('stats')" class="ios-btn px-3 sm:px-4 py-1.5 rounded-xl text-slate-500 hover:text-slate-900">
             Statistiques
           </button>
         </div>
 
-        <!-- Outils & Sélecteur de Période -->
         <div class="flex items-center gap-2 relative">
-          
           <div class="flex items-center bg-black/[0.04] hover:bg-black/[0.07] transition rounded-xl px-2.5 py-1.5 text-xs border border-black/5">
             <span class="text-slate-400 font-semibold mr-1">Période</span>
             <select id="selectPeriode" onchange="changerPeriode(this.value)" class="bg-transparent font-bold text-slate-900 outline-none cursor-pointer">
@@ -249,7 +248,6 @@
               Vider la Période <span id="lblResetPeriode">1</span>
             </button>
           </div>
-
         </div>
 
       </div>
@@ -270,29 +268,24 @@
         <div id="listeEvalsCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
       </section>
 
-      <!-- ================= VUE 2 : STUDIO BULLETINS A4 (2026) ================= -->
+      <!-- ================= VUE 2 : BULLETINS A4 AVEC OPTIONS ================= -->
       <section id="tabApercu" class="hidden space-y-4">
         
-        <!-- Barre d'options supérieure du Studio -->
+        <!-- Barre supérieure avec options à cocher -->
         <div id="studioTopActions" class="no-print ios-card p-3.5 sm:p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3">
           
-          <!-- Toggles d'options d'affichage sur la feuille -->
-          <div class="flex flex-wrap items-center gap-2 text-xs">
-            <span class="text-slate-400 font-semibold mr-1">Options du bulletin :</span>
+          <!-- Options d'affichage sobres -->
+          <div class="flex flex-wrap items-center gap-2.5 text-xs">
+            <span class="text-slate-400 font-semibold mr-1">Affichage du bulletin :</span>
 
             <button id="toggleOptMoyClasse" onclick="inverserOptionBulletin('moyClasse')" class="ios-btn px-3 py-1.5 rounded-xl border border-black/10 bg-white font-medium text-slate-700 shadow-xs flex items-center gap-1.5">
-              <span id="dotOptMoyClasse" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>Moyenne classe</span>
-            </button>
-
-            <button id="toggleOptJauges" onclick="inverserOptionBulletin('jauges')" class="ios-btn px-3 py-1.5 rounded-xl border border-black/10 bg-white font-medium text-slate-700 shadow-xs flex items-center gap-1.5">
-              <span id="dotOptJauges" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>Micro-jauges</span>
+              <span id="dotOptMoyClasse" class="w-2 h-2 rounded-full bg-slate-300"></span>
+              <span>Moyenne de classe</span>
             </button>
 
             <button id="toggleOptHisto" onclick="inverserOptionBulletin('histo')" class="ios-btn px-3 py-1.5 rounded-xl border border-black/10 bg-white font-medium text-slate-700 shadow-xs flex items-center gap-1.5">
               <span id="dotOptHisto" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>Historique</span>
+              <span>Historique P1-P5</span>
             </button>
           </div>
 
@@ -311,10 +304,9 @@
 
         </div>
 
-        <!-- Espace Studio : Volet Latéral + Prévisualisation A4 -->
+        <!-- Volet Latéral + Prévisualisation sobre -->
         <div class="flex flex-col lg:flex-row gap-5 items-start">
           
-          <!-- Volet latéral de sélection des 17 élèves -->
           <div id="studioSidebar" class="no-print w-full lg:w-72 ios-card p-3 rounded-[24px] flex flex-col shrink-0">
             <div class="px-2 pt-1 pb-2">
               <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Élèves (17)</div>
@@ -325,14 +317,12 @@
             <div id="listeElevesSidebar" class="space-y-1 mt-1 max-h-[72vh] overflow-y-auto pr-1"></div>
           </div>
 
-          <!-- Zone centrale de visualisation du bulletin -->
           <div class="flex-1 w-full flex flex-col items-center overflow-x-auto bg-slate-200/60 p-4 sm:p-8 rounded-[30px] border border-black/5">
             <div id="zoneApercuInteractif" class="w-full flex justify-center"></div>
           </div>
 
         </div>
 
-        <!-- Conteneur masqué utilisé pour l'export groupé des 17 pages -->
         <div id="exportCacheGlobal" class="hidden"></div>
 
       </section>
@@ -438,7 +428,7 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1.5">Titre de l'évaluation</label>
-          <input type="text" id="modalCreateTitre" placeholder="Ex: Bilan calcul, Dictée n°2..." 
+          <input type="text" id="modalCreateTitre" placeholder="Ex: Bilan numération, Dictée n°2..." 
                  class="w-full bg-white/90 border border-black/10 rounded-xl p-2.5 text-xs font-medium outline-none focus:border-[#0071e3] transition shadow-xs">
         </div>
       </div>
@@ -531,10 +521,9 @@
     let signatureDirectriceBase64 = null;
     let evalEnCoursId = null;
 
-    // Options du Studio
+    // Options du Bulletin A4 (Moyenne de classe masquée par défaut, Historique affiché)
     let optionsBulletin = {
-      moyClasse: true,
-      jauges: true,
+      moyClasse: false,
       histo: true
     };
 
@@ -701,7 +690,6 @@
       }, { merge: true });
     }
 
-    // Gestion des cartes d'évaluations
     function rafraichirCartesEvals() {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
       const conteneur = document.getElementById("listeEvalsCards");
@@ -1021,7 +1009,7 @@
     }
 
     // =========================================================================
-    // STUDIO BULLETINS 2026 : GESTION INTERACTIVE ET PERSONNALISATION
+    // OPTIONS & RENDU BULLETINS
     // =========================================================================
 
     function inverserOptionBulletin(optKey) {
@@ -1092,16 +1080,12 @@
       genererSidebarEleves();
     }
 
-    // Génère le bulletin de l'élève actuellement sélectionné dans le visualiseur
     function genererBulletinApercuInteractif() {
       const conteneur = document.getElementById("zoneApercuInteractif");
       conteneur.innerHTML = "";
-      
-      const pageHTML = construireHTMLBulletinUnique(eleveStudioActif);
-      conteneur.innerHTML = pageHTML;
+      conteneur.innerHTML = construireHTMLBulletinSobre(eleveStudioActif);
     }
 
-    // Calculateur de la moyenne collective de classe par évaluation
     function getMoyennesClasseParEval() {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
       const mapMoy = {};
@@ -1113,8 +1097,7 @@
       return mapMoy;
     }
 
-    // Moteur de rendu A4 d'un bulletin unique
-    function construireHTMLBulletinUnique(eleveNom) {
+    function construireHTMLBulletinSobre(eleveNom) {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
       const dateStr = new Date().toLocaleDateString("fr-FR");
       const moyClasseMap = getMoyennesClasseParEval();
@@ -1129,7 +1112,6 @@
         if (!matieresMap[ev.matiere][thKey]) matieresMap[ev.matiere][thKey] = [];
 
         matieresMap[ev.matiere][thKey].push({ 
-          id: ev.id,
           titre: ev.titre, 
           note: val, 
           moyClasse: moyClasseMap[ev.id] || "-" 
@@ -1137,25 +1119,24 @@
         if (val !== "" && !isNaN(parseFloat(val))) allNotesEleve.push(parseFloat(val));
       });
 
-      const nbEvals = current.evals ? current.evals.length : 0;
+      const nbEvalsTotal = current.evals ? current.evals.length : 0;
       
-      // Adaptation dynamique des interlignes pour garantir 1 seule page A4
-      let paddingRow = "3px 6px";
-      let fontSizeRow = "8pt";
-      let headerPadding = "4px 6px";
-      let sigHeight = "64px";
+      let cellPad = "3.5px 6px";
+      let fontSize = "8.5pt";
+      let headerPad = "4px 6px";
+      let sigHeight = "68px";
 
-      if (nbEvals > 8) {
-        paddingRow = "2px 5px";
-        fontSizeRow = "7.5pt";
-        headerPadding = "3px 5px";
-        sigHeight = "58px";
+      if (nbEvalsTotal > 8) {
+        cellPad = "2px 5px";
+        fontSize = "8pt";
+        headerPad = "3px 5px";
+        sigHeight = "60px";
       }
-      if (nbEvals > 13) {
-        paddingRow = "1.5px 4px";
-        fontSizeRow = "7pt";
-        headerPadding = "2px 4px";
-        sigHeight = "52px";
+      if (nbEvalsTotal > 12) {
+        cellPad = "1.5px 4px";
+        fontSize = "7.5pt";
+        headerPad = "2px 4px";
+        sigHeight = "54px";
       }
 
       let corpsTableauHTML = "";
@@ -1167,8 +1148,8 @@
         for (const [theme, devoirs] of Object.entries(themes)) {
           if (theme && theme.trim() !== "") {
             sousLignesHTML += `
-              <tr style="background-color: #fafbfc;">
-                <td colspan="${optionsBulletin.moyClasse ? 3 : 2}" style="padding: 1px 5px; font-size: 6.8pt; font-style: italic; color: #64748b; border: 1px solid #e2e8f0; line-height: 1.1;">
+              <tr style="background-color: #fafafa;">
+                <td colspan="${optionsBulletin.moyClasse ? 3 : 2}" style="padding: 1.5px 5px; font-size: 7.2pt; font-style: italic; color: #475569; border: 1px solid #cbd5e1; line-height: 1.15;">
                   ${theme}
                 </td>
               </tr>
@@ -1184,30 +1165,16 @@
               ? (estStatutTexte ? `<span style="color:#64748b; font-weight:700;">${dev.note}</span>` : `${dev.note}`) 
               : "-";
 
-            // Micro-jauge graphique
-            let jaugeHTML = "";
-            if (optionsBulletin.jauges && numVal !== null) {
-              const pct = Math.min(Math.max((numVal / 20) * 100, 0), 100);
-              let clr = "#0071e3";
-              if (numVal >= 16) clr = "#10b981";
-              else if (numVal < 10) clr = "#f59e0b";
-              jaugeHTML = `
-                <div style="width: 32px; height: 3.5px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-left: 6px; display: inline-block; vertical-align: middle;">
-                  <div style="width: ${pct}%; height: 100%; background: ${clr}; border-radius: 2px;"></div>
-                </div>
-              `;
-            }
-
             sousLignesHTML += `
               <tr>
-                <td style="padding: ${paddingRow}; font-size: ${fontSizeRow}; color: #1e293b; border: 1px solid #e2e8f0; line-height: 1.15;">
+                <td style="padding: ${cellPad}; font-size: ${fontSize}; color: #0f172a; border: 1px solid #cbd5e1; line-height: 1.2;">
                   ${dev.titre}
                 </td>
-                <td style="padding: ${paddingRow}; font-size: ${fontSizeRow}; font-weight: 700; text-align: center; border: 1px solid #e2e8f0; width: 75px; white-space: nowrap;">
-                  ${affichageNote} ${jaugeHTML}
+                <td style="padding: ${cellPad}; font-size: ${fontSize}; font-weight: 700; text-align: center; border: 1px solid #cbd5e1; width: 70px;">
+                  ${affichageNote}
                 </td>
                 ${optionsBulletin.moyClasse ? `
-                  <td style="padding: ${paddingRow}; font-size: ${fontSizeRow}; color: #64748b; text-align: center; border: 1px solid #e2e8f0; width: 65px;">
+                  <td style="padding: ${cellPad}; font-size: ${fontSize}; color: #64748b; text-align: center; border: 1px solid #cbd5e1; width: 65px;">
                     ${dev.moyClasse !== '-' ? dev.moyClasse : '-'}
                   </td>
                 ` : ''}
@@ -1220,14 +1187,14 @@
 
         corpsTableauHTML += `
           <tr style="background-color: #f1f5f9; font-weight: 700;">
-            <td style="padding: ${headerPadding}; font-size: ${fontSizeRow}; color: #0f172a; border: 1px solid #cbd5e1; text-transform: uppercase; letter-spacing: 0.4px;">
+            <td style="padding: ${headerPad}; font-size: ${fontSize}; color: #0f172a; border: 1px solid #94a3b8; text-transform: uppercase; letter-spacing: 0.3px;">
               ${matiere}
             </td>
-            <td style="padding: ${headerPadding}; font-size: ${fontSizeRow}; text-align: center; border: 1px solid #cbd5e1; color: #0f172a;">
+            <td style="padding: ${headerPad}; font-size: ${fontSize}; text-align: center; border: 1px solid #94a3b8; color: #0f172a;">
               ${moyMat !== '-' ? moyMat : '-'}
             </td>
             ${optionsBulletin.moyClasse ? `
-              <td style="padding: ${headerPadding}; font-size: ${fontSizeRow}; text-align: center; border: 1px solid #cbd5e1; color: #475569;">
+              <td style="padding: ${headerPad}; font-size: ${fontSize}; text-align: center; border: 1px solid #94a3b8; color: #475569;">
                 -
               </td>
             ` : ''}
@@ -1242,49 +1209,41 @@
       return `
         <div class="bulletin-page" id="bulletin-${eleveNom.replace(/\s+/g, '-')}">
           <div>
-            <!-- En-tête Institutionnel Moderne -->
-            <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 32px; height: 32px; background: #0f172a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: 900; font-size: 10pt;">
-                  JDVR
-                </div>
-                <div>
-                  <div style="font-size: 10.5pt; font-weight: 700; color: #0f172a; font-family: 'Libre Baskerville', serif;">École élémentaire Jean des Vignes Rouges</div>
-                  <div style="font-size: 7.5pt; color: #64748b;">21200 Bligny-lès-Beaune &bull; Académie de Dijon</div>
-                </div>
+            <div style="border-bottom: 2px solid #0f172a; padding-bottom: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end;">
+              <div>
+                <div style="font-size: 11pt; font-weight: 700; color: #0f172a; font-family: 'Libre Baskerville', serif;">École élémentaire Jean des Vignes Rouges</div>
+                <div style="font-size: 8pt; color: #475569;">21200 Bligny-lès-Beaune</div>
               </div>
               <div style="text-align: right;">
-                <div style="font-size: 10pt; font-weight: 800; color: #0f172a; letter-spacing: 0.5px;">BULLETIN SCOLAIRE</div>
-                <div style="font-size: 7.5pt; color: #334155;">Année 2026/2027 &bull; <b>Période ${periodeActive}</b></div>
+                <div style="font-size: 10pt; font-weight: 800; color: #0f172a;">BULLETIN SCOLAIRE</div>
+                <div style="font-size: 8pt; color: #334155;">Année scolaire 2026/2027 &bull; <b>Période ${periodeActive}</b></div>
               </div>
             </div>
 
-            <!-- Carte Élève -->
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; border: 1px solid #cbd5e1; border-radius: 4px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; border: 1px solid #0f172a;">
               <tr style="background-color: #f8fafc;">
-                <td style="padding: 4px 8px; width: 65%; border-right: 1px solid #cbd5e1;">
-                  <span style="font-size: 6.8pt; text-transform: uppercase; color: #64748b; font-weight: 700;">Élève</span>
-                  <div style="font-size: 10pt; font-weight: 800; color: #0f172a;">${eleveNom}</div>
+                <td style="padding: 4px 8px; width: 65%; border-right: 1px solid #0f172a;">
+                  <span style="font-size: 7pt; text-transform: uppercase; color: #64748b; font-weight: 700;">Élève :</span>
+                  <div style="font-size: 10.5pt; font-weight: 800; color: #0f172a;">${eleveNom}</div>
                 </td>
                 <td style="padding: 4px 8px;">
-                  <span style="font-size: 6.8pt; text-transform: uppercase; color: #64748b; font-weight: 700;">Classe</span>
-                  <div style="font-size: 10pt; font-weight: 800; color: #0f172a;">CM2 &bull; 17 élèves</div>
+                  <span style="font-size: 7pt; text-transform: uppercase; color: #64748b; font-weight: 700;">Classe :</span>
+                  <div style="font-size: 10.5pt; font-weight: 800; color: #0f172a;">CM2</div>
                 </td>
               </tr>
             </table>
 
-            <!-- Tableau d'évaluations -->
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 4px;">
               <thead>
-                <tr style="background-color: #e2e8f0; border: 1px solid #cbd5e1;">
-                  <th style="padding: 3.5px 6px; text-align: left; font-size: 7.2pt; text-transform: uppercase; letter-spacing: 0.4px; color: #0f172a;">
+                <tr style="background-color: #e2e8f0; border: 1px solid #94a3b8;">
+                  <th style="padding: 4px 6px; text-align: left; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.4px; color: #0f172a;">
                     Domaines d'enseignement & Évaluations
                   </th>
-                  <th style="padding: 3.5px 6px; text-align: center; font-size: 7.2pt; text-transform: uppercase; letter-spacing: 0.4px; width: 75px; color: #0f172a;">
+                  <th style="padding: 4px 6px; text-align: center; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.4px; width: 70px; color: #0f172a;">
                     Note / 20
                   </th>
                   ${optionsBulletin.moyClasse ? `
-                    <th style="padding: 3.5px 6px; text-align: center; font-size: 7.2pt; text-transform: uppercase; letter-spacing: 0.4px; width: 65px; color: #475569;">
+                    <th style="padding: 4px 6px; text-align: center; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.4px; width: 65px; color: #475569;">
                       Moy. Classe
                     </th>
                   ` : ''}
@@ -1294,40 +1253,39 @@
                 ${corpsTableauHTML || `<tr><td colspan="${optionsBulletin.moyClasse ? 3 : 2}" style="padding: 14px; text-align: center; color: #94a3b8; font-style: italic; border: 1px solid #cbd5e1;">Aucune évaluation enregistrée pour cette période.</td></tr>`}
                 
                 <tr style="background-color: #e2e8f0; border-top: 2px solid #0f172a; font-weight: 800;">
-                  <td style="padding: 4px 6px; font-size: 8pt; text-align: right; text-transform: uppercase; letter-spacing: 0.5px; color: #0f172a; border: 1px solid #cbd5e1;">
+                  <td style="padding: 4px 6px; font-size: 8.5pt; text-align: right; text-transform: uppercase; letter-spacing: 0.5px; color: #0f172a; border: 1px solid #94a3b8;">
                     Moyenne générale de la période :
                   </td>
-                  <td style="padding: 4px 6px; font-size: 8.5pt; text-align: center; color: #0f172a; border: 1px solid #cbd5e1;">
+                  <td style="padding: 4px 6px; font-size: 9pt; text-align: center; color: #0f172a; border: 1px solid #94a3b8;">
                     ${moyGen} / 20
                   </td>
-                  ${optionsBulletin.moyClasse ? `<td style="padding: 4px 6px; border: 1px solid #cbd5e1;"></td>` : ''}
+                  ${optionsBulletin.moyClasse ? `<td style="padding: 4px 6px; border: 1px solid #94a3b8;"></td>` : ''}
                 </tr>
               </tbody>
             </table>
 
             ${optionsBulletin.histo ? `
-              <div style="font-size: 6.8pt; color: #64748b; text-align: right; margin-bottom: 4px;">
+              <div style="font-size: 7.2pt; color: #475569; text-align: right; margin-bottom: 4px;">
                 Historique des périodes précédentes : <span>${histoStr}</span>
               </div>
             ` : ''}
           </div>
 
-          <!-- Pied de page & Signatures -->
           <div>
-            <div style="font-size: 7.2pt; color: #475569; margin-bottom: 4px;">
+            <div style="font-size: 7.5pt; color: #334155; margin-bottom: 4px;">
               Fait à Bligny-lès-Beaune, le ${dateStr}
             </div>
 
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
-                <td style="width: 48%; vertical-align: top; border: 1px solid #cbd5e1; padding: 4px 6px; height: ${sigHeight}; border-radius: 4px;">
-                  <div style="font-size: 7pt; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.4px;">
+                <td style="width: 48%; vertical-align: top; border: 1px solid #94a3b8; padding: 4px 6px; height: ${sigHeight};">
+                  <div style="font-size: 7.5pt; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.4px;">
                     Signature des parents :
                   </div>
                 </td>
                 <td style="width: 4%;"></td>
-                <td style="width: 48%; vertical-align: top; border: 1.5px solid #0f172a; background-color: #ffffff; padding: 4px 6px; height: ${sigHeight}; position: relative; border-radius: 4px;">
-                  <div style="font-size: 7pt; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.4px;">
+                <td style="width: 48%; vertical-align: top; border: 1.5px solid #0f172a; background-color: #ffffff; padding: 4px 6px; height: ${sigHeight}; position: relative;">
+                  <div style="font-size: 7.5pt; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.4px;">
                     La Directrice d'école :
                   </div>
                   
@@ -1337,7 +1295,7 @@
                     ` : ''}
                   </div>
 
-                  <div style="position: absolute; bottom: 2px; right: 6px; font-size: 7.2pt; font-weight: 700; color: #0f172a;">
+                  <div style="position: absolute; bottom: 3px; right: 6px; font-size: 7.5pt; font-weight: 700; color: #0f172a;">
                     Mme Estelle CHIRAT
                   </div>
                 </td>
@@ -1348,7 +1306,6 @@
       `;
     }
 
-    // Télécharger le PDF de l'élève actuellement visualisé
     function telechargerBulletinEleveActifPDF() {
       const el = document.querySelector("#zoneApercuInteractif .bulletin-page");
       if (!el) return;
@@ -1364,7 +1321,6 @@
       html2pdf().set(opt).from(el).save();
     }
 
-    // Télécharger les 17 bulletins d'un coup
     function telechargerTousLesBulletinsPDF() {
       const btn = document.getElementById("btnTelechargerPDF");
       const txt = document.getElementById("txtBtnTelecharger");
@@ -1380,7 +1336,7 @@
 
       ELEVES_CM2.forEach((eleve) => {
         const pageWrapper = document.createElement("div");
-        pageWrapper.innerHTML = construireHTMLBulletinUnique(eleve);
+        pageWrapper.innerHTML = construireHTMLBulletinSobre(eleve);
         const p = pageWrapper.firstElementChild;
         p.style.margin = "0";
         p.style.boxShadow = "none";
@@ -1414,13 +1370,12 @@
     }
 
     function lancerImpressionNavigateur() {
-      // Pour imprimer le livret complet
       const cache = document.getElementById("exportCacheGlobal");
       cache.innerHTML = "";
       
       ELEVES_CM2.forEach(eleve => {
         const w = document.createElement("div");
-        w.innerHTML = construireHTMLBulletinUnique(eleve);
+        w.innerHTML = construireHTMLBulletinSobre(eleve);
         const p = w.firstElementChild;
         p.style.margin = "0";
         p.style.boxShadow = "none";
@@ -1457,10 +1412,6 @@
       if (histo.length === 0) return numPeriode === 1 ? "Première période de l'année scolaire" : "Aucune note antérieure";
       return histo.join("&nbsp;&nbsp;&bull;&nbsp;&nbsp;");
     }
-
-    // =========================================================================
-    // STATISTIQUES & GRAPHIQUE
-    // =========================================================================
 
     function calculerEtAfficherStats() {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
@@ -1568,7 +1519,6 @@
         }, 50);
       }
 
-      // Tableau comparatif 17 élèves
       const tbodyComp = document.getElementById("tbodyComparatifEleves");
       tbodyComp.innerHTML = "";
 
@@ -1611,7 +1561,6 @@
         tbodyComp.appendChild(tr);
       });
 
-      // Statistiques par évaluation
       const grilleEvals = document.getElementById("statGrilleEvalsDetails");
       grilleEvals.innerHTML = "";
 
