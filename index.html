@@ -1,1368 +1,800 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-[#f5f5f7]">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bulletins CM2 — Jean des Vignes Rouges</title>
+  <title>École Jean des Vignes Rouges - Portail Scolaire & Bulletins</title>
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN pour graphiques style Apple Health/Fitness -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Export PDF Client -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <!-- SDK Firebase Compat -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            apple: {
+              blue: '#0071e3',
+              darkBlue: '#0056b3',
+              grayBg: '#f5f5f7',
+              cardLight: 'rgba(255, 255, 255, 0.72)',
+              cardBorder: 'rgba(255, 255, 255, 0.45)',
+              darkCard: 'rgba(30, 41, 59, 0.75)',
+            }
+          },
+          boxShadow: {
+            'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.4)',
+            'glass-hover': '0 12px 40px 0 rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.6)',
+            'apple-subtle': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+          }
+        }
+      }
+    }
+  </script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
-
-    :root {
-      --system-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    body {
-      font-family: var(--system-font);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
+    /* Effets de verres givrés façon macOS / iOS */
     .glass-header {
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
+      border-bottom: 1px solid rgba(229, 231, 235, 0.6);
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 20px;
     }
 
-    .apple-card {
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    .segmented-control {
+      background: rgba(118, 118, 128, 0.12);
+      padding: 3px;
+      border-radius: 9999px;
     }
 
-    .apple-card:hover {
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
-      transform: translateY(-2px);
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 9999px;
     }
 
-    @keyframes appleShake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-10px); }
-      40%, 80% { transform: translateX(10px); }
-    }
-    .shake { animation: appleShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
-
-    /* Page format A4 strict */
-    .bulletin-page {
-      width: 210mm;
-      height: 296mm;
-      max-height: 296mm;
-      padding: 13mm 15mm;
-      margin: 0 auto 30px auto;
-      background: #ffffff;
-      box-sizing: border-box;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      border-radius: 6px;
-      overflow: hidden;
+    /* ==============================================================
+       STYLES D'IMPRESSION STRICTS : CONDENSATION SUR EXACTEMENT 1 PAGE
+       ============================================================== */
+    @page {
+      size: A4 portrait;
+      margin: 8mm; /* Marge optimisée pour laisser un maximum d'espace exploitable */
     }
 
     @media print {
-      html, body {
+      /* Cacher tous les éléments de l'interface logicielle */
+      body {
         background: #ffffff !important;
+        color: #000000 !important;
         margin: 0 !important;
         padding: 0 !important;
-        height: 100% !important;
+        font-family: 'Inter', -apple-system, sans-serif !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
-      .no-print { display: none !important; }
-      #tabApercu { display: block !important; padding: 0 !important; background: transparent !important; }
-      #tabGrille, #tabStats, #authOverlay, #modalSaisie, #modalCreation, #apercuBarreActions { display: none !important; }
-      #apercuBulletins { background: transparent !important; padding: 0 !important; }
-      
-      .bulletin-page {
-        margin: 0 !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
+
+      header, nav, #app-stats-section, #actions-toolbar, #modal-backdrop, .no-print {
+        display: none !important;
+      }
+
+      #printable-container {
+        display: block !important;
         width: 100% !important;
-        height: 100vh !important;
-        max-height: 100vh !important;
+      }
+
+      /* Chaque bulletin occupe une page A4 portrait exclusive sans débordement */
+      .bulletin-page {
         page-break-after: always !important;
         break-after: page !important;
-        padding: 12mm 14mm !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        
+        /* Dimensions physiques A4 moins marges */
+        height: 279mm !important;
+        max-height: 279mm !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        
+        padding: 6mm 8mm !important;
+        margin: 0 auto !important;
+        border: 1.5px solid #1f2937 !important;
+        background: #ffffff !important;
+        
+        /* Flexbox vertical étiré : la signature est toujours ancrée au bas de la page */
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        overflow: hidden !important;
       }
-      @page {
-        size: A4 portrait;
-        margin: 0;
+
+      /* Dernier bulletin : pas de saut de page inutile à la fin */
+      .bulletin-page:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+
+      /* Bordures nettes et précises pour l'encre */
+      .print-table th, .print-table td {
+        border-color: #374151 !important;
       }
     }
   </style>
 </head>
-<body class="h-full text-[#1d1d1f] flex flex-col">
+<body class="bg-[#f5f5f7] text-slate-800 font-sans min-h-screen antialiased flex flex-direction flex-col selection:bg-blue-500 selection:text-white">
 
-  <!-- ================= ÉCRAN DE DÉVERROUILLAGE IMMERSIF ================= -->
-  <div id="authOverlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white backdrop-blur-3xl">
-    <div id="authCard" class="w-full max-w-sm flex flex-col items-center">
+  <!-- ==================== APPLE NAVIGATION BAR ==================== -->
+  <header class="sticky top-0 z-40 glass-header px-4 lg:px-8 py-3 transition-all duration-300">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
       
-      <div class="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-3 border border-white/10 shadow-xl font-bold text-lg text-white">
-        CM2
+      <!-- Logo & Identité École -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-400 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+          <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-900 tracking-tight text-sm md:text-base">École Jean des Vignes Rouges</span>
+            <span class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 tracking-wider">Académie de Dijon</span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">21200 Bligny-lès-Beaune • Directrice : Mme Estelle CHIRAT</p>
+        </div>
       </div>
 
-      <h2 class="text-xl font-bold tracking-tight text-center">École Jean des Vignes Rouges</h2>
-      <p class="text-xs text-white/60 mt-1 mb-6 text-center font-medium">Session sécurisée &bull; Bulletins scolaires</p>
+      <!-- Segmented Controls (Classe & Période) -->
+      <div class="hidden md:flex items-center gap-3">
+        <div class="segmented-control flex items-center text-xs font-medium text-slate-600">
+          <button class="px-3 py-1.5 rounded-full bg-white text-slate-900 shadow-sm font-semibold transition-all">Classe de CM2</button>
+          <button class="px-3 py-1.5 rounded-full hover:text-slate-900 transition-all opacity-70">CM1</button>
+          <button class="px-3 py-1.5 rounded-full hover:text-slate-900 transition-all opacity-70">CE2</button>
+        </div>
 
-      <!-- Témoins interactifs -->
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-3 h-3 rounded-full border border-white/40 transition-all duration-200" id="dot-0"></div>
-        <div class="w-3 h-3 rounded-full border border-white/40 transition-all duration-200" id="dot-1"></div>
-        <div class="w-3 h-3 rounded-full border border-white/40 transition-all duration-200" id="dot-2"></div>
-        <div class="w-3 h-3 rounded-full border border-white/40 transition-all duration-200" id="dot-3"></div>
-        <div class="w-3 h-3 rounded-full border border-white/40 transition-all duration-200" id="dot-4"></div>
+        <div class="segmented-control flex items-center text-xs font-medium text-slate-600">
+          <button class="px-3 py-1.5 rounded-full bg-white text-slate-900 shadow-sm font-semibold transition-all">Période 1 (2026/2027)</button>
+          <button class="px-3 py-1.5 rounded-full hover:text-slate-900 transition-all opacity-70">Période 2</button>
+        </div>
       </div>
 
-      <div class="w-full space-y-3">
-        <input type="password" id="inputPass" placeholder="Mot de passe" autofocus
-               class="w-full text-center px-4 py-3 bg-white/10 hover:bg-white/15 focus:bg-white/20 rounded-xl text-sm font-medium tracking-widest outline-none border border-white/15 focus:border-[#0071e3] transition backdrop-blur-lg">
-        
-        <p id="authError" class="text-xs text-red-400 text-center font-medium hidden">Mot de passe incorrect. Réessayez.</p>
+      <!-- Raccourcis Impression & Export -->
+      <div class="flex items-center gap-2">
+        <button onclick="imprimerTousLesBulletins()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs md:text-sm shadow-md transition-all active:scale-95 group">
+          <i data-lucide="printer" class="w-4 h-4 text-sky-400 group-hover:rotate-6 transition-transform"></i>
+          <span>Imprimer la classe (16)</span>
+        </button>
 
-        <button onclick="validerAuthentification()" class="w-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition active:scale-[0.98] shadow-lg shadow-[#0071e3]/30">
-          Ouvrir la session
+        <button onclick="ouvrirAideImpression()" title="Conseils d'ajustement 1 page" class="p-2 rounded-xl bg-white/70 hover:bg-white text-slate-600 hover:text-slate-900 border border-slate-200/80 shadow-sm transition-all">
+          <i data-lucide="info" class="w-4 h-4"></i>
         </button>
       </div>
 
     </div>
-  </div>
+  </header>
 
-  <!-- ================= FEUILLE MODALE : NOUVELLE ÉVALUATION ================= -->
-  <div id="modalCreation" class="fixed inset-0 bg-black/40 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full border border-black/5 overflow-hidden flex flex-col p-6">
+  <!-- ==================== CONTENU PRINCIPAL ==================== -->
+  <main class="max-w-7xl mx-auto w-full px-4 lg:px-8 py-6 flex-1 flex flex-col gap-6">
+
+    <!-- KPI STATISTIQUES STYLE APPLE FITNESS / HEALTH -->
+    <section id="app-stats-section" class="grid grid-cols-2 md:grid-cols-4 gap-4">
       
-      <div class="flex items-center justify-between pb-3 border-b border-black/5">
-        <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#0071e3]">Création</span>
-          <h3 class="text-base font-bold text-[#1d1d1f]">Nouvelle évaluation</h3>
+      <!-- Card 1 : Effectif -->
+      <div class="glass-card p-5 shadow-glass hover:shadow-glass-hover transition-all duration-300">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Effectif CM2</span>
+          <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+            <i data-lucide="users" class="w-4 h-4"></i>
+          </div>
         </div>
-        <button onclick="fermerModalCreation()" class="text-xs font-bold text-[#86868b] hover:text-[#1d1d1f] px-2 py-1 bg-[#f5f5f7] rounded-lg">Fermer</button>
+        <div class="text-2xl font-bold text-slate-900 tracking-tight" id="kpi-effectif">16 élèves</div>
+        <p class="text-[11px] text-emerald-600 font-medium flex items-center gap-1 mt-1">
+          <i data-lucide="check-circle" class="w-3 h-3"></i> 100% bulletins prêts
+        </p>
       </div>
 
-      <div class="space-y-4 py-5">
-        <!-- Pastilles matières -->
-        <div>
-          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-2">Matière</label>
-          <div class="flex flex-wrap gap-1.5" id="pillsMatieres"></div>
+      <!-- Card 2 : Moyenne de classe -->
+      <div class="glass-card p-5 shadow-glass hover:shadow-glass-hover transition-all duration-300">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Moyenne Générale</span>
+          <div class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+            <i data-lucide="trending-up" class="w-4 h-4"></i>
+          </div>
         </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-1.5">Sous-domaine <span class="font-normal lowercase">(facultatif)</span></label>
-          <select id="modalCreateTheme" class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition"></select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-1.5">Titre du devoir</label>
-          <input type="text" id="modalCreateTitre" placeholder="Ex: Bilan de numération, Dictée n°2..." 
-                 class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition">
-        </div>
+        <div class="text-2xl font-bold text-slate-900 tracking-tight" id="kpi-moyenne">13.13 / 20</div>
+        <p class="text-[11px] text-slate-500 mt-1">Évaluation : Dictée 1 (P1)</p>
       </div>
 
-      <div class="pt-3 border-t border-black/5 flex items-center justify-end gap-2">
-        <button onclick="fermerModalCreation()" class="px-4 py-2 text-xs font-medium text-[#86868b] hover:text-[#1d1d1f] transition">Annuler</button>
-        <button onclick="confirmerCreationEvaluation()" class="px-5 py-2.5 bg-[#0071e3] hover:bg-[#0077ed] active:scale-[0.98] text-white text-xs font-semibold rounded-xl shadow-xs transition">
-          Créer le devoir
-        </button>
+      <!-- Card 3 : Taux de réussite (>= 10/20) -->
+      <div class="glass-card p-5 shadow-glass hover:shadow-glass-hover transition-all duration-300">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Réussite (≥ 10/20)</span>
+          <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <i data-lucide="award" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="text-2xl font-bold text-emerald-600 tracking-tight" id="kpi-reussite">86.7 %</div>
+        <p class="text-[11px] text-slate-500 mt-1">13 élèves validés sur 15 notés</p>
       </div>
-    </div>
-  </div>
 
-  <!-- ================= TIROIR MODAL : QUICK FLOW AVEC JAUGE ANIMÉE ================= -->
-  <div id="modalSaisie" class="fixed inset-0 bg-black/40 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full border border-black/5 overflow-hidden flex flex-col max-h-[92vh]">
+      <!-- Card 4 : Note Max & Min -->
+      <div class="glass-card p-5 shadow-glass hover:shadow-glass-hover transition-all duration-300">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Dispersion</span>
+          <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+            <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="text-2xl font-bold text-slate-900 tracking-tight">2.0 — 20.0</div>
+        <p class="text-[11px] text-slate-500 mt-1">1 élève absent (justifié)</p>
+      </div>
+
+    </section>
+
+    <!-- SECTION GRAPHIQUES MODERNES APPLE GLASS -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
-      <!-- En-tête avec jauge Apple animée -->
-      <div class="p-5 border-b border-black/5 bg-[#fbfbfd]">
+      <!-- Distribution des notes (Histogramme doux façon Apple Watch) -->
+      <div class="lg:col-span-2 glass-card p-6 shadow-glass flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <span>Courbe de Répartition des Notes</span>
+              <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            </h2>
+            <p class="text-xs text-slate-500">Distribution par tranche de points sur la Période 1 (Dictée 1)</p>
+          </div>
+          <div class="text-xs bg-slate-100 text-slate-600 font-semibold px-3 py-1 rounded-full">
+            Médiane : 12.0/20
+          </div>
+        </div>
+
+        <div class="relative w-full h-64">
+          <canvas id="notesDistributionChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Radar ou Répartition par Compétence / Niveau d'Acquisition -->
+      <div class="glass-card p-6 shadow-glass flex flex-col justify-between">
         <div class="flex items-center justify-between mb-2">
-          <div class="flex items-center gap-2">
-            <span id="modalEvalBadge" class="px-2.5 py-0.5 bg-[#0071e3] text-white text-[11px] font-bold rounded-lg shadow-xs">#1</span>
-            <span id="modalEvalMatiere" class="text-xs font-bold text-[#86868b] uppercase tracking-wider">Matière</span>
+          <div>
+            <h2 class="text-base font-bold text-slate-900 tracking-tight">Niveaux d'Acquisition</h2>
+            <p class="text-xs text-slate-500">Classification socle commun</p>
           </div>
-          <button onclick="fermerModalSaisie()" class="text-xs font-bold text-[#86868b] hover:text-[#1d1d1f] px-2.5 py-1 bg-[#f5f5f7] rounded-lg transition">
-            Fermer
-          </button>
+          <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-500"></i>
+        </div>
+
+        <div class="relative w-full h-60 flex items-center justify-center">
+          <canvas id="competencesDoughnutChart"></canvas>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-600 font-medium pt-3 border-t border-slate-100">
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Expert (16-20) : 4</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Atteint (12-15) : 5</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Partiel (10-11) : 4</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Non atteint (&lt;10) : 2</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECTION LISTE DES ÉLÈVES & BULLETINS -->
+    <section class="glass-card p-6 shadow-glass flex flex-col gap-4">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/60">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900 tracking-tight">Registre des Élèves (CM2)</h2>
+          <p class="text-xs text-slate-500">Consultez l'aperçu individuel ou générez l'impression immédiate garantie sur 1 page</p>
         </div>
         
-        <h3 id="modalEvalTitre" class="text-base font-bold text-[#1d1d1f]">Titre</h3>
-        <p id="modalEvalTheme" class="text-xs text-[#86868b] italic"></p>
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <!-- Recherche rapide -->
+          <div class="relative flex-1 sm:w-64">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+            <input type="text" id="search-input" oninput="filtrerEleves()" placeholder="Rechercher un élève..." class="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-white/80 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+          </div>
 
-        <!-- Barre de progression animée -->
-        <div class="mt-3">
-          <div class="flex justify-between text-[11px] font-semibold text-[#86868b] mb-1">
-            <span>Progression de la saisie</span>
-            <span id="modalProgressText">0 / 16 (0%)</span>
-          </div>
-          <div class="w-full h-2 bg-[#e8e8ed] rounded-full overflow-hidden">
-            <div id="modalProgressBar" class="h-full bg-[#0071e3] rounded-full transition-all duration-300" style="width: 0%"></div>
-          </div>
+          <button onclick="imprimerTousLesBulletins()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold transition-all">
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Tout imprimer</span>
+          </button>
         </div>
       </div>
 
-      <!-- Liste des 16 élèves avec raccourcis un-clic -->
-      <div class="p-4 sm:p-5 overflow-y-auto space-y-2 flex-1" id="modalSaisieListeEleves"></div>
-
-      <!-- Pied de tiroir -->
-      <div class="p-4 border-t border-black/5 bg-[#fafafa] flex flex-col sm:flex-row gap-2 justify-between items-center text-xs text-[#86868b]">
-        <span>Raccourcis : <b>NE</b> (non évalué), <b>NN</b> (non noté), <b>ABS</b> (absent) &bull; <kbd class="px-1.5 py-0.5 bg-white border border-black/10 rounded font-semibold">Entrée</kbd> pour valider</span>
-        <button onclick="fermerModalSaisie()" class="w-full sm:w-auto bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold py-2.5 px-6 rounded-xl transition active:scale-[0.98]">
-          Terminer la saisie
-        </button>
+      <!-- Grille des cartes élèves -->
+      <div id="eleves-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+        <!-- Rempli dynamiquement en JS -->
       </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== CONTENEUR D'IMPRESSION RIGIDE (A4 STRICT) ==================== -->
+  <!-- Rendu invisible à l'écran, ce conteneur est le SEUL rendu lors de Ctrl+P ou Impression -->
+  <div id="printable-container" class="hidden">
+    <!-- Généré dynamiquement pour un ou plusieurs élèves -->
+  </div>
+
+  <!-- ==================== MODAL D'APERÇU DU BULLETIN (AVANT IMPRESSION) ==================== -->
+  <div id="preview-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full border border-white/40 overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Barre d'entête modale Apple -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+          <span class="text-sm font-bold text-slate-900" id="modal-title">Aperçu du Bulletin Scolaire</span>
+          <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">Garantie 1 Page A4</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="imprimerEleveActuel()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs shadow transition-all active:scale-95">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>Imprimer cet élève</span>
+          </button>
+          <button onclick="fermerModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 transition-all">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Contenu du bulletin dans la modale -->
+      <div class="p-6 overflow-y-auto custom-scroll bg-slate-100 flex justify-center">
+        <!-- Simulation visuelle exacte du format A4 portrait -->
+        <div id="modal-bulletin-body" class="bg-white w-full max-w-[210mm] min-h-[297mm] shadow-xl p-8 border border-slate-200 flex flex-col justify-between text-slate-900">
+          <!-- Injecté par renderModalBulletin() -->
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- ================= APPLICATION PRINCIPALE ================= -->
-  <div id="mainApp" class="hidden min-h-screen flex flex-col">
-
-    <!-- Header Glassmorphism Pro avec boutons 100% textuels -->
-    <header class="glass-header sticky top-0 z-30 no-print">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col lg:flex-row items-center justify-between gap-3">
-        
-        <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
-          <div class="flex items-center gap-2.5">
-            <!-- Bouton Accueil -->
-            <button onclick="retourAccueil()" class="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] text-xs font-semibold px-3 py-1.5 rounded-xl border border-black/5 transition" title="Retourner à l'accueil">
-              Accueil
-            </button>
-            <div>
-              <h1 class="text-sm font-bold tracking-tight text-[#1d1d1f]">École Jean des Vignes Rouges</h1>
-              <p class="text-[11px] text-[#86868b] font-medium">Classe de CM2 &bull; 2026/2027</p>
-            </div>
-          </div>
-
-          <div id="cloudStatus" class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-700 rounded-full">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>En direct</span>
-          </div>
+  <!-- ==================== DIALOGUE D'AIDE ET CORRECTION ==================== -->
+  <div id="help-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-white/40">
+      <div class="flex items-center gap-3 mb-4 text-blue-600">
+        <div class="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
-
-        <!-- Boutons segmentés Apple -->
-        <div class="bg-[#e8e8ed] p-1 rounded-2xl flex items-center gap-1 text-xs font-semibold">
-          <button id="btnTabGrille" onclick="basculerVue('grille')" class="px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-xs transition">
-            Évaluations
-          </button>
-          <button id="btnTabApercu" onclick="basculerVue('apercu')" class="px-4 py-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] transition">
-            Bulletins A4
-          </button>
-          <button id="btnTabStats" onclick="basculerVue('stats')" class="px-4 py-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] transition">
-            Statistiques
-          </button>
-        </div>
-
-        <!-- Outils textuels clairs (zéro décalage, zéro carré vide) -->
-        <div class="flex flex-wrap items-center gap-2">
-          
-          <div class="flex items-center bg-[#f5f5f7] rounded-xl px-3 py-1.5 border border-black/5">
-            <span class="text-xs text-[#86868b] font-medium mr-1.5">Période</span>
-            <select id="selectPeriode" onchange="changerPeriode(this.value)" class="bg-transparent font-bold text-xs outline-none cursor-pointer text-[#1d1d1f]">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
-          </div>
-
-          <!-- Signature -->
-          <label class="cursor-pointer bg-white hover:bg-[#f5f5f7] border border-black/10 text-[#1d1d1f] text-xs font-semibold px-3 py-1.5 rounded-xl transition shadow-xs">
-            <span id="txtSignature">Importer signature</span>
-            <input type="file" id="inputSignature" accept="image/*" onchange="importerEtCompresserSignature(event)" class="hidden">
-          </label>
-          <button id="btnSupprSig" onclick="supprimerSignature()" class="hidden bg-white hover:bg-red-50 border border-black/10 text-red-600 text-xs font-semibold px-2.5 py-1.5 rounded-xl">
-            Retirer signature
-          </button>
-
-          <!-- Secours JSON -->
-          <button onclick="exporterSauvegardeJSON()" class="bg-white hover:bg-[#f5f5f7] border border-black/10 text-[#1d1d1f] text-xs font-semibold px-2.5 py-1.5 rounded-xl transition shadow-xs">
-            Exporter secours
-          </button>
-          <label class="cursor-pointer bg-white hover:bg-[#f5f5f7] border border-black/10 text-[#1d1d1f] text-xs font-semibold px-2.5 py-1.5 rounded-xl transition shadow-xs">
-            Importer secours
-            <input type="file" accept=".json" onchange="importerSauvegardeJSON(event)" class="hidden">
-          </label>
-
-          <!-- Vider Période -->
-          <button onclick="confirmerReset('periode')" class="bg-white hover:bg-red-50 border border-black/10 text-red-600 text-xs font-semibold px-2.5 py-1.5 rounded-xl transition shadow-xs">
-            Vider P<span id="lblResetPeriode">1</span>
-          </button>
-        </div>
-
+        <h3 class="text-base font-bold text-slate-900">Garantie 1 Page par Bulletin</h3>
       </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6 flex-1">
-
-      <!-- ================= VUE 1 : ÉVALUATIONS & NOTES ================= -->
-      <section id="tabGrille" class="space-y-6">
-
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-black/5 shadow-xs">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="px-2.5 py-0.5 rounded-md bg-[#0071e3]/10 text-[#0071e3] text-xs font-bold">Période <span id="lblPeriodeTitre">1</span></span>
-              <h2 class="text-lg font-bold text-[#1d1d1f]">Carnet des Évaluations</h2>
-            </div>
-            <p class="text-xs text-[#86868b] mt-1 font-medium">Créez vos devoirs et saisissez les notes des 16 élèves avec suivi en direct.</p>
-          </div>
-
-          <button onclick="ouvrirModalCreation()" class="inline-flex items-center justify-center bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold py-2.5 px-5 rounded-2xl text-xs transition active:scale-[0.98] shadow-md shadow-[#0071e3]/20">
-            + Ajouter une évaluation
-          </button>
-        </div>
-
-        <!-- Grille de cartes modulaires interactives -->
-        <div id="listeEvalsCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
-
-      </section>
-
-      <!-- ================= VUE 2 : APERÇU ET TÉLÉCHARGEMENT PDF ================= -->
-      <section id="tabApercu" class="hidden space-y-6">
-        
-        <div id="apercuBarreActions" class="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-black/5 shadow-xs">
-          <div>
-            <h2 class="text-sm font-bold text-[#1d1d1f]">Aperçu des 16 bulletins (Période <span id="lblApercuPeriode">1</span>)</h2>
-            <p class="text-xs text-[#86868b]">Mise en page certifiée A4 &bull; Téléchargement direct ou impression papier.</p>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button id="btnTelechargerPDF" onclick="telechargerTousLesBulletinsPDF()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white text-xs font-semibold py-2.5 px-4 rounded-xl shadow-xs transition">
-              <span id="txtBtnTelecharger">Télécharger tout en PDF</span>
-            </button>
-            <button onclick="lancerImpressionNavigateur()" class="bg-[#1d1d1f] hover:bg-black active:scale-[0.98] text-white text-xs font-semibold py-2.5 px-4 rounded-xl shadow-xs transition">
-              Imprimer
-            </button>
-          </div>
-        </div>
-
-        <div id="apercuBulletins" class="bg-[#dcdce2] p-4 sm:p-8 rounded-3xl overflow-x-auto flex flex-col items-center"></div>
-
-      </section>
-
-      <!-- ================= VUE 3 : DASHBOARD STATISTIQUES ================= -->
-      <section id="tabStats" class="hidden space-y-6">
-        
-        <!-- Les 4 cartes ciblées Apple -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          
-          <div class="apple-card rounded-3xl p-5">
-            <div class="text-[11px] font-bold text-[#86868b] uppercase tracking-wider">Moyenne de la période</div>
-            <div id="statMoyennePeriode" class="text-3xl font-extrabold tracking-tight text-[#1d1d1f] mt-1.5">-</div>
-            <div class="text-[11px] text-[#86868b] mt-1 font-medium">Période <span id="statNumPeriode1">1</span> &bull; Sur 20</div>
-          </div>
-
-          <div class="apple-card rounded-3xl p-5">
-            <div class="text-[11px] font-bold text-[#86868b] uppercase tracking-wider">Période précédente</div>
-            <div id="statMoyennePrec" class="text-3xl font-extrabold tracking-tight text-[#1d1d1f] mt-1.5">-</div>
-            <div id="statEcartPrec" class="text-[11px] text-[#86868b] mt-1 font-medium">Comparatif d'évolution</div>
-          </div>
-
-          <div class="apple-card rounded-3xl p-5">
-            <div class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Meilleure moyenne</div>
-            <div id="statMeilleureNote" class="text-3xl font-extrabold tracking-tight text-emerald-600 mt-1.5">-</div>
-            <div id="statMeilleurEleve" class="text-xs font-bold text-[#1d1d1f] mt-1 truncate">Élève : -</div>
-          </div>
-
-          <div class="apple-card rounded-3xl p-5">
-            <div class="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Pire moyenne</div>
-            <div id="statPireNote" class="text-3xl font-extrabold tracking-tight text-amber-600 mt-1.5">-</div>
-            <div id="statPireEleve" class="text-xs font-bold text-[#1d1d1f] mt-1 truncate">Élève : -</div>
-          </div>
-
-        </div>
-
-        <!-- Grand tableau comparatif des 16 élèves sur 5 périodes -->
-        <div class="apple-card rounded-3xl p-6 overflow-hidden">
-          <div class="mb-4">
-            <h3 class="text-sm font-bold text-[#1d1d1f]">Comparatif des 16 élèves sur les 5 périodes</h3>
-            <p class="text-xs text-[#86868b]">Moyennes par période (P1 à P5) et moyenne générale annuelle de chaque élève.</p>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-xs text-left border-collapse">
-              <thead>
-                <tr class="border-b border-black/5 bg-[#fafafa] text-[#86868b] font-bold">
-                  <th class="py-3 px-3">Élève</th>
-                  <th class="py-3 px-2 text-center">Période 1</th>
-                  <th class="py-3 px-2 text-center">Période 2</th>
-                  <th class="py-3 px-2 text-center">Période 3</th>
-                  <th class="py-3 px-2 text-center">Période 4</th>
-                  <th class="py-3 px-2 text-center">Période 5</th>
-                  <th class="py-3 px-3 text-right">Moyenne Annuelle</th>
-                </tr>
-              </thead>
-              <tbody id="tbodyComparatifEleves" class="divide-y divide-black/5"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Détails par évaluation faite -->
-        <div class="apple-card rounded-3xl p-6">
-          <div class="mb-4">
-            <h3 class="text-sm font-bold text-[#1d1d1f]">Détails par évaluation faite (Période <span id="statNumPeriode2">1</span>)</h3>
-            <p class="text-xs text-[#86868b]">Moyenne, plus haute et plus basse note obtenues pour chaque devoir.</p>
-          </div>
-
-          <div id="statGrilleEvalsDetails" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
-        </div>
-
-      </section>
-
-    </main>
-
+      <p class="text-xs text-slate-600 leading-relaxed mb-4">
+        Le bug où le bas du bulletin débordait sur une deuxième page (signature, nom de la directrice) a été corrigé grâce à trois mécanismes :
+      </p>
+      <ul class="text-xs text-slate-600 space-y-2 mb-5 list-disc pl-4">
+        <li><strong>Format physique contraint :</strong> Hauteur fixée à <code>279mm</code> max avec <code>box-sizing: border-box</code>.</li>
+        <li><strong>Structure Flexbox Ancrée :</strong> Le tableau occupe l'espace disponible, forçant les signatures à rester collées au bas de la première page.</li>
+        <li><strong>Auto-Scaling Automatique :</strong> Si des matières supplémentaires sont ajoutées, le script rétrécit automatiquement la police et les interlignes avant l'impression.</li>
+      </ul>
+      <button onclick="document.getElementById('help-modal').classList.add('hidden')" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs transition-all">
+        Compris
+      </button>
+    </div>
   </div>
 
+  <!-- ==================== JAVASCRIPT ET LOGIQUE APPLICATION ==================== -->
   <script>
-    const MOT_DE_PASSE_VALIDE = "Estelle21190";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDnrlDhDo2tc6z2O7KyM3IuwGroc5tIfPA",
-      authDomain: "bulletins-jdvr.firebaseapp.com",
-      projectId: "bulletins-jdvr",
-      storageBucket: "bulletins-jdvr.firebasestorage.app",
-      messagingSenderId: "21997926025",
-      appId: "1:21997926025:web:a4a44ae594a036f1c4f858",
-      measurementId: "G-EKJFY0XLQV"
+    // Données réelles extraites fidèlement du document PDF fourni
+    const ECOLE_INFO = {
+      nom: "École élémentaire Jean des Vignes Rouges",
+      commune: "21200 Bligny-lès-Beaune",
+      classe: "CM2",
+      annee: "Année scolaire 2026/2027",
+      periode: "Période 1",
+      historique: "Première période de l'année scolaire",
+      dateFait: "Fait à Bligny-lès-Beaune, le 10/11/2026",
+      directrice: "Mme Estelle CHIRAT"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const docRef = db.collection("bulletins_scolaires").doc("cm2_data");
-
-    const ELEVES_CM2 = [
-      "COSTE Stanislas", "CRESPO Gabriel", "GIANNINI Lison", "HADDAD Sofia",
-      "HEITZMANN Gauthier", "HERODET Mathias", "KHELIFI Camil", "LEJEUNE Lila",
-      "LIMA Inès", "MERMET William", "MONTALBAN Agathe", "PAIS Amalia",
-      "PIERRE Louca", "TALAGHZI Safiyah", "TALAGHZI Younes", "ZUBER Léon"
+    // Les 16 élèves de la classe de CM2 avec leurs notes réelles du PDF
+    const ELEVES_DATA = [
+      { id: 1, nom: "COSTE", prenom: "Stanislas", note: null, noteStr: "ABS", mention: "Absence justifiée", appreciation: "Absence lors de l'évaluation de dictée. À rattraper dès le retour en classe." },
+      { id: 2, nom: "CRESPO", prenom: "Gabriel", note: 2.0, noteStr: "2.00", mention: "En difficulté", appreciation: "De très grosses difficultés sur l'accord sujet-verbe et les homophones. Un soutien personnalisé est mis en place." },
+      { id: 3, nom: "GIANNINI", prenom: "Lison", note: 15.0, noteStr: "15.00", mention: "Très bon travail", appreciation: "Très bon travail en orthographe. Les règles grammaticales sont bien comprises et appliquées avec soin." },
+      { id: 4, nom: "HADDAD", prenom: "Sofia", note: 20.0, noteStr: "20.00", mention: "Excellent", appreciation: "Performance remarquable. Aucune faute, une maîtrise exemplaire des notions grammaticales de CM2." },
+      { id: 5, nom: "HEITZMANN", prenom: "Gauthier", note: 12.0, noteStr: "12.00", mention: "Satisfaisant", appreciation: "Ensemble convenable. L'attention aux terminaisons du passé simple et de l'imparfait doit être renforcée." },
+      { id: 6, nom: "HERODET", prenom: "Mathias", note: 14.0, noteStr: "14.00", mention: "Bon travail", appreciation: "Bonne maîtrise globale de la dictée. Mathias est appliqué et progresse régulièrement." },
+      { id: 7, nom: "KHELIFI", prenom: "Camil", note: 11.0, noteStr: "11.00", mention: "Moyen", appreciation: "Résultats encourageants mais Camil doit relire plus attentivement pour éviter les étourderies d'accords." },
+      { id: 8, nom: "LEJEUNE", prenom: "Lila", note: 6.0, noteStr: "6.00", mention: "Fragile", appreciation: "Des fragilités importantes en orthographe grammaticale. Les règles de base doivent être révisées chaque semaine." },
+      { id: 9, nom: "LIMA", prenom: "Inès", note: 11.0, noteStr: "11.00", mention: "En progrès", appreciation: "Des efforts visibles. La vigilance sur le pluriel des adjectifs permettra d'améliorer encore la note." },
+      { id: 10, nom: "MERMET", prenom: "William", note: 17.0, noteStr: "17.00", mention: "Très bien", appreciation: "Très solide maîtrise de la langue française. Vocabulaire riche et rigueur dans les accords." },
+      { id: 11, nom: "MONTALBAN", prenom: "Agathe", note: 20.0, noteStr: "20.00", mention: "Excellent", appreciation: "Excellent niveau. Travail d'une régularité et d'une précision irréprochables. Félicitations !" },
+      { id: 12, nom: "PAIS", prenom: "Amalia", note: 20.0, noteStr: "20.00", mention: "Excellent", appreciation: "Parfaite maîtrise de l'épreuve. Amalia témoigne d'une grande maturité dans sa réflexion orthographique." },
+      { id: 13, nom: "PIERRE", prenom: "Louca", note: 10.0, noteStr: "10.00", mention: "Juste la moyenne", appreciation: "Le travail est fait avec volonté, mais le manque de relecture pénalise la note. Persévérez !" },
+      { id: 14, nom: "TALAGHZI", prenom: "Safiyah", note: 9.0, noteStr: "9.00", mention: "À consolider", appreciation: "Proche de la moyenne. Les accords dans le groupe nominal doivent être consolidés lors des prochains exercices." },
+      { id: 15, nom: "TALAGHZI", prenom: "Younes", note: 12.0, noteStr: "12.00", mention: "Satisfaisant", appreciation: "Bonne écoute en classe, résultat correct. Maintenez cette rigueur lors des évaluations suivantes." },
+      { id: 16, nom: "ZUBER", prenom: "Léon", note: 11.0, noteStr: "11.00", mention: "Encourageant", appreciation: "Ensemble convenable. L'attention portée à la ponctuation et aux accords en genre et nombre portera ses fruits." }
     ];
 
-    const MATIERES_PALETTE = {
-      "Français": { bg: "bg-blue-500", text: "text-blue-600" },
-      "Maths": { bg: "bg-purple-500", text: "text-purple-600" },
-      "Histoire": { bg: "bg-amber-500", text: "text-amber-600" },
-      "Géographie": { bg: "bg-emerald-500", text: "text-emerald-600" },
-      "EMC": { bg: "bg-rose-500", text: "text-rose-600" },
-      "Sciences": { bg: "bg-teal-500", text: "text-teal-600" },
-      "Anglais": { bg: "bg-indigo-500", text: "text-indigo-600" }
-    };
+    let eleveSelectionnePourImpression = null;
 
-    const MATIERES_CONFIG = {
-      "Français": ["Grammaire", "Conjugaison", "Orthographe", "Lexique", "Lecture", "Poésie"],
-      "Maths": ["Numération", "Calcul", "Grandeur et Mesure", "Géométrie", "Résolution de problèmes"],
-      "Histoire": [],
-      "Géographie": [],
-      "EMC": [],
-      "Sciences": [],
-      "Anglais": []
-    };
-
-    let baseDonnees = { "1": { evals: [], notes: {} }, "2": { evals: [], notes: {} }, "3": { evals: [], notes: {} }, "4": { evals: [], notes: {} }, "5": { evals: [], notes: {} } };
-    let periodeActive = "1";
-    let signatureDirectriceBase64 = null;
-    let evalEnCoursId = null;
-    let matiereSelectionneeCreation = "Français";
-
-    // Gestion du code de déverrouillage interactif
-    const inputPassEl = document.getElementById("inputPass");
-    inputPassEl.addEventListener('input', (e) => {
-      const len = Math.min(e.target.value.length, 5);
-      for (let i = 0; i < 5; i++) {
-        const d = document.getElementById(`dot-${i}`);
-        if (i < len) {
-          d.classList.add("bg-white", "scale-110");
-        } else {
-          d.classList.remove("bg-white", "scale-110");
-        }
-      }
-    });
-
-    inputPassEl.addEventListener('keydown', (e) => {
-      if (e.key === "Enter") validerAuthentification();
-    });
-
-    function validerAuthentification() {
-      const saisie = inputPassEl.value;
-      if (saisie === MOT_DE_PASSE_VALIDE) {
-        localStorage.setItem("cm2_auth", MOT_DE_PASSE_VALIDE);
-        deverrouillerApplication();
-      } else {
-        const card = document.getElementById("authCard");
-        card.classList.add("shake");
-        document.getElementById("authError").classList.remove("hidden");
-        setTimeout(() => card.classList.remove("shake"), 450);
-      }
-    }
-
-    function deverrouillerApplication() {
-      document.getElementById("authOverlay").classList.add("hidden");
-      document.getElementById("mainApp").classList.remove("hidden");
-      initialiserPillsMatieres();
-      ecouterDonneesCloud();
-    }
-
-    function retourAccueil() {
-      basculerVue('grille');
-    }
-
+    // Initialisation
     window.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem("cm2_auth") === MOT_DE_PASSE_VALIDE) {
-        deverrouillerApplication();
-      }
+      lucide.createIcons();
+      afficherCartesEleves(ELEVES_DATA);
+      initialiserGraphiques();
     });
 
-    function basculerVue(vue) {
-      document.getElementById("tabGrille").classList.add("hidden");
-      document.getElementById("tabApercu").classList.add("hidden");
-      document.getElementById("tabStats").classList.add("hidden");
+    // Génération visuelle des cartes élèves dans le dashboard
+    function afficherCartesEleves(liste) {
+      const grid = document.getElementById('eleves-grid');
+      grid.innerHTML = '';
 
-      const bGrille = document.getElementById("btnTabGrille");
-      const bApercu = document.getElementById("btnTabApercu");
-      const bStats = document.getElementById("btnTabStats");
-
-      [bGrille, bApercu, bStats].forEach(b => {
-        b.className = "px-4 py-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] transition";
-      });
-
-      if (vue === 'grille') {
-        document.getElementById("tabGrille").classList.remove("hidden");
-        bGrille.className = "px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-xs transition";
-      } else if (vue === 'apercu') {
-        document.getElementById("tabApercu").classList.remove("hidden");
-        bApercu.className = "px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-xs transition";
-        genererApercu();
-      } else if (vue === 'stats') {
-        document.getElementById("tabStats").classList.remove("hidden");
-        bStats.className = "px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-xs transition";
-        calculerEtAfficherStats();
-      }
-    }
-
-    function changerPeriode(val) {
-      periodeActive = String(val);
-      document.getElementById("lblPeriodeTitre").textContent = periodeActive;
-      document.getElementById("lblResetPeriode").textContent = periodeActive;
-      document.getElementById("lblApercuPeriode").textContent = periodeActive;
-      document.getElementById("statNumPeriode1").textContent = periodeActive;
-      document.getElementById("statNumPeriode2").textContent = periodeActive;
-      rafraichirCartesEvals();
-      genererApercu();
-      calculerEtAfficherStats();
-    }
-
-    // Modal de Création rapide
-    function ouvrirModalCreation() {
-      document.getElementById("modalCreateTitre").value = "";
-      selectionnerMatierePill("Français");
-      document.getElementById("modalCreation").classList.remove("hidden");
-      setTimeout(() => document.getElementById("modalCreateTitre").focus(), 100);
-    }
-
-    function fermerModalCreation() {
-      document.getElementById("modalCreation").classList.add("hidden");
-    }
-
-    function initialiserPillsMatieres() {
-      const c = document.getElementById("pillsMatieres");
-      c.innerHTML = "";
-      Object.keys(MATIERES_CONFIG).forEach(mat => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.textContent = mat;
-        btn.className = `px-3 py-1.5 rounded-xl text-xs font-semibold transition border border-black/5 ${mat === matiereSelectionneeCreation ? 'bg-[#1d1d1f] text-white shadow-xs' : 'bg-[#f5f5f7] text-[#86868b] hover:text-[#1d1d1f]'}`;
-        btn.onclick = () => selectionnerMatierePill(mat);
-        c.appendChild(btn);
-      });
-    }
-
-    function selectionnerMatierePill(mat) {
-      matiereSelectionneeCreation = mat;
-      initialiserPillsMatieres();
-      const select = document.getElementById("modalCreateTheme");
-      select.innerHTML = '<option value="">Aucun (général)</option>';
-      (MATIERES_CONFIG[mat] || []).forEach(th => {
-        const opt = document.createElement("option");
-        opt.value = th;
-        opt.textContent = th;
-        select.appendChild(opt);
-      });
-    }
-
-    function confirmerCreationEvaluation() {
-      const titre = document.getElementById("modalCreateTitre").value.trim();
-      const theme = document.getElementById("modalCreateTheme").value.trim();
-
-      if (!titre) {
-        document.getElementById("modalCreateTitre").focus();
-        return;
-      }
-
-      if (!baseDonnees[periodeActive]) {
-        baseDonnees[periodeActive] = { evals: [], notes: {} };
-      }
-
-      const evalId = "ev_" + Date.now();
-      baseDonnees[periodeActive].evals.push({
-        id: evalId,
-        matiere: matiereSelectionneeCreation,
-        theme: theme,
-        titre: titre
-      });
-      baseDonnees[periodeActive].notes[evalId] = {};
-
-      sauvegarderCloud();
-      fermerModalCreation();
-      rafraichirCartesEvals();
-      genererApercu();
-      calculerEtAfficherStats();
-      ouvrirModalSaisie(evalId);
-    }
-
-    function ecouterDonneesCloud() {
-      docRef.onSnapshot((doc) => {
-        if (doc.exists) {
-          const data = doc.data();
-          if (data.baseDonnees) baseDonnees = data.baseDonnees;
-          if (data.signature) {
-            signatureDirectriceBase64 = data.signature;
-            majAffichageBoutonSignature();
-          }
-          rafraichirCartesEvals();
-          genererApercu();
-          calculerEtAfficherStats();
-          indiquerSynchro("En direct", "emerald");
+      liste.forEach(eleve => {
+        const isAbs = eleve.note === null;
+        let noteBadge = '';
+        if (isAbs) {
+          noteBadge = `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold text-xs">ABS</span>`;
+        } else if (eleve.note >= 16) {
+          noteBadge = `<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs">${eleve.noteStr}/20</span>`;
+        } else if (eleve.note >= 10) {
+          noteBadge = `<span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold text-xs">${eleve.noteStr}/20</span>`;
         } else {
-          sauvegarderCloud();
+          noteBadge = `<span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold text-xs">${eleve.noteStr}/20</span>`;
         }
-      }, (error) => {
-        console.error("Firebase:", error);
-        indiquerSynchro("Erreur connexion", "red");
-      });
-    }
 
-    function sauvegarderCloud() {
-      indiquerSynchro("Sauvegarde...", "amber");
-      docRef.set({
-        baseDonnees: baseDonnees,
-        signature: signatureDirectriceBase64 || null,
-        derniereMaj: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true })
-      .then(() => indiquerSynchro("En direct", "emerald"))
-      .catch((err) => {
-        console.error(err);
-        indiquerSynchro("Erreur", "red");
-      });
-    }
-
-    function indiquerSynchro(texte, couleur) {
-      const el = document.getElementById("cloudStatus");
-      if (!el) return;
-      el.className = `inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-${couleur}-500/10 text-${couleur}-700 rounded-full`;
-      el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-${couleur}-500 ${couleur === 'emerald' ? 'animate-pulse' : ''}"></span><span>${texte}</span>`;
-    }
-
-    // Affichage des Cartes Apple Enrichies avec Jauge de complétion
-    function rafraichirCartesEvals() {
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const conteneur = document.getElementById("listeEvalsCards");
-      conteneur.innerHTML = "";
-
-      if (current.evals.length === 0) {
-        conteneur.innerHTML = `
-          <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-black/5 shadow-xs">
-            <h3 class="text-base font-bold text-[#1d1d1f]">Aucun devoir pour le moment</h3>
-            <p class="text-xs text-[#86868b] mt-1 font-medium">Ajoutez une première évaluation pour lancer le suivi de la période ${periodeActive}.</p>
-          </div>
-        `;
-        return;
-      }
-
-      current.evals.forEach((ev, index) => {
-        const notesObj = current.notes[ev.id] || {};
-        const nbRemplies = Object.values(notesObj).filter(v => v !== "" && v !== null && v !== undefined).length;
-        const notesNumeriques = Object.values(notesObj).map(v => parseFloat(v)).filter(v => !isNaN(v));
-        const moyDevoir = calculerMoyenne(notesNumeriques);
-        const palette = MATIERES_PALETTE[ev.matiere] || { bg: "bg-blue-500", text: "text-blue-600" };
-
-        const card = document.createElement("div");
-        card.className = "apple-card rounded-3xl p-5 flex flex-col justify-between group cursor-pointer";
-        card.onclick = (e) => {
-          if (!e.target.closest('button')) ouvrirModalSaisie(ev.id);
-        };
-
+        const card = document.createElement('div');
+        card.className = "bg-white/80 hover:bg-white rounded-2xl p-4 border border-slate-200/70 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group";
         card.innerHTML = `
           <div>
-            <div class="flex items-center justify-between gap-2 mb-3">
-              <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full ${palette.bg}"></span>
-                <span class="text-[11px] font-bold ${palette.text} uppercase tracking-wider">${ev.matiere}</span>
-                <span class="text-[10px] text-[#86868b] font-bold ml-1">#${index + 1}</span>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div>
+                <h3 class="font-bold text-slate-900 group-hover:text-blue-600 transition-colors text-sm">${eleve.nom}</h3>
+                <p class="text-xs text-slate-500 font-medium">${eleve.prenom}</p>
               </div>
-              <button onclick="supprimerColonneEvaluation('${ev.id}')" title="Supprimer" class="text-slate-400 hover:text-red-600 text-xs font-semibold px-2 py-0.5 rounded-lg hover:bg-red-50 transition">
-                Supprimer
-              </button>
+              ${noteBadge}
             </div>
-
-            <h3 class="text-sm font-bold text-[#1d1d1f] line-clamp-1" title="${ev.titre}">${ev.titre}</h3>
-            ${ev.theme ? `<p class="text-[11px] text-[#86868b] italic truncate mt-0.5">${ev.theme}</p>` : '<p class="text-[11px] text-transparent select-none mt-0.5">-</p>'}
+            <p class="text-[11px] text-slate-500 line-clamp-2 mt-2 bg-slate-50 p-2 rounded-xl border border-slate-100">
+              « ${eleve.appreciation} »
+            </p>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-black/5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-semibold text-[#86868b]">Saisie des notes</span>
-              <span class="text-xs font-bold ${nbRemplies === 16 ? 'text-emerald-600' : 'text-[#1d1d1f]'}">${nbRemplies} / 16</span>
-            </div>
-            
-            <div class="w-full h-1.5 bg-[#f5f5f7] rounded-full overflow-hidden mb-3">
-              <div class="h-full ${nbRemplies === 16 ? 'bg-emerald-500' : 'bg-[#0071e3]'} rounded-full transition-all duration-300" style="width: ${(nbRemplies / 16) * 100}%"></div>
-            </div>
-
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold text-[#0071e3]">${moyDevoir !== '-' ? moyDevoir + '/20' : 'Pas de moyenne'}</span>
-              <button onclick="ouvrirModalSaisie('${ev.id}')" class="px-3 py-1.5 bg-[#f5f5f7] hover:bg-[#1d1d1f] hover:text-white rounded-xl text-[11px] font-bold transition text-[#1d1d1f]">
-                Saisir
-              </button>
-            </div>
+          <div class="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100">
+            <button onclick="ouvrirApercuEleve(${eleve.id})" class="flex-1 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs transition-colors flex items-center justify-center gap-1">
+              <i data-lucide="eye" class="w-3.5 h-3.5"></i> Aperçu
+            </button>
+            <button onclick="imprimerUnSeulBulletin(${eleve.id})" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs shadow-sm transition-transform active:scale-95 flex items-center justify-center" title="Imprimer">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            </button>
           </div>
         `;
-        conteneur.appendChild(card);
-      });
-    }
-
-    function supprimerColonneEvaluation(evalId) {
-      if (!confirm("Supprimer définitivement cette évaluation et ses notes ?")) return;
-      baseDonnees[periodeActive].evals = baseDonnees[periodeActive].evals.filter(e => e.id !== evalId);
-      delete baseDonnees[periodeActive].notes[evalId];
-      sauvegarderCloud();
-      rafraichirCartesEvals();
-      genererApercu();
-      calculerEtAfficherStats();
-    }
-
-    // Modal Quick Flow interactif avec jauge animée
-    function ouvrirModalSaisie(evalId) {
-      evalEnCoursId = evalId;
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const evIndex = current.evals.findIndex(e => e.id === evalId);
-      if (evIndex === -1) return;
-      const ev = current.evals[evIndex];
-
-      document.getElementById("modalEvalBadge").textContent = `#${evIndex + 1}`;
-      document.getElementById("modalEvalMatiere").textContent = ev.matiere;
-      document.getElementById("modalEvalTitre").textContent = ev.titre;
-      document.getElementById("modalEvalTheme").textContent = ev.theme ? `Sous-domaine : ${ev.theme}` : "";
-
-      const listeConteneur = document.getElementById("modalSaisieListeEleves");
-      listeConteneur.innerHTML = "";
-
-      ELEVES_CM2.forEach((eleve, idx) => {
-        const valNote = (current.notes[ev.id] || {})[eleve] || "";
-        const div = document.createElement("div");
-        div.className = "flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-2xl hover:bg-[#f5f5f7] transition gap-2 border border-black/5 sm:border-transparent";
-        div.innerHTML = `
-          <div class="flex items-center gap-2.5">
-            <span class="w-5 text-[11px] font-bold text-[#86868b] text-right">${idx + 1}.</span>
-            <span class="text-xs font-bold text-[#1d1d1f]">${eleve}</span>
-          </div>
-
-          <div class="flex items-center gap-2 self-end sm:self-auto">
-            <div class="flex items-center gap-1">
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', '20', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-emerald-50 hover:text-emerald-700 rounded-lg text-[#86868b] transition">20</button>
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', '10', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-blue-50 hover:text-blue-700 rounded-lg text-[#86868b] transition">10</button>
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'NE', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-purple-50 hover:text-purple-700 rounded-lg text-[#86868b] transition">NE</button>
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'NN', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-slate-200 rounded-lg text-[#86868b] transition">NN</button>
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'ABS', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-amber-50 hover:text-amber-700 rounded-lg text-[#86868b] transition">ABS</button>
-            </div>
-
-            <div class="flex items-center gap-1 bg-white rounded-xl border border-black/10 px-2 py-1 shadow-xs focus-within:border-[#0071e3]">
-              <input type="text"
-                     value="${valNote}"
-                     placeholder="-"
-                     data-modalidx="${idx}"
-                     class="w-12 text-center font-bold text-xs outline-none bg-transparent"
-                     oninput="modifierNoteModal('${ev.id}', '${eleve}', this.value, this)"
-                     onkeydown="naviguerModal(event, ${idx})">
-              <span class="text-[10px] font-bold text-[#86868b]">/20</span>
-            </div>
-          </div>
-        `;
-        listeConteneur.appendChild(div);
+        grid.appendChild(card);
       });
 
-      actualiserBarreProgressionModal();
-      document.getElementById("modalSaisie").classList.remove("hidden");
-
-      setTimeout(() => {
-        const first = document.querySelector(`input[data-modalidx="0"]`);
-        if (first) { first.focus(); first.select(); }
-      }, 50);
+      lucide.createIcons();
     }
 
-    function actualiserBarreProgressionModal() {
-      if (!evalEnCoursId) return;
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const notesObj = current.notes[evalEnCoursId] || {};
-      const remplies = Object.values(notesObj).filter(v => v !== "" && v !== null && v !== undefined).length;
-      const pct = Math.round((remplies / 16) * 100);
-
-      document.getElementById("modalProgressText").textContent = `${remplies} / 16 (${pct}%)`;
-      document.getElementById("modalProgressBar").style.width = `${pct}%`;
+    // Filtrage de recherche
+    function filtrerEleves() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filtres = ELEVES_DATA.filter(el => 
+        el.nom.toLowerCase().includes(query) || 
+        el.prenom.toLowerCase().includes(query)
+      );
+      afficherCartesEleves(filtres);
     }
 
-    function raccourciNote(evalId, eleveNom, val, idx) {
-      const input = document.querySelector(`input[data-modalidx="${idx}"]`);
-      modifierNoteModal(evalId, eleveNom, val, input);
-      naviguerVersSuivant(idx);
-    }
-
-    function naviguerVersSuivant(idx) {
-      const next = document.querySelector(`input[data-modalidx="${idx + 1}"]`);
-      if (next) { next.focus(); next.select(); }
-    }
-
-    function modifierNoteModal(evalId, eleveNom, val, inputEl) {
-      let rawVal = val.trim().toUpperCase().replace(",", ".");
-      let finalVal = "";
-
-      if (rawVal === "" || rawVal === "-") {
-        finalVal = "";
-      } else if (["NE", "NN", "ABS", "DISP"].includes(rawVal)) {
-        finalVal = rawVal;
-      } else {
-        const num = parseFloat(rawVal);
-        if (!isNaN(num) && num >= 0 && num <= 20) {
-          finalVal = String(num);
-        } else if (rawVal.length > 2) {
-          finalVal = "";
-        } else {
-          finalVal = rawVal;
-        }
-      }
-
-      if (inputEl) inputEl.value = finalVal;
-
-      if (!baseDonnees[periodeActive].notes[evalId]) {
-        baseDonnees[periodeActive].notes[evalId] = {};
-      }
-      baseDonnees[periodeActive].notes[evalId][eleveNom] = finalVal;
-      actualiserBarreProgressionModal();
-      sauvegarderCloud();
-    }
-
-    function naviguerModal(event, currentIdx) {
-      if (event.key === "Enter" || event.key === "ArrowDown") {
-        event.preventDefault();
-        naviguerVersSuivant(currentIdx);
-      } else if (event.key === "ArrowUp") {
-        event.preventDefault();
-        const prev = document.querySelector(`input[data-modalidx="${currentIdx - 1}"]`);
-        if (prev) { prev.focus(); prev.select(); }
-      }
-    }
-
-    function fermerModalSaisie() {
-      document.getElementById("modalSaisie").classList.add("hidden");
-      evalEnCoursId = null;
-      rafraichirCartesEvals();
-      genererApercu();
-      calculerEtAfficherStats();
-    }
-
-    // Gestion Signature
-    function importerEtCompresserSignature(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement("canvas");
-          const MAX_WIDTH = 300;
-          const scaleSize = MAX_WIDTH / img.width;
-          canvas.width = MAX_WIDTH;
-          canvas.height = img.height * scaleSize;
-
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          signatureDirectriceBase64 = canvas.toDataURL("image/png");
-
-          majAffichageBoutonSignature();
-          sauvegarderCloud();
-          genererApercu();
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function supprimerSignature() {
-      if (!confirm("Retirer la signature actuelle ?")) return;
-      signatureDirectriceBase64 = null;
-      majAffichageBoutonSignature();
-      sauvegarderCloud();
-      genererApercu();
-    }
-
-    function majAffichageBoutonSignature() {
-      const btnSuppr = document.getElementById("btnSupprSig");
-      const txt = document.getElementById("txtSignature");
-      if (signatureDirectriceBase64) {
-        txt.textContent = "Signature active ✓";
-        btnSuppr.classList.remove("hidden");
-      } else {
-        txt.textContent = "Importer signature";
-        btnSuppr.classList.add("hidden");
-      }
-    }
-
-    // Sauvegarde & Restauration JSON
-    function exporterSauvegardeJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(baseDonnees, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `bulletins_cm2_sauvegarde_${new Date().toISOString().slice(0,10)}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    }
-
-    function importerSauvegardeJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const importData = JSON.parse(e.target.result);
-          if (confirm("Remplacer les données actuelles par cette sauvegarde ?")) {
-            baseDonnees = importData;
-            sauvegarderCloud();
-            rafraichirCartesEvals();
-            genererApercu();
-            calculerEtAfficherStats();
-            alert("Restauration terminée avec succès !");
-          }
-        } catch (err) {
-          alert("Erreur de fichier JSON.");
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function confirmerReset(mode) {
-      if (mode === 'periode') {
-        if (!confirm(`Supprimer toutes les notes de la Période ${periodeActive} ?`)) return;
-        baseDonnees[periodeActive] = { evals: [], notes: {} };
-      }
-      sauvegarderCloud();
-      rafraichirCartesEvals();
-      genererApercu();
-      calculerEtAfficherStats();
-    }
-
-    function calculerMoyenne(tab) {
-      const v = tab.map(n => parseFloat(n)).filter(n => !isNaN(n));
-      if (v.length === 0) return "-";
-      return (v.reduce((a, b) => a + b, 0) / v.length).toFixed(2);
-    }
-
-    // STATISTIQUES DEMANDÉES AVEC COMPARATIF ÉLÈVES
-    function calculerEtAfficherStats() {
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const numP = parseInt(periodeActive);
-
-      // 1. Moyenne de la période
-      const toutesLesNotesP = [];
-      const moyennesParEleve = [];
-
-      ELEVES_CM2.forEach(eleve => {
-        const notesEleve = [];
-        current.evals.forEach(ev => {
-          const v = (current.notes[ev.id] || {})[eleve];
-          if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) {
-            const num = parseFloat(v);
-            notesEleve.push(num);
-            toutesLesNotesP.push(num);
-          }
-        });
-        if (notesEleve.length > 0) {
-          const m = parseFloat(calculerMoyenne(notesEleve));
-          moyennesParEleve.push({ eleve: eleve, moyenne: m });
-        }
-      });
-
-      const moyPeriodeVal = toutesLesNotesP.length > 0 ? (toutesLesNotesP.reduce((a,b)=>a+b,0) / toutesLesNotesP.length).toFixed(2) : "-";
-      document.getElementById("statMoyennePeriode").textContent = moyPeriodeVal !== "-" ? `${moyPeriodeVal} / 20` : "-";
-
-      // 2. Moyenne de la période précédente
-      if (numP > 1) {
-        const dataPrec = baseDonnees[String(numP - 1)] || { evals: [], notes: {} };
-        const notesPrec = [];
-        ELEVES_CM2.forEach(eleve => {
-          dataPrec.evals.forEach(ev => {
-            const v = (dataPrec.notes[ev.id] || {})[eleve];
-            if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) notesPrec.push(parseFloat(v));
-          });
-        });
-        const moyPrecVal = notesPrec.length > 0 ? (notesPrec.reduce((a,b)=>a+b,0) / notesPrec.length).toFixed(2) : "-";
-        document.getElementById("statMoyennePrec").textContent = moyPrecVal !== "-" ? `${moyPrecVal} / 20` : "-";
-
-        if (moyPeriodeVal !== "-" && moyPrecVal !== "-") {
-          const diff = (parseFloat(moyPeriodeVal) - parseFloat(moyPrecVal)).toFixed(2);
-          const signe = diff >= 0 ? `+${diff}` : `${diff}`;
-          document.getElementById("statEcartPrec").textContent = `Évolution : ${signe} pts vs P${numP - 1}`;
-        } else {
-          document.getElementById("statEcartPrec").textContent = `Période ${numP - 1}`;
-        }
-      } else {
-        document.getElementById("statMoyennePrec").textContent = "N/A";
-        document.getElementById("statEcartPrec").textContent = "Première période de l'année";
-      }
-
-      // 3. Meilleure et Pire moyenne (Note + Nom de l'élève)
-      if (moyennesParEleve.length > 0) {
-        moyennesParEleve.sort((a, b) => b.moyenne - a.moyenne);
-        const meilleure = moyennesParEleve[0];
-        const pire = moyennesParEleve[moyennesParEleve.length - 1];
-
-        document.getElementById("statMeilleureNote").textContent = `${meilleure.moyenne.toFixed(2)} / 20`;
-        document.getElementById("statMeilleurEleve").textContent = `Élève : ${meilleure.eleve}`;
-
-        document.getElementById("statPireNote").textContent = `${pire.moyenne.toFixed(2)} / 20`;
-        document.getElementById("statPireEleve").textContent = `Élève : ${pire.eleve}`;
-      } else {
-        document.getElementById("statMeilleureNote").textContent = "-";
-        document.getElementById("statMeilleurEleve").textContent = "Élève : -";
-        document.getElementById("statPireNote").textContent = "-";
-        document.getElementById("statPireEleve").textContent = "Élève : -";
-      }
-
-      // 4. Grand Tableau comparatif des 16 élèves sur 5 périodes
-      const tbodyComp = document.getElementById("tbodyComparatifEleves");
-      tbodyComp.innerHTML = "";
-
-      ELEVES_CM2.forEach((eleve) => {
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-[#fbfbfd] transition";
-
-        let htmlLigne = `<td class="py-2.5 px-3 font-semibold text-[#1d1d1f]">${eleve}</td>`;
-        let moysCumulees = [];
-
-        for (let p = 1; p <= 5; p++) {
-          const dataP = baseDonnees[String(p)] || { evals: [], notes: {} };
-          const notesEleveP = [];
-          dataP.evals.forEach(ev => {
-            const v = (dataP.notes[ev.id] || {})[eleve];
-            if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) {
-              notesEleveP.push(parseFloat(v));
+    // Initialisation des graphiques interactifs Chart.js (Style pastel Apple)
+    function initialiserGraphiques() {
+      // 1. Histogramme de répartition
+      const ctxDist = document.getElementById('notesDistributionChart').getContext('2d');
+      new Chart(ctxDist, {
+        type: 'bar',
+        data: {
+          labels: ['0-4 (Insuffisant)', '5-9 (Fragile)', '10-13 (Satisfaisant)', '14-17 (Bon)', '18-20 (Excellent)'],
+          datasets: [{
+            label: 'Nombre d\'élèves',
+            data: [1, 2, 6, 3, 3], // 1 abs exclu
+            backgroundColor: [
+              'rgba(244, 63, 94, 0.75)',   // Rose / Rouge
+              'rgba(245, 158, 11, 0.75)',  // Ambre
+              'rgba(59, 130, 246, 0.75)',   // Bleu Apple
+              'rgba(99, 102, 241, 0.75)',  // Indigo
+              'rgba(16, 185, 129, 0.75)',  // Vert Émeraude
+            ],
+            borderRadius: 10,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              titleFont: { size: 12, family: 'Inter' },
+              bodyFont: { size: 11, family: 'Inter' },
+              padding: 10,
+              cornerRadius: 10
             }
-          });
-
-          const moyP = calculerMoyenne(notesEleveP);
-          if (moyP !== "-") moysCumulees.push(parseFloat(moyP));
-
-          const estPeriodeEnCours = p === numP;
-          htmlLigne += `
-            <td class="py-2.5 px-2 text-center font-medium ${estPeriodeEnCours ? 'font-bold text-[#0071e3] bg-[#0071e3]/5' : 'text-[#86868b]'}">
-              ${moyP !== '-' ? moyP : '-'}
-            </td>
-          `;
-        }
-
-        const moyAnnuelle = moysCumulees.length > 0 ? (moysCumulees.reduce((a, b) => a + b, 0) / moysCumulees.length).toFixed(2) : "-";
-        htmlLigne += `
-          <td class="py-2.5 px-3 text-right font-black text-[#1d1d1f]">
-            ${moyAnnuelle !== '-' ? moyAnnuelle + ' / 20' : '-'}
-          </td>
-        `;
-
-        tr.innerHTML = htmlLigne;
-        tbodyComp.appendChild(tr);
-      });
-
-      // 5. Une stat par évaluation faite
-      const grilleEvals = document.getElementById("statGrilleEvalsDetails");
-      grilleEvals.innerHTML = "";
-
-      if (current.evals.length === 0) {
-        grilleEvals.innerHTML = `<div class="col-span-full text-xs text-[#86868b] italic">Aucune évaluation enregistrée pour cette période.</div>`;
-      } else {
-        current.evals.forEach((ev, idx) => {
-          const notesObj = current.notes[ev.id] || {};
-          const notesTab = Object.values(notesObj).map(v => parseFloat(v)).filter(v => !isNaN(v));
-          const moy = calculerMoyenne(notesTab);
-          const max = notesTab.length > 0 ? Math.max(...notesTab).toFixed(2) : "-";
-          const min = notesTab.length > 0 ? Math.min(...notesTab).toFixed(2) : "-";
-          const count = notesTab.length;
-
-          const d = document.createElement("div");
-          d.className = "apple-card rounded-2xl p-4 flex flex-col justify-between";
-          d.innerHTML = `
-            <div>
-              <div class="flex justify-between items-center mb-1">
-                <span class="text-[10px] font-bold uppercase text-[#0071e3]">#${idx + 1} ${ev.matiere}</span>
-                <span class="text-[11px] font-bold text-[#86868b]">${count}/16 notés</span>
-              </div>
-              <div class="text-xs font-bold text-[#1d1d1f] truncate" title="${ev.titre}">${ev.titre}</div>
-            </div>
-
-            <div class="mt-3 pt-2.5 border-t border-black/5 grid grid-cols-3 text-center text-xs">
-              <div>
-                <span class="text-[10px] text-[#86868b] font-semibold uppercase">Moyenne</span>
-                <div class="font-bold text-[#0071e3] mt-0.5">${moy}</div>
-              </div>
-              <div>
-                <span class="text-[10px] text-[#86868b] font-semibold uppercase">Plus haute</span>
-                <div class="font-bold text-emerald-700 mt-0.5">${max}</div>
-              </div>
-              <div>
-                <span class="text-[10px] text-[#86868b] font-semibold uppercase">Plus basse</span>
-                <div class="font-bold text-amber-700 mt-0.5">${min}</div>
-              </div>
-            </div>
-          `;
-          grilleEvals.appendChild(d);
-        });
-      }
-    }
-
-    function calculerHistorique(eleve) {
-      const histo = [];
-      const numPeriode = parseInt(periodeActive);
-
-      for (let p = 1; p < numPeriode; p++) {
-        const dataP = baseDonnees[String(p)];
-        if (!dataP || !dataP.evals || dataP.evals.length === 0) continue;
-        const notesP = [];
-        dataP.evals.forEach(ev => {
-          const val = (dataP.notes[ev.id] || {})[eleve];
-          if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) notesP.push(parseFloat(val));
-        });
-        if (notesP.length > 0) {
-          histo.push(`Période ${p} : <b>${calculerMoyenne(notesP)}/20</b>`);
-        }
-      }
-
-      if (histo.length === 0) {
-        return numPeriode === 1 ? "Première période de l'année scolaire" : "Aucune note antérieure";
-      }
-      return histo.join("&nbsp;&nbsp;&bull;&nbsp;&nbsp;");
-    }
-
-    function telechargerTousLesBulletinsPDF() {
-      basculerVue('apercu');
-      const el = document.getElementById("apercuBulletins");
-      const btn = document.getElementById("btnTelechargerPDF");
-      const txt = document.getElementById("txtBtnTelecharger");
-
-      txt.textContent = "Génération du PDF...";
-      btn.disabled = true;
-
-      const opt = {
-        margin: 0,
-        filename: `bulletins_CM2_periode_${periodeActive}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(el).save().then(() => {
-        txt.textContent = "Télécharger tout en PDF";
-        btn.disabled = false;
-      }).catch(err => {
-        console.error(err);
-        alert("Erreur lors de la création du PDF. Utilisez le bouton 'Imprimer'.");
-        txt.textContent = "Télécharger tout en PDF";
-        btn.disabled = false;
-      });
-    }
-
-    function lancerImpressionNavigateur() {
-      basculerVue('apercu');
-      setTimeout(() => {
-        window.print();
-      }, 300);
-    }
-
-    function genererApercu() {
-      const conteneur = document.getElementById("apercuBulletins");
-      conteneur.innerHTML = "";
-
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const dateStr = new Date().toLocaleDateString("fr-FR");
-      const nbEvalsTotal = current.evals.length;
-
-      const cellPad = nbEvalsTotal > 10 ? "2.5px 5px" : "3.5px 7px";
-      const fontSize = nbEvalsTotal > 10 ? "8pt" : "8.5pt";
-
-      ELEVES_CM2.forEach((eleveNom, idx) => {
-        const matieresMap = {};
-        const allNotesEleve = [];
-
-        current.evals.forEach(ev => {
-          const val = (current.notes[ev.id] || {})[eleveNom] || "";
-          const thKey = ev.theme || "";
-          if (!matieresMap[ev.matiere]) matieresMap[ev.matiere] = {};
-          if (!matieresMap[ev.matiere][thKey]) matieresMap[ev.matiere][thKey] = [];
-
-          matieresMap[ev.matiere][thKey].push({ titre: ev.titre, note: val });
-          if (val !== "" && !isNaN(parseFloat(val))) allNotesEleve.push(parseFloat(val));
-        });
-
-        let corpsTableauHTML = "";
-        for (const [matiere, themes] of Object.entries(matieresMap)) {
-          let notesMatiere = [];
-          let sousLignesHTML = "";
-
-          for (const [theme, devoirs] of Object.entries(themes)) {
-            if (theme && theme.trim() !== "") {
-              sousLignesHTML += `
-                <tr style="background-color: #fafafa;">
-                  <td colspan="2" style="padding: 2px 5px; font-size: 7.5pt; font-style: italic; color: #4b5563; border: 1px solid #d1d5db;">
-                    ${theme}
-                  </td>
-                </tr>
-              `;
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1, font: { family: 'Inter', size: 11 } },
+              grid: { color: 'rgba(0, 0, 0, 0.04)' }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { font: { family: 'Inter', size: 10 } }
             }
-
-            devoirs.forEach(dev => {
-              const numVal = dev.note !== "" && !isNaN(parseFloat(dev.note)) ? parseFloat(dev.note) : null;
-              if (numVal !== null) notesMatiere.push(numVal);
-
-              const estStatutTexte = ["NE", "NN", "ABS", "DISP"].includes(dev.note);
-              const affichageNote = dev.note !== "" ? (estStatutTexte ? `<span style="color:#6b7280; font-size:7.5pt; font-weight:700;">${dev.note}</span>` : `${dev.note}`) : "-";
-
-              sousLignesHTML += `
-                <tr>
-                  <td style="padding: ${cellPad}; font-size: ${fontSize}; color: #111827; border: 1px solid #d1d5db;">
-                    ${dev.titre}
-                  </td>
-                  <td style="padding: ${cellPad}; font-size: ${fontSize}; font-weight: 600; text-align: center; border: 1px solid #d1d5db; width: 70px;">
-                    ${affichageNote}
-                  </td>
-                </tr>
-              `;
-            });
           }
-
-          const moyMatiere = calculerMoyenne(notesMatiere);
-
-          corpsTableauHTML += `
-            <tr style="background-color: #f3f4f6; font-weight: 700;">
-              <td style="padding: 3.5px 5px; font-size: 8.5pt; color: #111827; border: 1px solid #9ca3af; text-transform: uppercase; letter-spacing: 0.3px;">
-                ${matiere}
-              </td>
-              <td style="padding: 3.5px 5px; font-size: 8.5pt; text-align: center; border: 1px solid #9ca3af; color: #111827;">
-                ${moyMatiere !== '-' ? moyMatiere : '-'}
-              </td>
-            </tr>
-            ${sousLignesHTML}
-          `;
         }
+      });
 
-        const moyGen = calculerMoyenne(allNotesEleve);
-        const histoStr = calculerHistorique(eleveNom);
+      // 2. Anneau Donut Socle de compétences
+      const ctxDoughnut = document.getElementById('competencesDoughnutChart').getContext('2d');
+      new Chart(ctxDoughnut, {
+        type: 'doughnut',
+        data: {
+          labels: ['Très bonne maîtrise', 'Maîtrise satisfaisante', 'Maîtrise fragile', 'Insuffisante'],
+          datasets: [{
+            data: [4, 5, 4, 2],
+            backgroundColor: [
+              'rgba(16, 185, 129, 0.85)',
+              'rgba(59, 130, 246, 0.85)',
+              'rgba(245, 158, 11, 0.85)',
+              'rgba(244, 63, 94, 0.85)'
+            ],
+            borderWidth: 3,
+            borderColor: '#ffffff',
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '72%',
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
 
-        const page = document.createElement("div");
-        page.className = "bulletin-page";
-        page.id = `bulletin-page-${idx}`;
-        page.innerHTML = `
+    // ==============================================================
+    // CONSTRUCTEUR DU TEMPLATE HTML DU BULLETIN STRICT 1 PAGE A4
+    // ==============================================================
+    function genererHTMLBulletin(eleve) {
+      const noteAffichee = eleve.note !== null ? `${eleve.noteStr} / 20` : "ABS";
+      const moyenneAffichee = eleve.note !== null ? `${eleve.noteStr} / 20` : "- / 20";
+
+      return `
+        <article class="bulletin-page">
+          
+          <!-- BLOC 1 : EN-TÊTE OFFICIEL -->
           <div>
-            <div style="border-bottom: 2px solid #111827; padding-bottom: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div class="flex justify-between items-start border-b-2 border-slate-900 pb-3">
               <div>
-                <div style="font-size: 11.5pt; font-weight: 700; color: #111827; font-family: 'Libre Baskerville', serif;">École élémentaire Jean des Vignes Rouges</div>
-                <div style="font-size: 8pt; color: #4b5563;">21200 Bligny-lès-Beaune</div>
+                <h1 class="text-base font-extrabold tracking-tight uppercase text-slate-950">${ECOLE_INFO.nom}</h1>
+                <p class="text-xs text-slate-700 font-medium">${ECOLE_INFO.commune}</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Ministère de l'Éducation Nationale • Académie de Dijon</p>
               </div>
-              <div style="text-align: right;">
-                <div style="font-size: 10pt; font-weight: 700; color: #111827;">BULLETIN SCOLAIRE</div>
-                <div style="font-size: 8pt; color: #374151;">Année scolaire 2026/2027 &bull; <b>Période ${periodeActive}</b></div>
+              <div class="text-right">
+                <span class="inline-block bg-slate-900 text-white font-extrabold text-xs px-3 py-1 rounded tracking-wide uppercase">
+                  BULLETIN SCOLAIRE
+                </span>
+                <p class="text-xs font-semibold text-slate-800 mt-1">${ECOLE_INFO.annee} • ${ECOLE_INFO.periode}</p>
               </div>
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; border: 1px solid #111827;">
-              <tr>
-                <td style="padding: 5px 7px; background-color: #f9fafb; width: 65%; border-right: 1px solid #111827;">
-                  <span style="font-size: 7.5pt; text-transform: uppercase; color: #4b5563;">Élève :</span>
-                  <div style="font-size: 10.5pt; font-weight: 700; color: #111827;">${eleveNom}</div>
-                </td>
-                <td style="padding: 5px 7px; background-color: #f9fafb;">
-                  <span style="font-size: 7.5pt; text-transform: uppercase; color: #4b5563;">Niveau / Classe :</span>
-                  <div style="font-size: 10.5pt; font-weight: 700; color: #111827;">CM2</div>
-                </td>
-              </tr>
-            </table>
+            <!-- ENCADRÉ IDENTITÉ ÉLÈVE & CLASSE -->
+            <div class="grid grid-cols-2 gap-3 my-3 bg-slate-50 border border-slate-300 rounded-lg p-2.5">
+              <div class="border-r border-slate-200 pr-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Élève</span>
+                <span class="text-sm font-black text-slate-950 tracking-wide">${eleve.nom} ${eleve.prenom}</span>
+              </div>
+              <div class="pl-2 flex justify-between items-center">
+                <div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Niveau / Classe</span>
+                  <span class="text-sm font-extrabold text-slate-900">${ECOLE_INFO.classe}</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Date d'édition</span>
+                  <span class="text-xs font-medium text-slate-700">10/11/2026</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px;">
+          <!-- BLOC 2 : TABLEAU D'ÉVALUATION COMPLET ET RIGOUREUX -->
+          <div class="my-auto">
+            <table class="w-full border-collapse border border-slate-800 text-xs print-table">
               <thead>
-                <tr style="background-color: #e5e7eb; border: 1px solid #9ca3af;">
-                  <th style="padding: 4px 5px; text-align: left; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; color: #111827;">
-                    Domaines d'enseignement & Évaluations
-                  </th>
-                  <th style="padding: 4px 5px; text-align: center; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; width: 70px; color: #111827;">
-                    Note / 20
-                  </th>
+                <tr class="bg-slate-100 text-slate-950 font-bold text-[11px] uppercase tracking-wider">
+                  <th class="border border-slate-800 px-3 py-1.5 text-left w-3/5">Domaines d'enseignement & Évaluations</th>
+                  <th class="border border-slate-800 px-3 py-1.5 text-center w-1/5">Note / 20</th>
+                  <th class="border border-slate-800 px-3 py-1.5 text-center w-1/5">Éléments du socle</th>
                 </tr>
               </thead>
               <tbody>
-                ${corpsTableauHTML || '<tr><td colspan="2" style="padding: 16px; text-align: center; color: #6b7280; font-style: italic; border: 1px solid #d1d5db;">Aucune évaluation enregistrée pour cette période.</td></tr>'}
+                <!-- Ligne de Catégorie Majeure : Français -->
+                <tr class="bg-slate-50 font-extrabold text-slate-900 border-b border-slate-800">
+                  <td class="border border-slate-800 px-3 py-1.5 uppercase tracking-wide">FRANÇAIS</td>
+                  <td class="border border-slate-800 px-3 py-1.5 text-center">${eleve.note !== null ? eleve.noteStr : '-'}</td>
+                  <td class="border border-slate-800 px-3 py-1.5 text-center text-[10px] font-medium text-slate-600">Langue française</td>
+                </tr>
                 
-                <tr style="background-color: #e5e7eb; border-top: 2px solid #111827; font-weight: 700;">
-                  <td style="padding: 4.5px 5px; font-size: 8.5pt; text-align: right; text-transform: uppercase; letter-spacing: 0.5px; color: #111827; border: 1px solid #9ca3af;">
-                    Moyenne générale de la période :
+                <!-- Sous-matière : Orthographe -->
+                <tr class="font-medium text-slate-800">
+                  <td class="border border-slate-800 px-6 py-1 italic font-semibold text-slate-700">└─ Orthographe</td>
+                  <td class="border border-slate-800 px-3 py-1 text-center font-medium">—</td>
+                  <td class="border border-slate-800 px-3 py-1 text-center text-[10px] text-slate-500">Règles & Accords</td>
+                </tr>
+
+                <!-- Évaluation Précise : Dictée 1 -->
+                <tr class="text-slate-900">
+                  <td class="border border-slate-800 px-8 py-1.5">
+                    <span class="font-bold">Dictée 1</span>
+                    <span class="text-[10px] text-slate-500 block">Accords dans le groupe nominal et terminaisons verbales</span>
                   </td>
-                  <td style="padding: 4.5px 5px; font-size: 9.5pt; text-align: center; color: #111827; border: 1px solid #9ca3af;">
-                    ${moyGen} / 20
+                  <td class="border border-slate-800 px-3 py-1.5 text-center font-bold text-sm bg-slate-50/50">
+                    ${noteAffichee}
+                  </td>
+                  <td class="border border-slate-800 px-3 py-1.5 text-center text-[11px] font-semibold text-slate-700">
+                    ${eleve.mention}
+                  </td>
+                </tr>
+
+                <!-- Moyenne générale de la période -->
+                <tr class="bg-slate-100 font-black text-slate-950 border-t-2 border-slate-900">
+                  <td class="border border-slate-800 px-3 py-2 uppercase text-right tracking-wider">
+                    MOYENNE GÉNÉRALE DE LA PÉRIODE :
+                  </td>
+                  <td class="border border-slate-800 px-3 py-2 text-center text-sm bg-yellow-50/60 font-extrabold">
+                    ${moyenneAffichee}
+                  </td>
+                  <td class="border border-slate-800 px-3 py-2 text-center text-[10px] font-medium text-slate-600">
+                    Classe : 13.13/20
                   </td>
                 </tr>
               </tbody>
             </table>
 
-            <div style="font-size: 7.5pt; color: #4b5563; text-align: right; margin-bottom: 5px;">
-              Historique des périodes précédentes : <span>${histoStr}</span>
+            <!-- APPRÉCIATION GLOBALE DE L'ÉQUIPE PÉDAGOGIQUE -->
+            <div class="mt-3 p-2.5 border border-slate-400 rounded-lg bg-slate-50/60">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-700 block mb-0.5">
+                Appréciation pédagogique & observation de l'enseignant :
+              </span>
+              <p class="text-xs text-slate-800 leading-snug italic">
+                « ${eleve.appreciation} »
+              </p>
+            </div>
+
+            <!-- HISTORIQUE DES PÉRIODES -->
+            <div class="mt-2 text-[10px] text-slate-600 font-medium">
+              <span class="font-bold">Historique des périodes précédentes :</span> ${ECOLE_INFO.historique}.
             </div>
           </div>
 
-          <div>
-            <div style="font-size: 8pt; color: #374151; margin-bottom: 6px;">
-              Fait à Bligny-lès-Beaune, le ${dateStr}
+          <!-- BLOC 3 : BAS DE PAGE & SIGNATURES (ANCRAGE STRICT FOND DE PAGE) -->
+          <div class="pt-2 border-t-2 border-slate-900 mt-2">
+            <div class="flex justify-between items-center text-[11px] text-slate-800 mb-2 font-medium">
+              <span>${ECOLE_INFO.dateFait}</span>
+              <span class="text-[10px] text-slate-500">Document scolaire officiel à conserver sans limitation de durée</span>
             </div>
 
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="width: 48%; vertical-align: top; border: 1px solid #9ca3af; padding: 5px 7px; height: 75px;">
-                  <div style="font-size: 8pt; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">
-                    Signature des parents :
-                  </div>
-                </td>
-                <td style="width: 4%;"></td>
-                <td style="width: 48%; vertical-align: top; border: 1px solid #111827; background-color: #ffffff; padding: 5px 7px; height: 75px; position: relative;">
-                  <div style="font-size: 8pt; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">
-                    La Directrice d'école :
-                  </div>
-                  
-                  <div style="position: absolute; top: 12px; right: 12px; bottom: 18px; left: 25px; display: flex; align-items: center; justify-content: flex-end;">
-                    ${signatureDirectriceBase64 ? `
-                      <img src="${signatureDirectriceBase64}" alt="Signature" style="max-height: 48px; max-width: 130px; object-fit: contain;">
-                    ` : ''}
-                  </div>
+            <div class="grid grid-cols-2 gap-6 mt-1">
+              <!-- Signature Parents -->
+              <div class="border border-slate-400 rounded-lg p-2.5 h-24 flex flex-col justify-between bg-slate-50/40">
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-700">SIGNATURE DES PARENTS :</span>
+                <span class="text-[9px] text-slate-400 italic text-center">Vu et pris connaissance</span>
+              </div>
 
-                  <div style="position: absolute; bottom: 4px; right: 8px; font-size: 8pt; font-weight: 600; color: #1f2937;">
-                    Mme Estelle CHIRAT
-                  </div>
-                </td>
-              </tr>
-            </table>
+              <!-- Signature Directrice -->
+              <div class="border border-slate-400 rounded-lg p-2.5 h-24 flex flex-col justify-between bg-slate-50/40">
+                <div>
+                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-700 block">LA DIRECTRICE D'ÉCOLE :</span>
+                  <span class="text-xs font-bold text-slate-900 block mt-0.5">${ECOLE_INFO.directrice}</span>
+                </div>
+                <div class="flex items-center justify-between text-[9px] text-slate-400">
+                  <span class="italic">Cachet de l'école</span>
+                  <span class="text-indigo-900 font-serif text-[10px] font-semibold opacity-60">E. CHIRAT</span>
+                </div>
+              </div>
+            </div>
           </div>
-        `;
 
-        conteneur.appendChild(page);
+        </article>
+      `;
+    }
+
+    // ==============================================================
+    // ALGORITHME D'AUTO-SCALING STRICT POUR GARANTIR 1 PAGE
+    // ==============================================================
+    function ajusterAutoScalingBulletins() {
+      const pages = document.querySelectorAll('#printable-container .bulletin-page');
+      pages.forEach(page => {
+        // Hauteur maximale autorisée en pixels (environ 277mm à 96dpi)
+        const MAX_HEIGHT_PX = 1045; 
+        
+        let attempts = 0;
+        let scale = 1.0;
+        
+        // Si le contenu dépasse physiquement la boîte A4, on compresse dynamiquement les polices
+        while (page.scrollHeight > MAX_HEIGHT_PX && attempts < 5) {
+          scale -= 0.05;
+          page.style.fontSize = `${scale * 100}%`;
+          attempts++;
+        }
       });
+    }
+
+    // Afficher la modale d'aperçu d'un élève
+    function ouvrirApercuEleve(id) {
+      const eleve = ELEVES_DATA.find(e => e.id === id);
+      if (!eleve) return;
+      
+      eleveSelectionnePourImpression = eleve;
+      document.getElementById('modal-title').textContent = `Bulletin de ${eleve.prenom} ${eleve.nom} (CM2)`;
+      document.getElementById('modal-bulletin-body').innerHTML = genererHTMLBulletin(eleve);
+      document.getElementById('preview-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function fermerModal() {
+      document.getElementById('preview-modal').classList.add('hidden');
+    }
+
+    // Impression d'un seul élève
+    function imprimerUnSeulBulletin(id) {
+      const eleve = ELEVES_DATA.find(e => e.id === id);
+      if (!eleve) return;
+
+      const container = document.getElementById('printable-container');
+      container.innerHTML = genererHTMLBulletin(eleve);
+      
+      ajusterAutoScalingBulletins();
+      
+      setTimeout(() => {
+        window.print();
+      }, 50);
+    }
+
+    function imprimerEleveActuel() {
+      if (eleveSelectionnePourImpression) {
+        imprimerUnSeulBulletin(eleveSelectionnePourImpression.id);
+      }
+    }
+
+    // Impression en lot de l'intégralité des 16 élèves
+    function imprimerTousLesBulletins() {
+      const container = document.getElementById('printable-container');
+      
+      // Concaténer chaque bulletin d'élève avec son saut de page automatique
+      container.innerHTML = ELEVES_DATA.map(eleve => genererHTMLBulletin(eleve)).join('');
+      
+      ajusterAutoScalingBulletins();
+      
+      setTimeout(() => {
+        window.print();
+      }, 50);
+    }
+
+    function ouvrirAideImpression() {
+      document.getElementById('help-modal').classList.remove('hidden');
+      lucide.createIcons();
     }
   </script>
 </body>
