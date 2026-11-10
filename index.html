@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bulletins CM2 — Jean des Vignes Rouges</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
+
+  <!-- Export PDF Client -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- SDK Firebase Compat -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -15,41 +17,13 @@
     @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
 
     :root {
-      --system-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     body {
       font-family: var(--system-font);
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
-
-    .glass-header {
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-    }
-
-    .apple-card {
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .apple-card:hover {
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-      transform: translateY(-2px);
-    }
-
-    /* Animation Shake iPadOS */
-    @keyframes appleShake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-12px); }
-      40%, 80% { transform: translateX(12px); }
-    }
-    .shake { animation: appleShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
 
     /* Page format A4 strict */
     .bulletin-page {
@@ -60,12 +34,12 @@
       margin: 0 auto 30px auto;
       background: #ffffff;
       box-sizing: border-box;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      border-radius: 8px;
+      border-radius: 4px;
       overflow: hidden;
     }
 
@@ -78,8 +52,8 @@
       }
       .no-print { display: none !important; }
       #tabApercu { display: block !important; padding: 0 !important; background: transparent !important; }
-      #tabGrille, #tabStats, #authOverlay, #modalSaisie, #modalCreation, #apercuSidebar { display: none !important; }
-      #apercuMainArea { width: 100% !important; padding: 0 !important; }
+      #tabGrille, #tabStats, #authOverlay, #modalSaisie, #modalCreation, #apercuBarreActions { display: none !important; }
+      #apercuBulletins { background: transparent !important; padding: 0 !important; }
       
       .bulletin-page {
         margin: 0 !important;
@@ -99,210 +73,169 @@
     }
   </style>
 </head>
-<body class="h-full text-[#1d1d1f] flex flex-col select-none sm:select-auto">
+<body class="h-full text-[#1d1d1f] flex flex-col">
 
-  <!-- ================= ÉCRAN DE VERROUILLAGE TYPE IPADOS ================= -->
-  <div id="authOverlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white backdrop-blur-3xl">
-    <div id="authCard" class="w-full max-w-sm flex flex-col items-center">
-      
-      <div class="w-16 h-16 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-4 border border-white/10 shadow-2xl">
-        <i data-lucide="lock" class="w-7 h-7 text-white"></i>
-      </div>
+  <!-- ================= ÉCRAN DE DÉVERROUILLAGE ================= -->
+  <div id="authOverlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-sm w-full text-center">
+      <h2 class="text-base font-bold text-slate-900 uppercase tracking-wider mb-1">Accès Sécurisé</h2>
+      <p class="text-xs text-slate-500 mb-5">École Jean des Vignes Rouges &bull; CM2</p>
 
-      <h2 class="text-xl font-bold tracking-tight text-center">École Jean des Vignes Rouges</h2>
-      <p class="text-xs text-white/60 mt-1 mb-8 text-center font-medium">Gestion et Impression des Bulletins CM2</p>
-
-      <!-- Témoins de saisie du mot de passe -->
-      <div class="flex items-center gap-3 mb-8">
-        <div class="w-3.5 h-3.5 rounded-full border border-white/40 transition-all duration-200" id="dot-0"></div>
-        <div class="w-3.5 h-3.5 rounded-full border border-white/40 transition-all duration-200" id="dot-1"></div>
-        <div class="w-3.5 h-3.5 rounded-full border border-white/40 transition-all duration-200" id="dot-2"></div>
-        <div class="w-3.5 h-3.5 rounded-full border border-white/40 transition-all duration-200" id="dot-3"></div>
-        <div class="w-3.5 h-3.5 rounded-full border border-white/40 transition-all duration-200" id="dot-4"></div>
-      </div>
-
-      <!-- Clavier numérique / saisie alternative directe -->
-      <div class="w-full space-y-3">
-        <input type="password" id="inputPass" placeholder="Tapez le mot de passe" autofocus
-               class="w-full text-center px-4 py-3.5 bg-white/10 hover:bg-white/15 focus:bg-white/20 rounded-2xl text-sm font-medium tracking-widest outline-none border border-white/15 focus:border-[#0071e3] transition backdrop-blur-lg">
-        
-        <p id="authError" class="text-xs text-red-400 text-center font-medium hidden">Mot de passe incorrect. Réessayez.</p>
-
-        <button onclick="validerAuthentification()" class="w-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold py-3.5 rounded-2xl text-xs uppercase tracking-wider transition active:scale-[0.98] shadow-lg shadow-[#0071e3]/30">
-          Ouvrir la session
+      <form onsubmit="verifierMotDePasse(event)" class="space-y-3">
+        <input type="password" id="inputPass" placeholder="Mot de passe" required
+               class="w-full text-center px-4 py-2.5 bg-slate-50 rounded-lg text-sm font-semibold outline-none border border-slate-300 focus:border-blue-600 transition">
+        <p id="authError" class="text-xs text-red-600 font-medium hidden">Mot de passe incorrect</p>
+        <button type="submit" class="w-full bg-slate-900 hover:bg-black text-white font-semibold py-2.5 rounded-lg text-xs uppercase tracking-wider transition">
+          Déverrouiller
         </button>
-      </div>
-
+      </form>
     </div>
   </div>
 
-  <!-- ================= FEUILLE MODALE : NOUVELLE ÉVALUATION ================= -->
-  <div id="modalCreation" class="fixed inset-0 bg-black/40 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full border border-black/5 overflow-hidden flex flex-col p-6 animate-scaleIn">
-      <div class="flex items-center justify-between pb-4 border-b border-black/5">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-[#0071e3]/10 text-[#0071e3] flex items-center justify-center">
-            <i data-lucide="sparkles" class="w-4 h-4"></i>
-          </div>
-          <h3 class="text-base font-bold text-[#1d1d1f]">Nouvelle évaluation</h3>
-        </div>
-        <button onclick="fermerModalCreation()" class="w-8 h-8 rounded-full bg-[#f5f5f7] hover:bg-[#e8e8ed] flex items-center justify-center transition">
-          <i data-lucide="x" class="w-4 h-4 text-[#1d1d1f]"></i>
-        </button>
+  <!-- ================= MODALE : NOUVELLE ÉVALUATION ================= -->
+  <div id="modalCreation" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-5 border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="text-sm font-bold text-slate-900">Nouvelle évaluation</h3>
+        <button onclick="fermerModalCreation()" class="text-slate-400 hover:text-slate-700 text-xs font-bold px-2 py-1">Fermer</button>
       </div>
 
-      <div class="space-y-4 py-5">
-        <!-- Sélecteur à pastilles tactiles -->
+      <div class="space-y-3.5 py-4">
         <div>
-          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-2">Matière</label>
-          <div class="flex flex-wrap gap-1.5" id="pillsMatieres"></div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Matière</label>
+          <select id="modalCreateMatiere" onchange="actualiserSousDomainesCreation()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-semibold outline-none">
+            <option value="Français">Français</option>
+            <option value="Maths">Maths</option>
+            <option value="Histoire">Histoire</option>
+            <option value="Géographie">Géographie</option>
+            <option value="EMC">EMC</option>
+            <option value="Sciences">Sciences</option>
+            <option value="Anglais">Anglais</option>
+          </select>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-1.5">Sous-domaine <span class="text-[#86868b] font-normal lowercase">(facultatif)</span></label>
-          <select id="modalCreateTheme" class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition"></select>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Sous-domaine (facultatif)</label>
+          <select id="modalCreateTheme" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-medium outline-none"></select>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-1.5">Titre du devoir</label>
-          <input type="text" id="modalCreateTitre" placeholder="Ex: Bilan de numération, Dictée flash n°2..." 
-                 class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Titre de l'évaluation</label>
+          <input type="text" id="modalCreateTitre" placeholder="Ex: Bilan calcul, Dictée n°2..." 
+                 class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-medium outline-none">
         </div>
       </div>
 
-      <div class="pt-3 border-t border-black/5 flex items-center justify-end gap-2">
-        <button onclick="fermerModalCreation()" class="px-4 py-2.5 text-xs font-medium text-[#86868b] hover:text-[#1d1d1f] transition">Annuler</button>
-        <button onclick="confirmerCreationEvaluation()" class="px-5 py-2.5 bg-[#0071e3] hover:bg-[#0077ed] active:scale-[0.98] text-white text-xs font-semibold rounded-xl shadow-sm transition">
-          Créer et saisir les notes
+      <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+        <button onclick="fermerModalCreation()" class="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-900">Annuler</button>
+        <button onclick="confirmerCreationEvaluation()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition">
+          Enregistrer le devoir
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ================= TIROIR MODAL : SAISIE RAPIDE « QUICK FLOW » ================= -->
-  <div id="modalSaisie" class="fixed inset-0 bg-black/40 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full border border-black/5 overflow-hidden flex flex-col max-h-[92vh]">
+  <!-- ================= MODALE : SAISIE DES NOTES ================= -->
+  <div id="modalSaisie" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
       
-      <!-- Header avec barre de progression -->
-      <div class="p-5 border-b border-black/5 bg-[#fbfbfd]">
-        <div class="flex items-center justify-between mb-2">
+      <div class="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div>
           <div class="flex items-center gap-2">
-            <span id="modalEvalBadge" class="px-2.5 py-0.5 bg-[#0071e3] text-white text-[11px] font-bold rounded-lg shadow-sm">#1</span>
-            <span id="modalEvalMatiere" class="text-xs font-bold text-[#86868b] uppercase tracking-wider">Français</span>
+            <span id="modalEvalBadge" class="px-2 py-0.5 bg-blue-600 text-white text-[10px] font-bold rounded">#1</span>
+            <span id="modalEvalMatiere" class="text-xs font-bold text-slate-600 uppercase">Matière</span>
           </div>
-          <button onclick="fermerModalSaisie()" class="w-8 h-8 rounded-full bg-[#f5f5f7] hover:bg-[#e8e8ed] flex items-center justify-center transition">
-            <i data-lucide="x" class="w-4 h-4 text-[#1d1d1f]"></i>
-          </button>
+          <h3 id="modalEvalTitre" class="text-sm font-bold text-slate-900 mt-0.5">Titre</h3>
+          <p id="modalEvalTheme" class="text-[11px] text-slate-500 italic"></p>
         </div>
-        
-        <h3 id="modalEvalTitre" class="text-base font-bold text-[#1d1d1f]">Titre</h3>
-        <p id="modalEvalTheme" class="text-xs text-[#86868b] italic"></p>
-
-        <!-- Barre de jauge Apple -->
-        <div class="mt-3">
-          <div class="flex justify-between text-[11px] font-semibold text-[#86868b] mb-1">
-            <span>Progression de la classe</span>
-            <span id="modalProgressText">0 / 16 (0%)</span>
-          </div>
-          <div class="w-full h-1.5 bg-[#e8e8ed] rounded-full overflow-hidden">
-            <div id="modalProgressBar" class="h-full bg-[#0071e3] rounded-full transition-all duration-300" style="width: 0%"></div>
-          </div>
-        </div>
+        <button onclick="fermerModalSaisie()" class="text-xs font-bold text-slate-500 hover:text-slate-800 px-2 py-1 bg-slate-200 rounded">
+          Fermer
+        </button>
       </div>
 
-      <!-- Liste de saisie rapide -->
-      <div class="p-4 sm:p-5 overflow-y-auto space-y-2.5 flex-1" id="modalSaisieListeEleves"></div>
+      <div class="p-4 overflow-y-auto space-y-2 flex-1" id="modalSaisieListeEleves"></div>
 
-      <!-- Pied de tiroir -->
-      <div class="p-4 border-t border-black/5 bg-[#fafafa] flex flex-col sm:flex-row gap-2 justify-between items-center text-xs text-[#86868b]">
-        <span>Astuce : Utilisez les boutons rapides ou la touche <kbd class="px-1.5 py-0.5 bg-white border border-black/10 rounded shadow-xs font-semibold">Entrée</kbd></span>
-        <button onclick="fermerModalSaisie()" class="w-full sm:w-auto bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold py-2.5 px-6 rounded-xl transition active:scale-[0.98]">
-          Terminer la saisie
+      <div class="p-3.5 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row gap-2 justify-between items-center text-xs text-slate-500">
+        <span>Raccourcis : <b>NE</b> (non évalué), <b>NN</b> (non noté), <b>ABS</b> (absent)</span>
+        <button onclick="fermerModalSaisie()" class="bg-slate-900 hover:bg-black text-white text-xs font-bold py-2 px-5 rounded-lg transition">
+          Valider et fermer
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ================= APPLICATION PRINCIPALE ================= -->
+  <!-- ================= APPLICATION ================= -->
   <div id="mainApp" class="hidden min-h-screen flex flex-col">
 
-    <!-- Header Glassmorphism Pro -->
-    <header class="glass-header sticky top-0 z-30 no-print">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+    <!-- En-tête -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 no-print">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col lg:flex-row items-center justify-between gap-3">
         
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#0071e3] to-[#47a3ff] text-white flex items-center justify-center font-bold text-xs shadow-md shadow-[#0071e3]/20">
-            CM2
+        <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
+          <div class="flex items-center gap-2">
+            <!-- Bouton Home -->
+            <button onclick="retourAccueil()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-300 transition" title="Retourner à la grille principale">
+              Accueil
+            </button>
+            <div>
+              <h1 class="text-sm font-bold text-slate-900">École Jean des Vignes Rouges</h1>
+              <p class="text-[11px] text-slate-500">CM2 &bull; 2026/2027</p>
+            </div>
           </div>
-          <div>
-            <h1 class="text-sm font-bold tracking-tight text-[#1d1d1f]">École élémentaire Jean des Vignes Rouges</h1>
-            <p class="text-[11px] text-[#86868b] font-medium">Bligny-lès-Beaune &bull; Année 2026/2027</p>
+          <div id="cloudStatus" class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 rounded-md border border-emerald-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Connecté</span>
           </div>
         </div>
 
-        <!-- Boutons segmentés Apple -->
-        <div class="bg-[#e8e8ed] p-1 rounded-2xl flex items-center gap-1 text-xs font-semibold">
-          <button id="btnTabGrille" onclick="basculerVue('grille')" class="px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-sm transition">
-            Évaluations
+        <!-- Onglets -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-lg text-xs font-semibold">
+          <button id="btnTabGrille" onclick="basculerVue('grille')" class="px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition">
+            Évaluations & Notes
           </button>
-          <button id="btnTabApercu" onclick="basculerVue('apercu')" class="px-4 py-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] transition">
-            Visualiseur A4
+          <button id="btnTabApercu" onclick="basculerVue('apercu')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition">
+            Bulletins A4
           </button>
-          <button id="btnTabStats" onclick="basculerVue('stats')" class="px-4 py-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] transition">
+          <button id="btnTabStats" onclick="basculerVue('stats')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition">
             Statistiques
           </button>
         </div>
 
-        <!-- Actions Principales -->
-        <div class="flex items-center gap-2">
+        <!-- Outils textuels -->
+        <div class="flex flex-wrap items-center gap-2">
           
-          <div id="cloudStatus" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-emerald-500/10 text-emerald-700 rounded-full">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>En direct</span>
-          </div>
-
-          <!-- Période -->
-          <div class="flex items-center bg-[#f5f5f7] rounded-xl px-3 py-1.5 border border-black/5">
-            <span class="text-xs text-[#86868b] font-medium mr-1.5">Période</span>
-            <select id="selectPeriode" onchange="changerPeriode(this.value)" class="bg-transparent font-bold text-xs outline-none cursor-pointer">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
+          <div class="flex items-center bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs">
+            <span class="text-slate-500 font-semibold mr-1.5">Période :</span>
+            <select id="selectPeriode" onchange="changerPeriode(this.value)" class="bg-transparent font-bold text-slate-900 outline-none cursor-pointer">
+              <option value="1">Période 1</option>
+              <option value="2">Période 2</option>
+              <option value="3">Période 3</option>
+              <option value="4">Période 4</option>
+              <option value="5">Période 5</option>
             </select>
           </div>
 
           <!-- Signature -->
-          <label id="btnSignatureLabel" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#1d1d1f] bg-white hover:bg-[#f5f5f7] border border-black/10 rounded-xl cursor-pointer transition shadow-xs" title="Importer la signature de la directrice">
-            <i data-lucide="file-signature" class="w-4 h-4 text-[#0071e3]"></i>
-            <span id="txtSignature">Signature</span>
+          <label class="cursor-pointer bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg transition inline-flex items-center text-center">
+            <span id="txtSignature">Importer signature</span>
             <input type="file" id="inputSignature" accept="image/*" onchange="importerEtCompresserSignature(event)" class="hidden">
           </label>
-          <button id="btnSupprSig" onclick="supprimerSignature()" title="Supprimer la signature" class="hidden p-2 text-xs text-red-600 bg-white hover:bg-red-50 border border-black/10 rounded-xl shadow-xs">
-            <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+          <button id="btnSupprSig" onclick="supprimerSignature()" title="Retirer la signature" class="hidden bg-white hover:bg-red-50 border border-slate-300 text-red-600 text-xs font-semibold px-2.5 py-1.5 rounded-lg">
+            Retirer signature
           </button>
 
-          <!-- Sauvegarde Secours JSON -->
-          <div class="flex items-center border border-black/10 rounded-xl bg-white overflow-hidden shadow-xs">
-            <button onclick="exporterSauvegardeJSON()" class="p-2 hover:bg-[#f5f5f7] text-[#1d1d1f] transition" title="Télécharger sauvegarde de secours (.json)">
-              <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            </button>
-            <label class="p-2 hover:bg-[#f5f5f7] text-[#1d1d1f] cursor-pointer transition border-l border-black/10" title="Restaurer une sauvegarde">
-              <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-              <input type="file" accept=".json" onchange="importerSauvegardeJSON(event)" class="hidden">
-            </label>
-          </div>
-
-          <!-- Réinitialiser Période -->
-          <button onclick="confirmerReset('periode')" class="p-2 text-xs font-medium text-[#86868b] hover:text-red-600 bg-white hover:bg-red-50 border border-black/10 rounded-xl transition shadow-xs" title="Vider les notes de la période">
-            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          <!-- Secours JSON -->
+          <button onclick="exporterSauvegardeJSON()" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition">
+            Exporter secours
           </button>
+          <label class="cursor-pointer bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition">
+            Importer secours
+            <input type="file" accept=".json" onchange="importerSauvegardeJSON(event)" class="hidden">
+          </label>
 
-          <!-- Bouton Impression Groupée -->
-          <button onclick="lancerImpressionGlobale()" class="inline-flex items-center gap-1.5 bg-[#0071e3] hover:bg-[#0077ed] active:scale-[0.98] text-white text-xs font-semibold py-2 px-3.5 rounded-xl shadow-sm transition">
-            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-            <span>Imprimer les 16 A4</span>
+          <!-- Vider Période -->
+          <button onclick="confirmerReset('periode')" class="bg-white hover:bg-red-50 border border-slate-300 text-red-600 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition">
+            Vider P<span id="lblResetPeriode">1</span>
           </button>
         </div>
 
@@ -311,140 +244,112 @@
 
     <main class="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6 flex-1">
 
-      <!-- ================= VUE 1 : ÉVALUATIONS & NOTES ================= -->
+      <!-- ================= VUE 1 : ÉVALUATIONS ================= -->
       <section id="tabGrille" class="space-y-6">
 
-        <!-- Banner Titre & Action Principale -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-black/5 shadow-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
           <div>
-            <div class="flex items-center gap-2">
-              <span class="px-2.5 py-0.5 rounded-md bg-[#0071e3]/10 text-[#0071e3] text-xs font-bold">Période <span id="lblPeriodeTitre">1</span></span>
-              <h2 class="text-lg font-bold text-[#1d1d1f]">Carnet des Évaluations</h2>
-            </div>
-            <p class="text-xs text-[#86868b] mt-1 font-medium">Gérez vos devoirs et saisissez les notes des 16 élèves avec calcul instantané des moyennes.</p>
+            <h2 class="text-base font-bold text-slate-900">Carnet de notes &bull; Période <span id="lblPeriodeTitre">1</span></h2>
+            <p class="text-xs text-slate-500">Cliquez sur un devoir pour renseigner ou modifier les notes des 16 élèves.</p>
           </div>
 
-          <button onclick="ouvrirModalCreation()" class="inline-flex items-center justify-center gap-2 bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold py-3 px-5 rounded-2xl text-xs transition active:scale-[0.98] shadow-md shadow-[#0071e3]/20">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Créer une évaluation</span>
+          <button onclick="ouvrirModalCreation()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg text-xs transition shadow-xs">
+            + Ajouter une évaluation
           </button>
         </div>
 
-        <!-- Grille de cartes modulaires -->
         <div id="listeEvalsCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
 
       </section>
 
-      <!-- ================= VUE 2 : VISUALISEUR A4 MACOS PREVIEW ================= -->
-      <section id="tabApercu" class="hidden">
+      <!-- ================= VUE 2 : APERÇU & TÉLÉCHARGEMENT A4 ================= -->
+      <section id="tabApercu" class="hidden space-y-6">
         
-        <div class="flex flex-col lg:flex-row gap-6 items-start">
-          
-          <!-- Barre latérale des 16 élèves (macOS style) -->
-          <div id="apercuSidebar" class="no-print w-full lg:w-72 bg-white rounded-3xl border border-black/5 p-4 shadow-xs shrink-0 max-h-[820px] overflow-y-auto space-y-1.5 sticky top-24">
-            <div class="px-2 py-1 mb-2">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-[#86868b]">Élèves de CM2 (16)</div>
-              <div class="text-xs text-[#1d1d1f] font-semibold mt-0.5">Sélectionnez pour visualiser</div>
-            </div>
-            <div id="listeElevesSidebar" class="space-y-1"></div>
+        <div id="apercuBarreActions" class="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900">Aperçu des 16 bulletins (Période <span id="lblApercuPeriode">1</span>)</h2>
+            <p class="text-xs text-slate-500">Téléchargez le fichier PDF officiel ou lancez l'impression papier.</p>
           </div>
 
-          <!-- Zone centrale de visualisation et impression -->
-          <div id="apercuMainArea" class="flex-1 w-full space-y-6">
-            
-            <div class="no-print flex items-center justify-between bg-white p-4 rounded-2xl border border-black/5 shadow-xs">
-              <div>
-                <h3 class="text-xs font-bold text-[#1d1d1f]" id="apercuEleveNomActif">Tous les bulletins CM2</h3>
-                <p class="text-[11px] text-[#86868b]">Mise en page certifiée A4 pour impression papier ou export PDF</p>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <button onclick="lancerImpressionSeule()" class="px-3.5 py-2 bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
-                  <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                  <span>Imprimer cet élève</span>
-                </button>
-                <button onclick="lancerImpressionGlobale()" class="px-4 py-2 bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold rounded-xl shadow-xs transition flex items-center gap-1.5">
-                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                  <span>Imprimer les 16</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Conteneur des pages A4 -->
-            <div id="apercuBulletins" class="bg-[#dcdce2] p-4 sm:p-8 rounded-3xl overflow-x-auto flex flex-col items-center"></div>
-
+          <div class="flex items-center gap-2">
+            <button id="btnTelechargerPDF" onclick="telechargerTousLesBulletinsPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow-xs transition">
+              <span id="txtBtnTelecharger">Télécharger tout en PDF</span>
+            </button>
+            <button onclick="lancerImpressionNavigateur()" class="bg-slate-900 hover:bg-black text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow-xs transition">
+              Imprimer
+            </button>
           </div>
-
         </div>
+
+        <div id="apercuBulletins" class="bg-slate-300 p-4 sm:p-8 rounded-2xl overflow-x-auto flex flex-col items-center"></div>
 
       </section>
 
-      <!-- ================= VUE 3 : DASHBOARD STATISTIQUES ================= -->
+      <!-- ================= VUE 3 : STATISTIQUES ================= -->
       <section id="tabStats" class="hidden space-y-6">
         
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="apple-card rounded-3xl p-5">
-            <div class="flex items-center justify-between text-[#86868b] mb-1">
-              <span class="text-[11px] font-bold uppercase tracking-wider">Moyenne de classe</span>
-              <i data-lucide="trending-up" class="w-4 h-4 text-[#0071e3]"></i>
-            </div>
-            <div id="statMoyenneClasse" class="text-3xl font-extrabold tracking-tight text-[#1d1d1f] mt-1">-</div>
-            <div class="text-[11px] text-[#86868b] mt-1 font-medium">Période <span id="statNumPeriode">1</span> &bull; Sur 20</div>
+        <!-- Les 4 cartes ciblées -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs">
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Moyenne de la période</div>
+            <div id="statMoyennePeriode" class="text-2xl font-black text-slate-900 mt-2">-</div>
+            <div class="text-xs text-slate-500 mt-1">Période <span id="statNumPeriode1">1</span></div>
           </div>
 
-          <div class="apple-card rounded-3xl p-5">
-            <div class="flex items-center justify-between text-[#86868b] mb-1">
-              <span class="text-[11px] font-bold uppercase tracking-wider">Note la plus haute</span>
-              <i data-lucide="award" class="w-4 h-4 text-emerald-600"></i>
-            </div>
-            <div id="statNoteMax" class="text-3xl font-extrabold tracking-tight text-emerald-600 mt-1">-</div>
-            <div class="text-[11px] text-[#86868b] mt-1 font-medium">Meilleure copie saisie</div>
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs">
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Période précédente</div>
+            <div id="statMoyennePrec" class="text-2xl font-black text-slate-900 mt-2">-</div>
+            <div id="statEcartPrec" class="text-xs text-slate-500 mt-1">Comparatif d'évolution</div>
           </div>
 
-          <div class="apple-card rounded-3xl p-5">
-            <div class="flex items-center justify-between text-[#86868b] mb-1">
-              <span class="text-[11px] font-bold uppercase tracking-wider">Note la plus basse</span>
-              <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
-            </div>
-            <div id="statNoteMin" class="text-3xl font-extrabold tracking-tight text-amber-600 mt-1">-</div>
-            <div class="text-[11px] text-[#86868b] mt-1 font-medium">Besoins d'accompagnement</div>
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs">
+            <div class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Meilleure moyenne</div>
+            <div id="statMeilleureNote" class="text-2xl font-black text-emerald-600 mt-2">-</div>
+            <div id="statMeilleurEleve" class="text-xs font-bold text-slate-800 mt-1 truncate">Élève : -</div>
           </div>
 
-          <div class="apple-card rounded-3xl p-5">
-            <div class="flex items-center justify-between text-[#86868b] mb-1">
-              <span class="text-[11px] font-bold uppercase tracking-wider">Devoirs enregistrés</span>
-              <i data-lucide="file-check" class="w-4 h-4 text-[#0071e3]"></i>
-            </div>
-            <div id="statNbEvals" class="text-3xl font-extrabold tracking-tight text-[#0071e3] mt-1">0</div>
-            <div class="text-[11px] text-[#86868b] mt-1 font-medium">Évaluations actives</div>
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs">
+            <div class="text-xs font-bold text-amber-700 uppercase tracking-wider">Pire moyenne</div>
+            <div id="statPireNote" class="text-2xl font-black text-amber-600 mt-2">-</div>
+            <div id="statPireEleve" class="text-xs font-bold text-slate-800 mt-1 truncate">Élève : -</div>
           </div>
+
         </div>
 
-        <!-- Synthèse par élève Apple Table -->
-        <div class="apple-card rounded-3xl p-6 overflow-hidden">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-sm font-bold text-[#1d1d1f]">Suivi individuel et annuel</h3>
-              <p class="text-xs text-[#86868b]">Historique consolidé des 5 périodes</p>
-            </div>
+        <!-- Grand tableau comparatif des moyennes par élève sur 5 périodes -->
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-xs">
+          <div class="mb-4">
+            <h3 class="text-sm font-bold text-slate-900">Comparatif des 16 élèves sur les 5 périodes</h3>
+            <p class="text-xs text-slate-500">Moyenne par période (P1 à P5) et moyenne générale annuelle de chaque élève.</p>
           </div>
 
           <div class="overflow-x-auto">
-            <table class="w-full text-xs text-left">
+            <table class="w-full text-xs text-left border-collapse">
               <thead>
-                <tr class="border-b border-black/5 text-[#86868b]">
-                  <th class="py-3 font-bold">Élève</th>
-                  <th class="py-3 font-bold text-center">P1</th>
-                  <th class="py-3 font-bold text-center">P2</th>
-                  <th class="py-3 font-bold text-center">P3</th>
-                  <th class="py-3 font-bold text-center">P4</th>
-                  <th class="py-3 font-bold text-center">P5</th>
-                  <th class="py-3 font-bold text-right">Moyenne Générale</th>
+                <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold">
+                  <th class="py-2.5 px-3">Élève</th>
+                  <th class="py-2.5 px-2 text-center">Période 1</th>
+                  <th class="py-2.5 px-2 text-center">Période 2</th>
+                  <th class="py-2.5 px-2 text-center">Période 3</th>
+                  <th class="py-2.5 px-2 text-center">Période 4</th>
+                  <th class="py-2.5 px-2 text-center">Période 5</th>
+                  <th class="py-2.5 px-3 text-right">Moyenne Annuelle</th>
                 </tr>
               </thead>
-              <tbody id="tbodySyntheseStats" class="divide-y divide-black/5"></tbody>
+              <tbody id="tbodyComparatifEleves" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
+        </div>
+
+        <!-- Statistiques par évaluation faite -->
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-xs">
+          <div class="mb-4">
+            <h3 class="text-sm font-bold text-slate-900">Détails par évaluation faite (Période <span id="statNumPeriode2">1</span>)</h3>
+            <p class="text-xs text-slate-500">Moyenne, plus haute et plus basse note obtenues pour chaque devoir.</p>
+          </div>
+
+          <div id="statGrilleEvalsDetails" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
         </div>
 
       </section>
@@ -477,16 +382,6 @@
       "PIERRE Louca", "TALAGHZI Safiyah", "TALAGHZI Younes", "ZUBER Léon"
     ];
 
-    const MATIERES_PALETTE = {
-      "Français": { bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50" },
-      "Maths": { bg: "bg-purple-500", text: "text-purple-600", light: "bg-purple-50" },
-      "Histoire": { bg: "bg-amber-500", text: "text-amber-600", light: "bg-amber-50" },
-      "Géographie": { bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-50" },
-      "EMC": { bg: "bg-rose-500", text: "text-rose-600", light: "bg-rose-50" },
-      "Sciences": { bg: "bg-teal-500", text: "text-teal-600", light: "bg-teal-50" },
-      "Anglais": { bg: "bg-indigo-500", text: "text-indigo-600", light: "bg-indigo-50" }
-    };
-
     const MATIERES_CONFIG = {
       "Français": ["Grammaire", "Conjugaison", "Orthographe", "Lexique", "Lecture", "Poésie"],
       "Maths": ["Numération", "Calcul", "Grandeur et Mesure", "Géométrie", "Résolution de problèmes"],
@@ -501,57 +396,35 @@
     let periodeActive = "1";
     let signatureDirectriceBase64 = null;
     let evalEnCoursId = null;
-    let eleveActifIndex = 0;
-    let matiereSelectionneeCreation = "Français";
 
-    // Gestion du code de déverrouillage
-    const inputPassEl = document.getElementById("inputPass");
-    inputPassEl.addEventListener('input', (e) => {
-      const len = Math.min(e.target.value.length, 5);
-      for (let i = 0; i < 5; i++) {
-        const d = document.getElementById(`dot-${i}`);
-        if (i < len) {
-          d.classList.add("bg-white", "scale-110");
-        } else {
-          d.classList.remove("bg-white", "scale-110");
-        }
-      }
-    });
-
-    inputPassEl.addEventListener('keydown', (e) => {
-      if (e.key === "Enter") validerAuthentification();
-    });
-
-    function validerAuthentification() {
-      const saisie = inputPassEl.value;
+    function verifierMotDePasse(e) {
+      if (e) e.preventDefault();
+      const saisie = document.getElementById("inputPass").value;
       if (saisie === MOT_DE_PASSE_VALIDE) {
         localStorage.setItem("cm2_auth", MOT_DE_PASSE_VALIDE);
         deverrouillerApplication();
       } else {
-        const card = document.getElementById("authCard");
-        card.classList.add("shake");
         document.getElementById("authError").classList.remove("hidden");
-        setTimeout(() => card.classList.remove("shake"), 500);
       }
     }
 
     function deverrouillerApplication() {
       document.getElementById("authOverlay").classList.add("hidden");
       document.getElementById("mainApp").classList.remove("hidden");
-      initialiserPillsMatieres();
+      actualiserSousDomainesCreation();
       ecouterDonneesCloud();
-      genererSidebarEleves();
-      lucide.createIcons();
+    }
+
+    function retourAccueil() {
+      basculerVue('grille');
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
       if (localStorage.getItem("cm2_auth") === MOT_DE_PASSE_VALIDE) {
         deverrouillerApplication();
       }
     });
 
-    // Bascule des onglets
     function basculerVue(vue) {
       document.getElementById("tabGrille").classList.add("hidden");
       document.getElementById("tabApercu").classList.add("hidden");
@@ -562,53 +435,48 @@
       const bStats = document.getElementById("btnTabStats");
 
       [bGrille, bApercu, bStats].forEach(b => {
-        b.className = "px-4 py-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] transition";
+        b.className = "px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition";
       });
 
       if (vue === 'grille') {
         document.getElementById("tabGrille").classList.remove("hidden");
-        bGrille.className = "px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-sm transition";
+        bGrille.className = "px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition";
       } else if (vue === 'apercu') {
         document.getElementById("tabApercu").classList.remove("hidden");
-        bApercu.className = "px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-sm transition";
+        bApercu.className = "px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition";
         genererApercu();
       } else if (vue === 'stats') {
         document.getElementById("tabStats").classList.remove("hidden");
-        bStats.className = "px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-sm transition";
+        bStats.className = "px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition";
         calculerEtAfficherStats();
       }
-      lucide.createIcons();
     }
 
-    // Modal de Création rapide
+    function changerPeriode(val) {
+      periodeActive = String(val);
+      document.getElementById("lblPeriodeTitre").textContent = periodeActive;
+      document.getElementById("lblResetPeriode").textContent = periodeActive;
+      document.getElementById("lblApercuPeriode").textContent = periodeActive;
+      document.getElementById("statNumPeriode1").textContent = periodeActive;
+      document.getElementById("statNumPeriode2").textContent = periodeActive;
+      rafraichirCartesEvals();
+      genererApercu();
+      calculerEtAfficherStats();
+    }
+
     function ouvrirModalCreation() {
       document.getElementById("modalCreateTitre").value = "";
-      selectionnerMatierePill("Français");
+      actualiserSousDomainesCreation();
       document.getElementById("modalCreation").classList.remove("hidden");
       setTimeout(() => document.getElementById("modalCreateTitre").focus(), 100);
-      lucide.createIcons();
     }
 
     function fermerModalCreation() {
       document.getElementById("modalCreation").classList.add("hidden");
     }
 
-    function initialiserPillsMatieres() {
-      const c = document.getElementById("pillsMatieres");
-      c.innerHTML = "";
-      Object.keys(MATIERES_CONFIG).forEach(mat => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.textContent = mat;
-        btn.className = `px-3 py-1.5 rounded-xl text-xs font-semibold transition border border-black/5 ${mat === matiereSelectionneeCreation ? 'bg-[#1d1d1f] text-white shadow-xs' : 'bg-[#f5f5f7] text-[#86868b] hover:text-[#1d1d1f]'}`;
-        btn.onclick = () => selectionnerMatierePill(mat);
-        c.appendChild(btn);
-      });
-    }
-
-    function selectionnerMatierePill(mat) {
-      matiereSelectionneeCreation = mat;
-      initialiserPillsMatieres();
+    function actualiserSousDomainesCreation() {
+      const mat = document.getElementById("modalCreateMatiere").value;
       const select = document.getElementById("modalCreateTheme");
       select.innerHTML = '<option value="">Aucun (général)</option>';
       (MATIERES_CONFIG[mat] || []).forEach(th => {
@@ -620,8 +488,9 @@
     }
 
     function confirmerCreationEvaluation() {
-      const titre = document.getElementById("modalCreateTitre").value.trim();
+      const mat = document.getElementById("modalCreateMatiere").value;
       const theme = document.getElementById("modalCreateTheme").value.trim();
+      const titre = document.getElementById("modalCreateTitre").value.trim();
 
       if (!titre) {
         document.getElementById("modalCreateTitre").focus();
@@ -633,12 +502,7 @@
       }
 
       const evalId = "ev_" + Date.now();
-      baseDonnees[periodeActive].evals.push({
-        id: evalId,
-        matiere: matiereSelectionneeCreation,
-        theme: theme,
-        titre: titre
-      });
+      baseDonnees[periodeActive].evals.push({ id: evalId, matiere: mat, theme: theme, titre: titre });
       baseDonnees[periodeActive].notes[evalId] = {};
 
       sauvegarderCloud();
@@ -646,12 +510,9 @@
       rafraichirCartesEvals();
       genererApercu();
       calculerEtAfficherStats();
-
-      // Ouvre immédiatement la saisie
       ouvrirModalSaisie(evalId);
     }
 
-    // Écouteur Firestore
     function ecouterDonneesCloud() {
       docRef.onSnapshot((doc) => {
         if (doc.exists) {
@@ -664,7 +525,7 @@
           rafraichirCartesEvals();
           genererApercu();
           calculerEtAfficherStats();
-          indiquerSynchro("En direct", "emerald");
+          indiquerSynchro("Connecté", "emerald");
         } else {
           sauvegarderCloud();
         }
@@ -681,40 +542,20 @@
         signature: signatureDirectriceBase64 || null,
         derniereMaj: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true })
-      .then(() => indiquerSynchro("En direct", "emerald"))
+      .then(() => indiquerSynchro("Connecté", "emerald"))
       .catch((err) => {
         console.error(err);
-        indiquerSynchro("Erreur sauvegarde", "red");
+        indiquerSynchro("Erreur", "red");
       });
     }
 
     function indiquerSynchro(texte, couleur) {
       const el = document.getElementById("cloudStatus");
       if (!el) return;
-      el.className = `inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-${couleur}-500/10 text-${couleur}-700 rounded-full`;
-      el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-${couleur}-500 ${couleur === 'emerald' ? 'animate-pulse' : ''}"></span><span>${texte}</span>`;
+      el.className = `inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-${couleur}-50 text-${couleur}-700 rounded-md border border-${couleur}-200`;
+      el.innerHTML = `<span class="w-2 h-2 rounded-full bg-${couleur}-500 ${couleur === 'emerald' ? 'animate-pulse' : ''}"></span><span>${texte}</span>`;
     }
 
-    function changerPeriode(val) {
-      periodeActive = String(val);
-      document.getElementById("lblPeriodeTitre").textContent = periodeActive;
-      document.getElementById("statNumPeriode").textContent = periodeActive;
-      rafraichirCartesEvals();
-      genererApercu();
-      calculerEtAfficherStats();
-    }
-
-    function supprimerColonneEvaluation(evalId) {
-      if (!confirm("Supprimer cette évaluation et toutes ses notes ?")) return;
-      baseDonnees[periodeActive].evals = baseDonnees[periodeActive].evals.filter(e => e.id !== evalId);
-      delete baseDonnees[periodeActive].notes[evalId];
-      sauvegarderCloud();
-      rafraichirCartesEvals();
-      genererApercu();
-      calculerEtAfficherStats();
-    }
-
-    // Affichage des Cartes Apple Enrichies
     function rafraichirCartesEvals() {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
       const conteneur = document.getElementById("listeEvalsCards");
@@ -722,15 +563,11 @@
 
       if (current.evals.length === 0) {
         conteneur.innerHTML = `
-          <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-black/5 shadow-xs">
-            <div class="w-14 h-14 rounded-3xl bg-[#f5f5f7] flex items-center justify-center mx-auto mb-3 text-[#86868b]">
-              <i data-lucide="book-open" class="w-7 h-7"></i>
-            </div>
-            <h3 class="text-base font-bold text-[#1d1d1f]">Aucun devoir pour le moment</h3>
-            <p class="text-xs text-[#86868b] mt-1 font-medium">Ajoutez une première évaluation pour lancer le suivi de la période ${periodeActive}.</p>
+          <div class="col-span-full py-12 text-center bg-white rounded-xl border border-slate-200">
+            <h3 class="text-sm font-bold text-slate-800">Aucune évaluation pour la Période ${periodeActive}</h3>
+            <p class="text-xs text-slate-500 mt-1">Cliquez sur « + Ajouter une évaluation » pour démarrer.</p>
           </div>
         `;
-        lucide.createIcons();
         return;
       }
 
@@ -739,56 +576,50 @@
         const nbRemplies = Object.values(notesObj).filter(v => v !== "" && v !== null && v !== undefined).length;
         const notesNumeriques = Object.values(notesObj).map(v => parseFloat(v)).filter(v => !isNaN(v));
         const moyDevoir = calculerMoyenne(notesNumeriques);
-        const palette = MATIERES_PALETTE[ev.matiere] || { bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50" };
 
         const card = document.createElement("div");
-        card.className = "apple-card rounded-3xl p-5 flex flex-col justify-between group cursor-pointer";
-        card.onclick = (e) => {
-          if (!e.target.closest('button')) ouvrirModalSaisie(ev.id);
-        };
-
+        card.className = "bg-white rounded-xl p-4 border border-slate-200 hover:border-slate-400 transition shadow-xs flex flex-col justify-between";
         card.innerHTML = `
           <div>
-            <div class="flex items-center justify-between gap-2 mb-3">
-              <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full ${palette.bg}"></span>
-                <span class="text-[11px] font-bold ${palette.text} uppercase tracking-wider">${ev.matiere}</span>
-                <span class="text-[10px] text-[#86868b] font-bold ml-1">#${index + 1}</span>
-              </div>
-              <button onclick="supprimerColonneEvaluation('${ev.id}')" title="Supprimer" class="text-slate-300 hover:text-red-500 p-1 rounded-lg hover:bg-red-50 transition">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded uppercase">#${index + 1} ${ev.matiere}</span>
+              <button onclick="supprimerColonneEvaluation('${ev.id}')" title="Supprimer" class="text-slate-400 hover:text-red-600 text-xs font-bold px-1.5 py-0.5">
+                Supprimer
               </button>
             </div>
-
-            <h3 class="text-sm font-bold text-[#1d1d1f] line-clamp-1" title="${ev.titre}">${ev.titre}</h3>
-            ${ev.theme ? `<p class="text-[11px] text-[#86868b] italic truncate mt-0.5">${ev.theme}</p>` : '<p class="text-[11px] text-transparent select-none mt-0.5">-</p>'}
+            <h3 class="text-sm font-bold text-slate-900 truncate" title="${ev.titre}">${ev.titre}</h3>
+            ${ev.theme ? `<p class="text-xs text-slate-500 italic truncate">${ev.theme}</p>` : '<p class="text-xs text-transparent select-none">-</p>'}
           </div>
 
-          <div class="mt-4 pt-3 border-t border-black/5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-semibold text-[#86868b]">Saisie des notes</span>
-              <span class="text-xs font-bold ${nbRemplies === 16 ? 'text-emerald-600' : 'text-[#1d1d1f]'}">${nbRemplies} / 16</span>
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] text-slate-400 font-semibold uppercase">Notes</span>
+              <div class="text-xs font-bold ${nbRemplies === 16 ? 'text-emerald-700' : 'text-slate-800'}">${nbRemplies}/16</div>
             </div>
-            
-            <div class="w-full h-1.5 bg-[#f5f5f7] rounded-full overflow-hidden mb-3">
-              <div class="h-full ${nbRemplies === 16 ? 'bg-emerald-500' : 'bg-[#0071e3]'} rounded-full" style="width: ${(nbRemplies / 16) * 100}%"></div>
-            </div>
-
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold text-[#0071e3]">${moyDevoir !== '-' ? moyDevoir + '/20' : 'Pas de moyenne'}</span>
-              <button onclick="ouvrirModalSaisie('${ev.id}')" class="px-3 py-1.5 bg-[#f5f5f7] hover:bg-[#1d1d1f] hover:text-white rounded-xl text-[11px] font-bold transition flex items-center gap-1 text-[#1d1d1f]">
-                <i data-lucide="edit-3" class="w-3 h-3"></i> Saisir
-              </button>
+            <div class="text-right">
+              <span class="text-[10px] text-slate-400 font-semibold uppercase">Moyenne</span>
+              <div class="text-xs font-bold text-blue-700">${moyDevoir !== '-' ? moyDevoir + '/20' : '-'}</div>
             </div>
           </div>
+
+          <button onclick="ouvrirModalSaisie('${ev.id}')" class="mt-3 w-full bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-800 font-bold py-2 rounded-lg text-xs transition">
+            Saisir / Corriger les notes
+          </button>
         `;
         conteneur.appendChild(card);
       });
-
-      lucide.createIcons();
     }
 
-    // Modal Quick Flow interactif
+    function supprimerColonneEvaluation(evalId) {
+      if (!confirm("Supprimer définitivement cette évaluation et ses notes ?")) return;
+      baseDonnees[periodeActive].evals = baseDonnees[periodeActive].evals.filter(e => e.id !== evalId);
+      delete baseDonnees[periodeActive].notes[evalId];
+      sauvegarderCloud();
+      rafraichirCartesEvals();
+      genererApercu();
+      calculerEtAfficherStats();
+    }
+
     function ouvrirModalSaisie(evalId) {
       evalEnCoursId = evalId;
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
@@ -807,40 +638,36 @@
       ELEVES_CM2.forEach((eleve, idx) => {
         const valNote = (current.notes[ev.id] || {})[eleve] || "";
         const div = document.createElement("div");
-        div.className = "flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-2xl hover:bg-[#f5f5f7] transition gap-2 border border-black/5 sm:border-transparent";
+        div.className = "flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition border border-slate-100";
         div.innerHTML = `
-          <div class="flex items-center gap-2.5">
-            <span class="w-5 text-[11px] font-bold text-[#86868b]">${idx + 1}.</span>
-            <span class="text-xs font-bold text-[#1d1d1f]">${eleve}</span>
+          <div class="flex items-center gap-2">
+            <span class="w-5 text-xs font-bold text-slate-400 text-right">${idx + 1}.</span>
+            <span class="text-xs font-bold text-slate-800">${eleve}</span>
           </div>
 
-          <div class="flex items-center gap-2 self-end sm:self-auto">
-            <!-- Boutons de raccourcis tactiles un-clic -->
+          <div class="flex items-center gap-2">
             <div class="flex items-center gap-1">
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', '20', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-emerald-50 hover:text-emerald-700 rounded-lg text-[#86868b] transition">20</button>
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', '10', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-blue-50 hover:text-blue-700 rounded-lg text-[#86868b] transition">10</button>
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'NE', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-purple-50 hover:text-purple-700 rounded-lg text-[#86868b] transition">NE</button>
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'ABS', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-amber-50 hover:text-amber-700 rounded-lg text-[#86868b] transition">ABS</button>
+              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'NE', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-slate-100 hover:bg-purple-100 hover:text-purple-800 rounded text-slate-600">NE</button>
+              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'NN', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-slate-100 hover:bg-slate-200 rounded text-slate-600">NN</button>
+              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'ABS', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-slate-100 hover:bg-amber-100 hover:text-amber-800 rounded text-slate-600">ABS</button>
             </div>
 
-            <div class="flex items-center gap-1 bg-white rounded-xl border border-black/10 px-2 py-1 shadow-xs focus-within:border-[#0071e3]">
+            <div class="flex items-center gap-1 bg-white border border-slate-300 rounded px-2 py-1">
               <input type="text"
                      value="${valNote}"
                      placeholder="-"
                      data-modalidx="${idx}"
-                     class="w-12 text-center font-bold text-xs outline-none bg-transparent"
+                     class="w-12 text-center font-bold text-xs outline-none"
                      oninput="modifierNoteModal('${ev.id}', '${eleve}', this.value, this)"
                      onkeydown="naviguerModal(event, ${idx})">
-              <span class="text-[10px] font-bold text-[#86868b]">/20</span>
+              <span class="text-[10px] font-bold text-slate-400">/20</span>
             </div>
           </div>
         `;
         listeConteneur.appendChild(div);
       });
 
-      actualiserBarreProgressionModal();
       document.getElementById("modalSaisie").classList.remove("hidden");
-      lucide.createIcons();
 
       setTimeout(() => {
         const first = document.querySelector(`input[data-modalidx="0"]`);
@@ -848,34 +675,11 @@
       }, 50);
     }
 
-    function actualiserBarreProgressionModal() {
-      if (!evalEnCoursId) return;
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const notesObj = current.notes[evalEnCoursId] || {};
-      const remplies = Object.values(notesObj).filter(v => v !== "" && v !== null && v !== undefined).length;
-      const pct = Math.round((remplies / 16) * 100);
-
-      document.getElementById("modalProgressText").textContent = `${remplies} / 16 (${pct}%)`;
-      document.getElementById("modalProgressBar").style.width = `${pct}%`;
-    }
-
     function raccourciNote(evalId, eleveNom, val, idx) {
       const input = document.querySelector(`input[data-modalidx="${idx}"]`);
       modifierNoteModal(evalId, eleveNom, val, input);
-      naviguerVersSuivant(idx);
-    }
-
-    function naviguerVersSuivant(idx) {
       const next = document.querySelector(`input[data-modalidx="${idx + 1}"]`);
       if (next) { next.focus(); next.select(); }
-    }
-
-    function fermerModalSaisie() {
-      document.getElementById("modalSaisie").classList.add("hidden");
-      evalEnCoursId = null;
-      rafraichirCartesEvals();
-      genererApercu();
-      calculerEtAfficherStats();
     }
 
     function modifierNoteModal(evalId, eleveNom, val, inputEl) {
@@ -903,14 +707,14 @@
         baseDonnees[periodeActive].notes[evalId] = {};
       }
       baseDonnees[periodeActive].notes[evalId][eleveNom] = finalVal;
-      actualiserBarreProgressionModal();
       sauvegarderCloud();
     }
 
     function naviguerModal(event, currentIdx) {
       if (event.key === "Enter" || event.key === "ArrowDown") {
         event.preventDefault();
-        naviguerVersSuivant(currentIdx);
+        const next = document.querySelector(`input[data-modalidx="${currentIdx + 1}"]`);
+        if (next) { next.focus(); next.select(); }
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
         const prev = document.querySelector(`input[data-modalidx="${currentIdx - 1}"]`);
@@ -918,47 +722,14 @@
       }
     }
 
-    // Barre latérale macOS Aperçu
-    function genererSidebarEleves() {
-      const c = document.getElementById("listeElevesSidebar");
-      c.innerHTML = "";
-      ELEVES_CM2.forEach((eleve, idx) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = `w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition ${idx === eleveActifIndex ? 'bg-[#0071e3] text-white shadow-sm' : 'hover:bg-[#f5f5f7] text-[#1d1d1f]'}`;
-        btn.onclick = () => {
-          eleveActifIndex = idx;
-          genererSidebarEleves();
-          document.getElementById(`bulletin-page-${idx}`).scrollIntoView({ behavior: 'smooth' });
-          document.getElementById("apercuEleveNomActif").textContent = eleve;
-        };
-        btn.innerHTML = `
-          <span class="truncate">${eleve}</span>
-          <span class="text-[10px] opacity-75 font-bold">p.${idx + 1}</span>
-        `;
-        c.appendChild(btn);
-      });
+    function fermerModalSaisie() {
+      document.getElementById("modalSaisie").classList.add("hidden");
+      evalEnCoursId = null;
+      rafraichirCartesEvals();
+      genererApercu();
+      calculerEtAfficherStats();
     }
 
-    function lancerImpressionGlobale() {
-      basculerVue('apercu');
-      setTimeout(() => {
-        window.print();
-      }, 300);
-    }
-
-    function lancerImpressionSeule() {
-      const pages = document.querySelectorAll('.bulletin-page');
-      pages.forEach((p, idx) => {
-        if (idx !== eleveActifIndex) p.style.display = 'none';
-      });
-      window.print();
-      setTimeout(() => {
-        pages.forEach(p => p.style.display = 'flex');
-      }, 500);
-    }
-
-    // Gestion de la Signature
     function importerEtCompresserSignature(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -968,7 +739,7 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement("canvas");
-          const MAX_WIDTH = 320;
+          const MAX_WIDTH = 300;
           const scaleSize = MAX_WIDTH / img.width;
           canvas.width = MAX_WIDTH;
           canvas.height = img.height * scaleSize;
@@ -987,7 +758,7 @@
     }
 
     function supprimerSignature() {
-      if (!confirm("Retirer la signature partagée ?")) return;
+      if (!confirm("Retirer la signature actuelle ?")) return;
       signatureDirectriceBase64 = null;
       majAffichageBoutonSignature();
       sauvegarderCloud();
@@ -998,15 +769,14 @@
       const btnSuppr = document.getElementById("btnSupprSig");
       const txt = document.getElementById("txtSignature");
       if (signatureDirectriceBase64) {
-        txt.textContent = "Signature active";
+        txt.textContent = "Signature active ✓";
         btnSuppr.classList.remove("hidden");
       } else {
-        txt.textContent = "Signature";
+        txt.textContent = "Importer signature";
         btnSuppr.classList.add("hidden");
       }
     }
 
-    // Sauvegarde et Restauration JSON
     function exporterSauvegardeJSON() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(baseDonnees, null, 2));
       const downloadAnchor = document.createElement('a');
@@ -1024,16 +794,16 @@
       reader.onload = function(e) {
         try {
           const importData = JSON.parse(e.target.result);
-          if (confirm("Attention : cette action va restaurer les données du fichier et remplacer celles en ligne. Continuer ?")) {
+          if (confirm("Remplacer les données actuelles par cette sauvegarde ?")) {
             baseDonnees = importData;
             sauvegarderCloud();
             rafraichirCartesEvals();
             genererApercu();
             calculerEtAfficherStats();
-            alert("Restauration effectuée avec succès !");
+            alert("Restauration terminée avec succès !");
           }
         } catch (err) {
-          alert("Erreur lors de la lecture du fichier de sauvegarde JSON.");
+          alert("Erreur de fichier JSON.");
         }
       };
       reader.readAsText(file);
@@ -1041,7 +811,7 @@
 
     function confirmerReset(mode) {
       if (mode === 'periode') {
-        if (!confirm(`Supprimer toutes les notes et évaluations de la Période ${periodeActive} ?`)) return;
+        if (!confirm(`Supprimer toutes les notes de la Période ${periodeActive} ?`)) return;
         baseDonnees[periodeActive] = { evals: [], notes: {} };
       }
       sauvegarderCloud();
@@ -1054,6 +824,166 @@
       const v = tab.map(n => parseFloat(n)).filter(n => !isNaN(n));
       if (v.length === 0) return "-";
       return (v.reduce((a, b) => a + b, 0) / v.length).toFixed(2);
+    }
+
+    // STATISTIQUES DEMANDÉES AVEC COMPARATIF ÉLÈVES
+    function calculerEtAfficherStats() {
+      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
+      const numP = parseInt(periodeActive);
+
+      // 1. Moyenne de la période
+      const toutesLesNotesP = [];
+      const moyennesParEleve = [];
+
+      ELEVES_CM2.forEach(eleve => {
+        const notesEleve = [];
+        current.evals.forEach(ev => {
+          const v = (current.notes[ev.id] || {})[eleve];
+          if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) {
+            const num = parseFloat(v);
+            notesEleve.push(num);
+            toutesLesNotesP.push(num);
+          }
+        });
+        if (notesEleve.length > 0) {
+          const m = parseFloat(calculerMoyenne(notesEleve));
+          moyennesParEleve.push({ eleve: eleve, moyenne: m });
+        }
+      });
+
+      const moyPeriodeVal = toutesLesNotesP.length > 0 ? (toutesLesNotesP.reduce((a,b)=>a+b,0) / toutesLesNotesP.length).toFixed(2) : "-";
+      document.getElementById("statMoyennePeriode").textContent = moyPeriodeVal !== "-" ? `${moyPeriodeVal} / 20` : "-";
+
+      // 2. Moyenne de la période précédente
+      if (numP > 1) {
+        const dataPrec = baseDonnees[String(numP - 1)] || { evals: [], notes: {} };
+        const notesPrec = [];
+        ELEVES_CM2.forEach(eleve => {
+          dataPrec.evals.forEach(ev => {
+            const v = (dataPrec.notes[ev.id] || {})[eleve];
+            if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) notesPrec.push(parseFloat(v));
+          });
+        });
+        const moyPrecVal = notesPrec.length > 0 ? (notesPrec.reduce((a,b)=>a+b,0) / notesPrec.length).toFixed(2) : "-";
+        document.getElementById("statMoyennePrec").textContent = moyPrecVal !== "-" ? `${moyPrecVal} / 20` : "-";
+
+        if (moyPeriodeVal !== "-" && moyPrecVal !== "-") {
+          const diff = (parseFloat(moyPeriodeVal) - parseFloat(moyPrecVal)).toFixed(2);
+          const signe = diff >= 0 ? `+${diff}` : `${diff}`;
+          document.getElementById("statEcartPrec").textContent = `Évolution : ${signe} pts vs P${numP - 1}`;
+        } else {
+          document.getElementById("statEcartPrec").textContent = `Période ${numP - 1}`;
+        }
+      } else {
+        document.getElementById("statMoyennePrec").textContent = "N/A";
+        document.getElementById("statEcartPrec").textContent = "Première période de l'année";
+      }
+
+      // 3. Meilleure et Pire moyenne (Note + Nom de l'élève)
+      if (moyennesParEleve.length > 0) {
+        moyennesParEleve.sort((a, b) => b.moyenne - a.moyenne);
+        const meilleure = moyennesParEleve[0];
+        const pire = moyennesParEleve[moyennesParEleve.length - 1];
+
+        document.getElementById("statMeilleureNote").textContent = `${meilleure.moyenne.toFixed(2)} / 20`;
+        document.getElementById("statMeilleurEleve").textContent = `Élève : ${meilleure.eleve}`;
+
+        document.getElementById("statPireNote").textContent = `${pire.moyenne.toFixed(2)} / 20`;
+        document.getElementById("statPireEleve").textContent = `Élève : ${pire.eleve}`;
+      } else {
+        document.getElementById("statMeilleureNote").textContent = "-";
+        document.getElementById("statMeilleurEleve").textContent = "Élève : -";
+        document.getElementById("statPireNote").textContent = "-";
+        document.getElementById("statPireEleve").textContent = "Élève : -";
+      }
+
+      // 4. Grand Tableau comparatif des 16 élèves sur 5 périodes
+      const tbodyComp = document.getElementById("tbodyComparatifEleves");
+      tbodyComp.innerHTML = "";
+
+      ELEVES_CM2.forEach((eleve, idx) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition";
+
+        let htmlLigne = `<td class="py-2 px-3 font-semibold text-slate-800">${eleve}</td>`;
+        let moysCumulees = [];
+
+        for (let p = 1; p <= 5; p++) {
+          const dataP = baseDonnees[String(p)] || { evals: [], notes: {} };
+          const notesEleveP = [];
+          dataP.evals.forEach(ev => {
+            const v = (dataP.notes[ev.id] || {})[eleve];
+            if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) {
+              notesEleveP.push(parseFloat(v));
+            }
+          });
+
+          const moyP = calculerMoyenne(notesEleveP);
+          if (moyP !== "-") moysCumulees.push(parseFloat(moyP));
+
+          const estPeriodeEnCours = p === numP;
+          htmlLigne += `
+            <td class="py-2 px-2 text-center ${estPeriodeEnCours ? 'font-bold text-blue-700 bg-blue-50/50' : 'text-slate-600'}">
+              ${moyP !== '-' ? moyP : '-'}
+            </td>
+          `;
+        }
+
+        const moyAnnuelle = moysCumulees.length > 0 ? (moysCumulees.reduce((a, b) => a + b, 0) / moysCumulees.length).toFixed(2) : "-";
+        htmlLigne += `
+          <td class="py-2 px-3 text-right font-black text-slate-900">
+            ${moyAnnuelle !== '-' ? moyAnnuelle + ' / 20' : '-'}
+          </td>
+        `;
+
+        tr.innerHTML = htmlLigne;
+        tbodyComp.appendChild(tr);
+      });
+
+      // 5. Une stat par évaluation faite
+      const grilleEvals = document.getElementById("statGrilleEvalsDetails");
+      grilleEvals.innerHTML = "";
+
+      if (current.evals.length === 0) {
+        grilleEvals.innerHTML = `<div class="col-span-full text-xs text-slate-500 italic">Aucune évaluation enregistrée pour cette période.</div>`;
+      } else {
+        current.evals.forEach((ev, idx) => {
+          const notesObj = current.notes[ev.id] || {};
+          const notesTab = Object.values(notesObj).map(v => parseFloat(v)).filter(v => !isNaN(v));
+          const moy = calculerMoyenne(notesTab);
+          const max = notesTab.length > 0 ? Math.max(...notesTab).toFixed(2) : "-";
+          const min = notesTab.length > 0 ? Math.min(...notesTab).toFixed(2) : "-";
+          const count = notesTab.length;
+
+          const d = document.createElement("div");
+          d.className = "p-3.5 rounded-lg border border-slate-200 bg-slate-50 flex flex-col justify-between";
+          d.innerHTML = `
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-[10px] font-bold uppercase text-blue-700">#${idx + 1} ${ev.matiere}</span>
+                <span class="text-[11px] font-bold text-slate-500">${count}/16 notés</span>
+              </div>
+              <div class="text-xs font-bold text-slate-900 truncate" title="${ev.titre}">${ev.titre}</div>
+            </div>
+
+            <div class="mt-3 pt-2 border-t border-slate-200 grid grid-cols-3 text-center text-xs">
+              <div>
+                <span class="text-[10px] text-slate-400 font-semibold uppercase">Moyenne</span>
+                <div class="font-bold text-blue-700">${moy}</div>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-semibold uppercase">Plus haute</span>
+                <div class="font-bold text-emerald-700">${max}</div>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-semibold uppercase">Plus basse</span>
+                <div class="font-bold text-amber-700">${min}</div>
+              </div>
+            </div>
+          `;
+          grilleEvals.appendChild(d);
+        });
+      }
     }
 
     function calculerHistorique(eleve) {
@@ -1074,69 +1004,46 @@
       }
 
       if (histo.length === 0) {
-        return numPeriode === 1 ? "Première période de l'année scolaire" : "Aucune note antérieure enregistrée";
+        return numPeriode === 1 ? "Première période de l'année scolaire" : "Aucune note antérieure";
       }
       return histo.join("&nbsp;&nbsp;&bull;&nbsp;&nbsp;");
     }
 
-    function calculerEtAfficherStats() {
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const toutesLesNotes = [];
+    function telechargerTousLesBulletinsPDF() {
+      basculerVue('apercu');
+      const el = document.getElementById("apercuBulletins");
+      const btn = document.getElementById("btnTelechargerPDF");
+      const txt = document.getElementById("txtBtnTelecharger");
 
-      ELEVES_CM2.forEach(eleve => {
-        current.evals.forEach(ev => {
-          const v = (current.notes[ev.id] || {})[eleve];
-          if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) {
-            toutesLesNotes.push(parseFloat(v));
-          }
-        });
-      });
+      txt.textContent = "Génération du PDF...";
+      btn.disabled = true;
 
-      document.getElementById("statNbEvals").textContent = current.evals.length;
+      const opt = {
+        margin: 0,
+        filename: `bulletins_CM2_periode_${periodeActive}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
 
-      if (toutesLesNotes.length > 0) {
-        const moyClasse = (toutesLesNotes.reduce((a,b) => a+b, 0) / toutesLesNotes.length).toFixed(2);
-        const max = Math.max(...toutesLesNotes).toFixed(2);
-        const min = Math.min(...toutesLesNotes).toFixed(2);
-
-        document.getElementById("statMoyenneClasse").textContent = moyClasse;
-        document.getElementById("statNoteMax").textContent = max;
-        document.getElementById("statNoteMin").textContent = min;
-      } else {
-        document.getElementById("statMoyenneClasse").textContent = "-";
-        document.getElementById("statNoteMax").textContent = "-";
-        document.getElementById("statNoteMin").textContent = "-";
-      }
-
-      const tbody = document.getElementById("tbodySyntheseStats");
-      tbody.innerHTML = "";
-
-      ELEVES_CM2.forEach(eleve => {
-        const tr = document.createElement("tr");
-        let moysP = [];
-        let htmlCols = `<td class="py-3 font-semibold text-[#1d1d1f]">${eleve}</td>`;
-
-        for (let p = 1; p <= 5; p++) {
-          const dataP = baseDonnees[String(p)] || { evals: [], notes: {} };
-          const notesP = [];
-          dataP.evals.forEach(ev => {
-            const val = (dataP.notes[ev.id] || {})[eleve];
-            if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) notesP.push(parseFloat(val));
-          });
-          const m = calculerMoyenne(notesP);
-          if (m !== "-") moysP.push(parseFloat(m));
-          htmlCols += `<td class="py-3 text-center font-medium ${p == periodeActive ? 'font-bold text-[#0071e3] bg-[#0071e3]/5' : 'text-[#86868b]'}">${m}</td>`;
-        }
-
-        const moyAnnuelle = moysP.length > 0 ? (moysP.reduce((a,b)=>a+b,0)/moysP.length).toFixed(2) : "-";
-        htmlCols += `<td class="py-3 text-right font-extrabold text-[#1d1d1f]">${moyAnnuelle}</td>`;
-
-        tr.innerHTML = htmlCols;
-        tbody.appendChild(tr);
+      html2pdf().set(opt).from(el).save().then(() => {
+        txt.textContent = "Télécharger tout en PDF";
+        btn.disabled = false;
+      }).catch(err => {
+        console.error(err);
+        alert("Erreur lors de la création du PDF. Utilisez le bouton 'Imprimer'.");
+        txt.textContent = "Télécharger tout en PDF";
+        btn.disabled = false;
       });
     }
 
-    // Moteur de rendu officiel A4
+    function lancerImpressionNavigateur() {
+      basculerVue('apercu');
+      setTimeout(() => {
+        window.print();
+      }, 300);
+    }
+
     function genererApercu() {
       const conteneur = document.getElementById("apercuBulletins");
       conteneur.innerHTML = "";
