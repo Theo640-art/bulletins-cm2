@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bulletins CM2 — École Jean des Vignes Rouges</title>
+  <title>Bulletins CM2 — Jean des Vignes Rouges</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
 
@@ -15,7 +15,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
 
     :root {
-      --system-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --system-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     body {
@@ -26,115 +26,245 @@
 
     .glass-header {
       background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
     }
 
+    .apple-card {
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .apple-card:hover {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      transform: translateY(-2px);
+    }
+
+    /* Animation Shake iPadOS */
+    @keyframes appleShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-12px); }
+      40%, 80% { transform: translateX(12px); }
+    }
+    .shake { animation: appleShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+    /* Page format A4 strict */
     .bulletin-page {
       width: 210mm;
-      min-height: 297mm;
-      padding: 16mm 18mm;
-      margin: 0 auto;
+      height: 296mm;
+      max-height: 296mm;
+      padding: 13mm 15mm;
+      margin: 0 auto 30px auto;
       background: #ffffff;
       box-sizing: border-box;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       border-radius: 8px;
+      overflow: hidden;
     }
 
     @media print {
-      body { background: transparent !important; padding: 0 !important; }
+      html, body {
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100% !important;
+      }
       .no-print { display: none !important; }
-      #tabApercu { display: block !important; }
-      #tabGrille, #tabStats { display: none !important; }
+      #tabApercu { display: block !important; padding: 0 !important; background: transparent !important; }
+      #tabGrille, #tabStats, #authOverlay, #modalSaisie, #modalCreation, #apercuSidebar { display: none !important; }
+      #apercuMainArea { width: 100% !important; padding: 0 !important; }
+      
       .bulletin-page {
         margin: 0 !important;
         box-shadow: none !important;
         border-radius: 0 !important;
         width: 100% !important;
-        min-height: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
         page-break-after: always !important;
         break-after: page !important;
-        padding: 14mm 16mm !important;
+        padding: 12mm 14mm !important;
       }
-      @page { size: A4 portrait; margin: 0; }
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
     }
-
-    .sticky-col { position: sticky; left: 0; z-index: 5; background-color: #ffffff; }
-    .sticky-header { position: sticky; top: 0; z-index: 10; }
-    .sticky-corner { position: sticky; left: 0; top: 0; z-index: 15; }
   </style>
 </head>
-<body class="h-full text-[#1d1d1f] flex flex-col">
+<body class="h-full text-[#1d1d1f] flex flex-col select-none sm:select-auto">
 
-  <!-- Écran de verrouillage Apple Style -->
-  <div id="authOverlay" class="fixed inset-0 bg-[#000000]/30 backdrop-blur-2xl z-50 flex items-center justify-center p-4">
-    <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 max-w-sm w-full border border-black/5 text-center">
-      <div class="w-14 h-14 bg-[#f5f5f7] rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#1d1d1f] shadow-inner">
-        <i data-lucide="lock" class="w-6 h-6"></i>
-      </div>
-      <h2 class="text-xl font-semibold tracking-tight text-[#1d1d1f]">Bulletins CM2</h2>
-      <p class="text-[13px] text-[#86868b] mt-0.5 mb-6">École Jean des Vignes Rouges</p>
+  <!-- ================= ÉCRAN DE VERROUILLAGE TYPE IPADOS ================= -->
+  <div id="authOverlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white backdrop-blur-3xl">
+    <div id="authCard" class="w-full max-w-sm flex flex-col items-center">
       
-      <form onsubmit="verifierMotDePasse(event)" class="space-y-3">
-        <div>
-          <input type="password" id="inputPass" placeholder="Mot de passe" required
-                 class="w-full text-center px-4 py-3 bg-[#f5f5f7] rounded-xl text-sm font-medium tracking-wide outline-none border border-transparent focus:border-[#0071e3] focus:bg-white focus:ring-4 focus:ring-[#0071e3]/15 transition duration-200">
-          <p id="authError" class="text-xs text-red-500 mt-2 font-medium hidden">Mot de passe incorrect</p>
-        </div>
-        <button type="submit" class="w-full bg-[#0071e3] hover:bg-[#0077ed] active:scale-[0.98] text-white font-medium py-3 rounded-xl text-sm transition duration-200 shadow-sm">
-          Déverrouiller
+      <div class="w-16 h-16 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-4 border border-white/10 shadow-2xl">
+        <i data-lucide="lock" class="w-7 h-7 text-white"></i>
+      </div>
+
+      <h2 class="text-xl font-bold tracking-tight text-center">École Jean des Vignes Rouges</h2>
+      <p class="text-xs text-white/60 mt-1 mb-8 text-center font-medium">Gestion et Impression des Bulletins CM2</p>
+
+      <!-- Témoins de saisie du mot de passe -->
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-3.5 h-3.5 rounded-full border border-white/40 transition-all duration-200" id="dot-0"></div>
+        <div class="w-3.5 h-3.5 rounded-full border border-white/40 transition-all duration-200" id="dot-1"></div>
+        <div class="w-3.5 h-3.5 rounded-full border border-white/40 transition-all duration-200" id="dot-2"></div>
+        <div class="w-3.5 h-3.5 rounded-full border border-white/40 transition-all duration-200" id="dot-3"></div>
+        <div class="w-3.5 h-3.5 rounded-full border border-white/40 transition-all duration-200" id="dot-4"></div>
+      </div>
+
+      <!-- Clavier numérique / saisie alternative directe -->
+      <div class="w-full space-y-3">
+        <input type="password" id="inputPass" placeholder="Tapez le mot de passe" autofocus
+               class="w-full text-center px-4 py-3.5 bg-white/10 hover:bg-white/15 focus:bg-white/20 rounded-2xl text-sm font-medium tracking-widest outline-none border border-white/15 focus:border-[#0071e3] transition backdrop-blur-lg">
+        
+        <p id="authError" class="text-xs text-red-400 text-center font-medium hidden">Mot de passe incorrect. Réessayez.</p>
+
+        <button onclick="validerAuthentification()" class="w-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold py-3.5 rounded-2xl text-xs uppercase tracking-wider transition active:scale-[0.98] shadow-lg shadow-[#0071e3]/30">
+          Ouvrir la session
         </button>
-      </form>
+      </div>
+
     </div>
   </div>
 
-  <!-- Contenu Principal -->
+  <!-- ================= FEUILLE MODALE : NOUVELLE ÉVALUATION ================= -->
+  <div id="modalCreation" class="fixed inset-0 bg-black/40 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full border border-black/5 overflow-hidden flex flex-col p-6 animate-scaleIn">
+      <div class="flex items-center justify-between pb-4 border-b border-black/5">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-[#0071e3]/10 text-[#0071e3] flex items-center justify-center">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-base font-bold text-[#1d1d1f]">Nouvelle évaluation</h3>
+        </div>
+        <button onclick="fermerModalCreation()" class="w-8 h-8 rounded-full bg-[#f5f5f7] hover:bg-[#e8e8ed] flex items-center justify-center transition">
+          <i data-lucide="x" class="w-4 h-4 text-[#1d1d1f]"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 py-5">
+        <!-- Sélecteur à pastilles tactiles -->
+        <div>
+          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-2">Matière</label>
+          <div class="flex flex-wrap gap-1.5" id="pillsMatieres"></div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-1.5">Sous-domaine <span class="text-[#86868b] font-normal lowercase">(facultatif)</span></label>
+          <select id="modalCreateTheme" class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition"></select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-1.5">Titre du devoir</label>
+          <input type="text" id="modalCreateTitre" placeholder="Ex: Bilan de numération, Dictée flash n°2..." 
+                 class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition">
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-black/5 flex items-center justify-end gap-2">
+        <button onclick="fermerModalCreation()" class="px-4 py-2.5 text-xs font-medium text-[#86868b] hover:text-[#1d1d1f] transition">Annuler</button>
+        <button onclick="confirmerCreationEvaluation()" class="px-5 py-2.5 bg-[#0071e3] hover:bg-[#0077ed] active:scale-[0.98] text-white text-xs font-semibold rounded-xl shadow-sm transition">
+          Créer et saisir les notes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TIROIR MODAL : SAISIE RAPIDE « QUICK FLOW » ================= -->
+  <div id="modalSaisie" class="fixed inset-0 bg-black/40 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full border border-black/5 overflow-hidden flex flex-col max-h-[92vh]">
+      
+      <!-- Header avec barre de progression -->
+      <div class="p-5 border-b border-black/5 bg-[#fbfbfd]">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span id="modalEvalBadge" class="px-2.5 py-0.5 bg-[#0071e3] text-white text-[11px] font-bold rounded-lg shadow-sm">#1</span>
+            <span id="modalEvalMatiere" class="text-xs font-bold text-[#86868b] uppercase tracking-wider">Français</span>
+          </div>
+          <button onclick="fermerModalSaisie()" class="w-8 h-8 rounded-full bg-[#f5f5f7] hover:bg-[#e8e8ed] flex items-center justify-center transition">
+            <i data-lucide="x" class="w-4 h-4 text-[#1d1d1f]"></i>
+          </button>
+        </div>
+        
+        <h3 id="modalEvalTitre" class="text-base font-bold text-[#1d1d1f]">Titre</h3>
+        <p id="modalEvalTheme" class="text-xs text-[#86868b] italic"></p>
+
+        <!-- Barre de jauge Apple -->
+        <div class="mt-3">
+          <div class="flex justify-between text-[11px] font-semibold text-[#86868b] mb-1">
+            <span>Progression de la classe</span>
+            <span id="modalProgressText">0 / 16 (0%)</span>
+          </div>
+          <div class="w-full h-1.5 bg-[#e8e8ed] rounded-full overflow-hidden">
+            <div id="modalProgressBar" class="h-full bg-[#0071e3] rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Liste de saisie rapide -->
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-2.5 flex-1" id="modalSaisieListeEleves"></div>
+
+      <!-- Pied de tiroir -->
+      <div class="p-4 border-t border-black/5 bg-[#fafafa] flex flex-col sm:flex-row gap-2 justify-between items-center text-xs text-[#86868b]">
+        <span>Astuce : Utilisez les boutons rapides ou la touche <kbd class="px-1.5 py-0.5 bg-white border border-black/10 rounded shadow-xs font-semibold">Entrée</kbd></span>
+        <button onclick="fermerModalSaisie()" class="w-full sm:w-auto bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold py-2.5 px-6 rounded-xl transition active:scale-[0.98]">
+          Terminer la saisie
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= APPLICATION PRINCIPALE ================= -->
   <div id="mainApp" class="hidden min-h-screen flex flex-col">
 
-    <!-- Header Flottant Verre Dépoli -->
+    <!-- Header Glassmorphism Pro -->
     <header class="glass-header sticky top-0 z-30 no-print">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
         
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#1d1d1f] to-[#434344] text-white flex items-center justify-center font-bold text-sm shadow-sm">
+          <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#0071e3] to-[#47a3ff] text-white flex items-center justify-center font-bold text-xs shadow-md shadow-[#0071e3]/20">
             CM2
           </div>
           <div>
-            <h1 class="text-sm font-semibold tracking-tight text-[#1d1d1f]">École élémentaire Jean des Vignes Rouges</h1>
-            <p class="text-[11px] text-[#86868b]">Bligny-lès-Beaune &bull; Année 2026/2027</p>
+            <h1 class="text-sm font-bold tracking-tight text-[#1d1d1f]">École élémentaire Jean des Vignes Rouges</h1>
+            <p class="text-[11px] text-[#86868b] font-medium">Bligny-lès-Beaune &bull; Année 2026/2027</p>
           </div>
         </div>
 
-        <!-- Contrôle Segmenté Apple (Onglets) -->
-        <div class="bg-[#e8e8ed] p-1 rounded-xl flex items-center gap-1 text-xs font-medium">
-          <button id="btnTabGrille" onclick="basculerVue('grille')" class="px-3.5 py-1.5 rounded-lg bg-white text-[#1d1d1f] shadow-sm transition">
-            Grille des notes
+        <!-- Boutons segmentés Apple -->
+        <div class="bg-[#e8e8ed] p-1 rounded-2xl flex items-center gap-1 text-xs font-semibold">
+          <button id="btnTabGrille" onclick="basculerVue('grille')" class="px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-sm transition">
+            Évaluations
           </button>
-          <button id="btnTabApercu" onclick="basculerVue('apercu')" class="px-3.5 py-1.5 rounded-lg text-[#86868b] hover:text-[#1d1d1f] transition">
-            Bulletins A4
+          <button id="btnTabApercu" onclick="basculerVue('apercu')" class="px-4 py-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] transition">
+            Visualiseur A4
           </button>
-          <button id="btnTabStats" onclick="basculerVue('stats')" class="px-3.5 py-1.5 rounded-lg text-[#86868b] hover:text-[#1d1d1f] transition">
+          <button id="btnTabStats" onclick="basculerVue('stats')" class="px-4 py-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] transition">
             Statistiques
           </button>
         </div>
 
         <!-- Actions Principales -->
         <div class="flex items-center gap-2">
-          <!-- Statut Cloud -->
-          <div id="cloudStatus" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-emerald-500/10 text-emerald-700 rounded-full">
+          
+          <div id="cloudStatus" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-emerald-500/10 text-emerald-700 rounded-full">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Synchronisé</span>
+            <span>En direct</span>
           </div>
 
-          <!-- Sélecteur Période -->
+          <!-- Période -->
           <div class="flex items-center bg-[#f5f5f7] rounded-xl px-3 py-1.5 border border-black/5">
-            <span class="text-xs text-[#86868b] mr-1.5">Période</span>
-            <select id="selectPeriode" onchange="changerPeriode(this.value)" class="bg-transparent font-semibold text-xs outline-none cursor-pointer">
+            <span class="text-xs text-[#86868b] font-medium mr-1.5">Période</span>
+            <select id="selectPeriode" onchange="changerPeriode(this.value)" class="bg-transparent font-bold text-xs outline-none cursor-pointer">
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -144,150 +274,172 @@
           </div>
 
           <!-- Signature -->
-          <label class="p-2 text-xs font-medium text-[#1d1d1f] bg-white hover:bg-[#f5f5f7] border border-black/10 rounded-xl cursor-pointer transition shadow-sm" title="Importer signature de la directrice">
-            <i data-lucide="file-signature" class="w-4 h-4"></i>
-            <input type="file" id="inputSignature" accept="image/*" onchange="importerSignature(event)" class="hidden">
+          <label id="btnSignatureLabel" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#1d1d1f] bg-white hover:bg-[#f5f5f7] border border-black/10 rounded-xl cursor-pointer transition shadow-xs" title="Importer la signature de la directrice">
+            <i data-lucide="file-signature" class="w-4 h-4 text-[#0071e3]"></i>
+            <span id="txtSignature">Signature</span>
+            <input type="file" id="inputSignature" accept="image/*" onchange="importerEtCompresserSignature(event)" class="hidden">
           </label>
-
-          <!-- Réinitialisation -->
-          <button onclick="confirmerReset('periode')" class="p-2 text-xs text-[#86868b] hover:text-red-600 bg-white hover:bg-red-50 border border-black/10 rounded-xl transition shadow-sm" title="Vider la période en cours">
-            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          <button id="btnSupprSig" onclick="supprimerSignature()" title="Supprimer la signature" class="hidden p-2 text-xs text-red-600 bg-white hover:bg-red-50 border border-black/10 rounded-xl shadow-xs">
+            <i data-lucide="trash" class="w-3.5 h-3.5"></i>
           </button>
 
-          <!-- Bouton Imprimer -->
-          <button onclick="lancerImpression()" class="inline-flex items-center gap-1.5 bg-[#0071e3] hover:bg-[#0077ed] active:scale-[0.98] text-white text-xs font-medium py-2 px-3.5 rounded-xl shadow-sm transition">
+          <!-- Sauvegarde Secours JSON -->
+          <div class="flex items-center border border-black/10 rounded-xl bg-white overflow-hidden shadow-xs">
+            <button onclick="exporterSauvegardeJSON()" class="p-2 hover:bg-[#f5f5f7] text-[#1d1d1f] transition" title="Télécharger sauvegarde de secours (.json)">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            </button>
+            <label class="p-2 hover:bg-[#f5f5f7] text-[#1d1d1f] cursor-pointer transition border-l border-black/10" title="Restaurer une sauvegarde">
+              <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+              <input type="file" accept=".json" onchange="importerSauvegardeJSON(event)" class="hidden">
+            </label>
+          </div>
+
+          <!-- Réinitialiser Période -->
+          <button onclick="confirmerReset('periode')" class="p-2 text-xs font-medium text-[#86868b] hover:text-red-600 bg-white hover:bg-red-50 border border-black/10 rounded-xl transition shadow-xs" title="Vider les notes de la période">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <!-- Bouton Impression Groupée -->
+          <button onclick="lancerImpressionGlobale()" class="inline-flex items-center gap-1.5 bg-[#0071e3] hover:bg-[#0077ed] active:scale-[0.98] text-white text-xs font-semibold py-2 px-3.5 rounded-xl shadow-sm transition">
             <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-            <span>Imprimer</span>
+            <span>Imprimer les 16 A4</span>
           </button>
         </div>
 
       </div>
     </header>
 
-    <!-- Conteneur Général -->
     <main class="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6 flex-1">
 
-      <!-- ================= VUE 1 : GRILLE DE SAISIE ================= -->
-      <section id="tabGrille" class="space-y-5">
+      <!-- ================= VUE 1 : ÉVALUATIONS & NOTES ================= -->
+      <section id="tabGrille" class="space-y-6">
 
-        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-black/5">
-          <div class="text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-3">Nouvelle évaluation</div>
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-            
-            <div class="md:col-span-3">
-              <label class="block text-xs font-medium text-[#1d1d1f] mb-1">Matière</label>
-              <select id="selectMatiere" onchange="majThemes()" class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3 py-2 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition">
-                <option value="Français">Français</option>
-                <option value="Maths">Maths</option>
-                <option value="Histoire">Histoire</option>
-                <option value="Géographie">Géographie</option>
-                <option value="EMC">EMC</option>
-                <option value="Sciences">Sciences</option>
-                <option value="Anglais">Anglais</option>
-              </select>
-            </div>
-
-            <div class="md:col-span-4">
-              <label class="block text-xs font-medium text-[#1d1d1f] mb-1">Sous-domaine <span class="text-[#86868b] font-normal">(facultatif)</span></label>
-              <select id="selectTheme" class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3 py-2 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition"></select>
-            </div>
-
-            <div class="md:col-span-3">
-              <label class="block text-xs font-medium text-[#1d1d1f] mb-1">Intitulé</label>
-              <input type="text" id="inputTitreEval" placeholder="Ex: Dictée n°1, Calcul mental..." class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3 py-2 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition">
-            </div>
-
-            <div class="md:col-span-2">
-              <button onclick="ajouterColonneEvaluation()" class="w-full inline-flex items-center justify-center gap-1.5 bg-[#1d1d1f] hover:bg-[#2d2d2f] text-white font-medium py-2 px-3 rounded-xl text-xs transition shadow-sm active:scale-[0.98]">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Ajouter
-              </button>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden flex flex-col">
-          <div class="px-5 py-3 border-b border-black/5 flex justify-between items-center bg-[#fafafa]">
-            <span class="text-xs font-medium text-[#1d1d1f]">Matrice des élèves &bull; Période <span id="lblPeriode">1</span></span>
-            <span class="text-[11px] text-[#86868b]">Touches <kbd class="px-1.5 py-0.5 bg-white border border-black/10 rounded">Entrée</kbd> ou flèches pour naviguer</span>
-          </div>
-
-          <div class="overflow-x-auto max-h-[580px] relative">
-            <table class="w-full border-collapse text-xs">
-              <thead>
-                <tr id="theadRow" class="bg-[#f5f5f7] text-[#1d1d1f] border-b border-black/5">
-                  <th class="sticky-corner bg-[#f5f5f7] py-3 px-4 text-left font-semibold border-r border-black/5 min-w-[210px]">
-                    Élève (16)
-                  </th>
-                  <th class="sticky-header bg-[#f5f5f7] py-3 px-3 text-center font-semibold border-r border-black/5 w-24">
-                    Moyenne
-                  </th>
-                </tr>
-              </thead>
-              <tbody id="tbodyMatrice" class="divide-y divide-black/5"></tbody>
-            </table>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- ================= VUE 2 : APERÇU BULLETINS A4 ================= -->
-      <section id="tabApercu" class="hidden space-y-6">
-        <div class="no-print flex items-center justify-between pb-1">
+        <!-- Banner Titre & Action Principale -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-black/5 shadow-xs">
           <div>
-            <h2 class="text-sm font-semibold text-[#1d1d1f]">Aperçu prêt pour l'impression A4</h2>
-            <p class="text-xs text-[#86868b]">16 bulletins générés avec signature et moyennes consolidées</p>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-md bg-[#0071e3]/10 text-[#0071e3] text-xs font-bold">Période <span id="lblPeriodeTitre">1</span></span>
+              <h2 class="text-lg font-bold text-[#1d1d1f]">Carnet des Évaluations</h2>
+            </div>
+            <p class="text-xs text-[#86868b] mt-1 font-medium">Gérez vos devoirs et saisissez les notes des 16 élèves avec calcul instantané des moyennes.</p>
           </div>
-          <button onclick="lancerImpression()" class="inline-flex items-center gap-2 bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-medium py-2 px-4 rounded-xl shadow-sm transition">
-            <i data-lucide="printer" class="w-4 h-4"></i> Imprimer les 16 bulletins
+
+          <button onclick="ouvrirModalCreation()" class="inline-flex items-center justify-center gap-2 bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold py-3 px-5 rounded-2xl text-xs transition active:scale-[0.98] shadow-md shadow-[#0071e3]/20">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Créer une évaluation</span>
           </button>
         </div>
 
-        <div id="apercuBulletins" class="space-y-8 bg-[#e8e8ed] p-6 rounded-3xl overflow-x-auto"></div>
+        <!-- Grille de cartes modulaires -->
+        <div id="listeEvalsCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+
       </section>
 
-      <!-- ================= VUE 3 : STATISTIQUES DE CLASSE ================= -->
+      <!-- ================= VUE 2 : VISUALISEUR A4 MACOS PREVIEW ================= -->
+      <section id="tabApercu" class="hidden">
+        
+        <div class="flex flex-col lg:flex-row gap-6 items-start">
+          
+          <!-- Barre latérale des 16 élèves (macOS style) -->
+          <div id="apercuSidebar" class="no-print w-full lg:w-72 bg-white rounded-3xl border border-black/5 p-4 shadow-xs shrink-0 max-h-[820px] overflow-y-auto space-y-1.5 sticky top-24">
+            <div class="px-2 py-1 mb-2">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-[#86868b]">Élèves de CM2 (16)</div>
+              <div class="text-xs text-[#1d1d1f] font-semibold mt-0.5">Sélectionnez pour visualiser</div>
+            </div>
+            <div id="listeElevesSidebar" class="space-y-1"></div>
+          </div>
+
+          <!-- Zone centrale de visualisation et impression -->
+          <div id="apercuMainArea" class="flex-1 w-full space-y-6">
+            
+            <div class="no-print flex items-center justify-between bg-white p-4 rounded-2xl border border-black/5 shadow-xs">
+              <div>
+                <h3 class="text-xs font-bold text-[#1d1d1f]" id="apercuEleveNomActif">Tous les bulletins CM2</h3>
+                <p class="text-[11px] text-[#86868b]">Mise en page certifiée A4 pour impression papier ou export PDF</p>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button onclick="lancerImpressionSeule()" class="px-3.5 py-2 bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
+                  <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                  <span>Imprimer cet élève</span>
+                </button>
+                <button onclick="lancerImpressionGlobale()" class="px-4 py-2 bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold rounded-xl shadow-xs transition flex items-center gap-1.5">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>Imprimer les 16</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Conteneur des pages A4 -->
+            <div id="apercuBulletins" class="bg-[#dcdce2] p-4 sm:p-8 rounded-3xl overflow-x-auto flex flex-col items-center"></div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= VUE 3 : DASHBOARD STATISTIQUES ================= -->
       <section id="tabStats" class="hidden space-y-6">
         
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white rounded-2xl p-5 shadow-sm border border-black/5">
-            <div class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Moyenne de classe</div>
-            <div id="statMoyenneClasse" class="text-2xl font-bold tracking-tight text-[#1d1d1f] mt-1">-</div>
-            <div class="text-[11px] text-[#86868b] mt-0.5">Sur 20 &bull; Période en cours</div>
+          <div class="apple-card rounded-3xl p-5">
+            <div class="flex items-center justify-between text-[#86868b] mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Moyenne de classe</span>
+              <i data-lucide="trending-up" class="w-4 h-4 text-[#0071e3]"></i>
+            </div>
+            <div id="statMoyenneClasse" class="text-3xl font-extrabold tracking-tight text-[#1d1d1f] mt-1">-</div>
+            <div class="text-[11px] text-[#86868b] mt-1 font-medium">Période <span id="statNumPeriode">1</span> &bull; Sur 20</div>
           </div>
 
-          <div class="bg-white rounded-2xl p-5 shadow-sm border border-black/5">
-            <div class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Note la plus haute</div>
-            <div id="statNoteMax" class="text-2xl font-bold tracking-tight text-emerald-600 mt-1">-</div>
-            <div class="text-[11px] text-[#86868b] mt-0.5">Meilleure performance</div>
+          <div class="apple-card rounded-3xl p-5">
+            <div class="flex items-center justify-between text-[#86868b] mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Note la plus haute</span>
+              <i data-lucide="award" class="w-4 h-4 text-emerald-600"></i>
+            </div>
+            <div id="statNoteMax" class="text-3xl font-extrabold tracking-tight text-emerald-600 mt-1">-</div>
+            <div class="text-[11px] text-[#86868b] mt-1 font-medium">Meilleure copie saisie</div>
           </div>
 
-          <div class="bg-white rounded-2xl p-5 shadow-sm border border-black/5">
-            <div class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Note la plus basse</div>
-            <div id="statNoteMin" class="text-2xl font-bold tracking-tight text-amber-600 mt-1">-</div>
-            <div class="text-[11px] text-[#86868b] mt-0.5">Point de vigilance</div>
+          <div class="apple-card rounded-3xl p-5">
+            <div class="flex items-center justify-between text-[#86868b] mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Note la plus basse</span>
+              <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
+            </div>
+            <div id="statNoteMin" class="text-3xl font-extrabold tracking-tight text-amber-600 mt-1">-</div>
+            <div class="text-[11px] text-[#86868b] mt-1 font-medium">Besoins d'accompagnement</div>
           </div>
 
-          <div class="bg-white rounded-2xl p-5 shadow-sm border border-black/5">
-            <div class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Évaluations saisies</div>
-            <div id="statNbEvals" class="text-2xl font-bold tracking-tight text-[#0071e3] mt-1">0</div>
-            <div class="text-[11px] text-[#86868b] mt-0.5">Dans la période active</div>
+          <div class="apple-card rounded-3xl p-5">
+            <div class="flex items-center justify-between text-[#86868b] mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Devoirs enregistrés</span>
+              <i data-lucide="file-check" class="w-4 h-4 text-[#0071e3]"></i>
+            </div>
+            <div id="statNbEvals" class="text-3xl font-extrabold tracking-tight text-[#0071e3] mt-1">0</div>
+            <div class="text-[11px] text-[#86868b] mt-1 font-medium">Évaluations actives</div>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-black/5 p-5">
-          <h3 class="text-sm font-semibold text-[#1d1d1f] mb-3">Synthèse individuelle des moyennes</h3>
+        <!-- Synthèse par élève Apple Table -->
+        <div class="apple-card rounded-3xl p-6 overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-[#1d1d1f]">Suivi individuel et annuel</h3>
+              <p class="text-xs text-[#86868b]">Historique consolidé des 5 périodes</p>
+            </div>
+          </div>
+
           <div class="overflow-x-auto">
             <table class="w-full text-xs text-left">
               <thead>
                 <tr class="border-b border-black/5 text-[#86868b]">
-                  <th class="py-2.5 font-semibold">Élève</th>
-                  <th class="py-2.5 font-semibold text-center">Période 1</th>
-                  <th class="py-2.5 font-semibold text-center">Période 2</th>
-                  <th class="py-2.5 font-semibold text-center">Période 3</th>
-                  <th class="py-2.5 font-semibold text-center">Période 4</th>
-                  <th class="py-2.5 font-semibold text-center">Période 5</th>
-                  <th class="py-2.5 font-semibold text-right">Moyenne annuelle</th>
+                  <th class="py-3 font-bold">Élève</th>
+                  <th class="py-3 font-bold text-center">P1</th>
+                  <th class="py-3 font-bold text-center">P2</th>
+                  <th class="py-3 font-bold text-center">P3</th>
+                  <th class="py-3 font-bold text-center">P4</th>
+                  <th class="py-3 font-bold text-center">P5</th>
+                  <th class="py-3 font-bold text-right">Moyenne Générale</th>
                 </tr>
               </thead>
               <tbody id="tbodySyntheseStats" class="divide-y divide-black/5"></tbody>
@@ -325,6 +477,16 @@
       "PIERRE Louca", "TALAGHZI Safiyah", "TALAGHZI Younes", "ZUBER Léon"
     ];
 
+    const MATIERES_PALETTE = {
+      "Français": { bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50" },
+      "Maths": { bg: "bg-purple-500", text: "text-purple-600", light: "bg-purple-50" },
+      "Histoire": { bg: "bg-amber-500", text: "text-amber-600", light: "bg-amber-50" },
+      "Géographie": { bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-50" },
+      "EMC": { bg: "bg-rose-500", text: "text-rose-600", light: "bg-rose-50" },
+      "Sciences": { bg: "bg-teal-500", text: "text-teal-600", light: "bg-teal-50" },
+      "Anglais": { bg: "bg-indigo-500", text: "text-indigo-600", light: "bg-indigo-50" }
+    };
+
     const MATIERES_CONFIG = {
       "Français": ["Grammaire", "Conjugaison", "Orthographe", "Lexique", "Lecture", "Poésie"],
       "Maths": ["Numération", "Calcul", "Grandeur et Mesure", "Géométrie", "Résolution de problèmes"],
@@ -338,23 +500,47 @@
     let baseDonnees = { "1": { evals: [], notes: {} }, "2": { evals: [], notes: {} }, "3": { evals: [], notes: {} }, "4": { evals: [], notes: {} }, "5": { evals: [], notes: {} } };
     let periodeActive = "1";
     let signatureDirectriceBase64 = null;
+    let evalEnCoursId = null;
+    let eleveActifIndex = 0;
+    let matiereSelectionneeCreation = "Français";
 
-    function verifierMotDePasse(e) {
-      if (e) e.preventDefault();
-      const saisie = document.getElementById("inputPass").value;
+    // Gestion du code de déverrouillage
+    const inputPassEl = document.getElementById("inputPass");
+    inputPassEl.addEventListener('input', (e) => {
+      const len = Math.min(e.target.value.length, 5);
+      for (let i = 0; i < 5; i++) {
+        const d = document.getElementById(`dot-${i}`);
+        if (i < len) {
+          d.classList.add("bg-white", "scale-110");
+        } else {
+          d.classList.remove("bg-white", "scale-110");
+        }
+      }
+    });
+
+    inputPassEl.addEventListener('keydown', (e) => {
+      if (e.key === "Enter") validerAuthentification();
+    });
+
+    function validerAuthentification() {
+      const saisie = inputPassEl.value;
       if (saisie === MOT_DE_PASSE_VALIDE) {
         localStorage.setItem("cm2_auth", MOT_DE_PASSE_VALIDE);
         deverrouillerApplication();
       } else {
+        const card = document.getElementById("authCard");
+        card.classList.add("shake");
         document.getElementById("authError").classList.remove("hidden");
+        setTimeout(() => card.classList.remove("shake"), 500);
       }
     }
 
     function deverrouillerApplication() {
       document.getElementById("authOverlay").classList.add("hidden");
       document.getElementById("mainApp").classList.remove("hidden");
-      majThemes();
+      initialiserPillsMatieres();
       ecouterDonneesCloud();
+      genererSidebarEleves();
       lucide.createIcons();
     }
 
@@ -365,6 +551,7 @@
       }
     });
 
+    // Bascule des onglets
     function basculerVue(vue) {
       document.getElementById("tabGrille").classList.add("hidden");
       document.getElementById("tabApercu").classList.add("hidden");
@@ -375,41 +562,109 @@
       const bStats = document.getElementById("btnTabStats");
 
       [bGrille, bApercu, bStats].forEach(b => {
-        b.className = "px-3.5 py-1.5 rounded-lg text-[#86868b] hover:text-[#1d1d1f] transition";
+        b.className = "px-4 py-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] transition";
       });
 
       if (vue === 'grille') {
         document.getElementById("tabGrille").classList.remove("hidden");
-        bGrille.className = "px-3.5 py-1.5 rounded-lg bg-white text-[#1d1d1f] shadow-sm transition";
+        bGrille.className = "px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-sm transition";
       } else if (vue === 'apercu') {
         document.getElementById("tabApercu").classList.remove("hidden");
-        bApercu.className = "px-3.5 py-1.5 rounded-lg bg-white text-[#1d1d1f] shadow-sm transition";
+        bApercu.className = "px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-sm transition";
         genererApercu();
       } else if (vue === 'stats') {
         document.getElementById("tabStats").classList.remove("hidden");
-        bStats.className = "px-3.5 py-1.5 rounded-lg bg-white text-[#1d1d1f] shadow-sm transition";
+        bStats.className = "px-4 py-1.5 rounded-xl bg-white text-[#1d1d1f] shadow-sm transition";
         calculerEtAfficherStats();
       }
       lucide.createIcons();
     }
 
-    function lancerImpression() {
-      basculerVue('apercu');
-      setTimeout(() => {
-        window.print();
-      }, 250);
+    // Modal de Création rapide
+    function ouvrirModalCreation() {
+      document.getElementById("modalCreateTitre").value = "";
+      selectionnerMatierePill("Français");
+      document.getElementById("modalCreation").classList.remove("hidden");
+      setTimeout(() => document.getElementById("modalCreateTitre").focus(), 100);
+      lucide.createIcons();
     }
 
+    function fermerModalCreation() {
+      document.getElementById("modalCreation").classList.add("hidden");
+    }
+
+    function initialiserPillsMatieres() {
+      const c = document.getElementById("pillsMatieres");
+      c.innerHTML = "";
+      Object.keys(MATIERES_CONFIG).forEach(mat => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = mat;
+        btn.className = `px-3 py-1.5 rounded-xl text-xs font-semibold transition border border-black/5 ${mat === matiereSelectionneeCreation ? 'bg-[#1d1d1f] text-white shadow-xs' : 'bg-[#f5f5f7] text-[#86868b] hover:text-[#1d1d1f]'}`;
+        btn.onclick = () => selectionnerMatierePill(mat);
+        c.appendChild(btn);
+      });
+    }
+
+    function selectionnerMatierePill(mat) {
+      matiereSelectionneeCreation = mat;
+      initialiserPillsMatieres();
+      const select = document.getElementById("modalCreateTheme");
+      select.innerHTML = '<option value="">Aucun (général)</option>';
+      (MATIERES_CONFIG[mat] || []).forEach(th => {
+        const opt = document.createElement("option");
+        opt.value = th;
+        opt.textContent = th;
+        select.appendChild(opt);
+      });
+    }
+
+    function confirmerCreationEvaluation() {
+      const titre = document.getElementById("modalCreateTitre").value.trim();
+      const theme = document.getElementById("modalCreateTheme").value.trim();
+
+      if (!titre) {
+        document.getElementById("modalCreateTitre").focus();
+        return;
+      }
+
+      if (!baseDonnees[periodeActive]) {
+        baseDonnees[periodeActive] = { evals: [], notes: {} };
+      }
+
+      const evalId = "ev_" + Date.now();
+      baseDonnees[periodeActive].evals.push({
+        id: evalId,
+        matiere: matiereSelectionneeCreation,
+        theme: theme,
+        titre: titre
+      });
+      baseDonnees[periodeActive].notes[evalId] = {};
+
+      sauvegarderCloud();
+      fermerModalCreation();
+      rafraichirCartesEvals();
+      genererApercu();
+      calculerEtAfficherStats();
+
+      // Ouvre immédiatement la saisie
+      ouvrirModalSaisie(evalId);
+    }
+
+    // Écouteur Firestore
     function ecouterDonneesCloud() {
       docRef.onSnapshot((doc) => {
         if (doc.exists) {
           const data = doc.data();
           if (data.baseDonnees) baseDonnees = data.baseDonnees;
-          if (data.signature) signatureDirectriceBase64 = data.signature;
-          rafraichirMatrice();
+          if (data.signature) {
+            signatureDirectriceBase64 = data.signature;
+            majAffichageBoutonSignature();
+          }
+          rafraichirCartesEvals();
           genererApercu();
           calculerEtAfficherStats();
-          indiquerSynchro("Synchronisé", "emerald");
+          indiquerSynchro("En direct", "emerald");
         } else {
           sauvegarderCloud();
         }
@@ -420,13 +675,13 @@
     }
 
     function sauvegarderCloud() {
-      indiquerSynchro("Enregistrement...", "amber");
+      indiquerSynchro("Sauvegarde...", "amber");
       docRef.set({
         baseDonnees: baseDonnees,
         signature: signatureDirectriceBase64 || null,
         derniereMaj: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true })
-      .then(() => indiquerSynchro("Synchronisé", "emerald"))
+      .then(() => indiquerSynchro("En direct", "emerald"))
       .catch((err) => {
         console.error(err);
         indiquerSynchro("Erreur sauvegarde", "red");
@@ -436,196 +691,352 @@
     function indiquerSynchro(texte, couleur) {
       const el = document.getElementById("cloudStatus");
       if (!el) return;
-      el.className = `inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-${couleur}-500/10 text-${couleur}-700 rounded-full`;
+      el.className = `inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-${couleur}-500/10 text-${couleur}-700 rounded-full`;
       el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-${couleur}-500 ${couleur === 'emerald' ? 'animate-pulse' : ''}"></span><span>${texte}</span>`;
-    }
-
-    function majThemes() {
-      const mat = document.getElementById("selectMatiere").value;
-      const select = document.getElementById("selectTheme");
-      select.innerHTML = '<option value="">Aucun (général)</option>';
-      (MATIERES_CONFIG[mat] || []).forEach(th => {
-        const opt = document.createElement("option");
-        opt.value = th;
-        opt.textContent = th;
-        select.appendChild(opt);
-      });
     }
 
     function changerPeriode(val) {
       periodeActive = String(val);
-      document.getElementById("lblPeriode").textContent = periodeActive;
-      rafraichirMatrice();
+      document.getElementById("lblPeriodeTitre").textContent = periodeActive;
+      document.getElementById("statNumPeriode").textContent = periodeActive;
+      rafraichirCartesEvals();
       genererApercu();
       calculerEtAfficherStats();
-    }
-
-    function ajouterColonneEvaluation() {
-      const mat = document.getElementById("selectMatiere").value;
-      const theme = document.getElementById("selectTheme").value.trim();
-      const titre = document.getElementById("inputTitreEval").value.trim();
-
-      if (!titre) {
-        document.getElementById("inputTitreEval").focus();
-        return;
-      }
-
-      if (!baseDonnees[periodeActive]) {
-        baseDonnees[periodeActive] = { evals: [], notes: {} };
-      }
-
-      const evalId = "ev_" + Date.now();
-      baseDonnees[periodeActive].evals.push({ id: evalId, matiere: mat, theme: theme, titre: titre });
-      baseDonnees[periodeActive].notes[evalId] = {};
-
-      document.getElementById("inputTitreEval").value = "";
-      sauvegarderCloud();
-      rafraichirMatrice();
-      genererApercu();
-      calculerEtAfficherStats();
-
-      setTimeout(() => {
-        const first = document.querySelector(`input[data-evalid="${evalId}"][data-eleveindex="0"]`);
-        if (first) { first.focus(); first.select(); }
-      }, 50);
     }
 
     function supprimerColonneEvaluation(evalId) {
-      if (!confirm("Supprimer cette évaluation et ses notes ?")) return;
+      if (!confirm("Supprimer cette évaluation et toutes ses notes ?")) return;
       baseDonnees[periodeActive].evals = baseDonnees[periodeActive].evals.filter(e => e.id !== evalId);
       delete baseDonnees[periodeActive].notes[evalId];
       sauvegarderCloud();
-      rafraichirMatrice();
+      rafraichirCartesEvals();
       genererApercu();
       calculerEtAfficherStats();
     }
 
-    function rafraichirMatrice() {
+    // Affichage des Cartes Apple Enrichies
+    function rafraichirCartesEvals() {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const theadRow = document.getElementById("theadRow");
-      const tbody = document.getElementById("tbodyMatrice");
+      const conteneur = document.getElementById("listeEvalsCards");
+      conteneur.innerHTML = "";
 
-      while (theadRow.children.length > 2) {
-        theadRow.removeChild(theadRow.lastChild);
-      }
-      tbody.innerHTML = "";
-
-      current.evals.forEach(ev => {
-        const th = document.createElement("th");
-        th.className = "sticky-header bg-[#f5f5f7] py-2.5 px-3 text-center border-r border-black/5 min-w-[120px] max-w-[140px]";
-        th.innerHTML = `
-          <div class="flex flex-col items-center">
-            <div class="flex items-center justify-between w-full mb-1">
-              <span class="text-[10px] font-semibold text-[#86868b] truncate max-w-[90px] uppercase">${ev.matiere}</span>
-              <button onclick="supprimerColonneEvaluation('${ev.id}')" title="Supprimer" class="text-slate-400 hover:text-red-500 transition">
-                <i data-lucide="x" class="w-3 h-3"></i>
-              </button>
+      if (current.evals.length === 0) {
+        conteneur.innerHTML = `
+          <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-black/5 shadow-xs">
+            <div class="w-14 h-14 rounded-3xl bg-[#f5f5f7] flex items-center justify-center mx-auto mb-3 text-[#86868b]">
+              <i data-lucide="book-open" class="w-7 h-7"></i>
             </div>
-            <div class="text-[11px] font-semibold text-[#1d1d1f] truncate w-full" title="${ev.titre}">${ev.titre}</div>
-            ${ev.theme ? `<div class="text-[10px] text-[#86868b] italic truncate w-full" title="${ev.theme}">${ev.theme}</div>` : ''}
+            <h3 class="text-base font-bold text-[#1d1d1f]">Aucun devoir pour le moment</h3>
+            <p class="text-xs text-[#86868b] mt-1 font-medium">Ajoutez une première évaluation pour lancer le suivi de la période ${periodeActive}.</p>
           </div>
         `;
-        theadRow.appendChild(th);
-      });
+        lucide.createIcons();
+        return;
+      }
 
-      ELEVES_CM2.forEach((eleveNom, idx) => {
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-[#fbfbfd] transition-colors";
+      current.evals.forEach((ev, index) => {
+        const notesObj = current.notes[ev.id] || {};
+        const nbRemplies = Object.values(notesObj).filter(v => v !== "" && v !== null && v !== undefined).length;
+        const notesNumeriques = Object.values(notesObj).map(v => parseFloat(v)).filter(v => !isNaN(v));
+        const moyDevoir = calculerMoyenne(notesNumeriques);
+        const palette = MATIERES_PALETTE[ev.matiere] || { bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50" };
 
-        const notes = [];
-        current.evals.forEach(ev => {
-          const val = (current.notes[ev.id] || {})[eleveNom];
-          if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) notes.push(parseFloat(val));
-        });
-        const moy = calculerMoyenne(notes);
+        const card = document.createElement("div");
+        card.className = "apple-card rounded-3xl p-5 flex flex-col justify-between group cursor-pointer";
+        card.onclick = (e) => {
+          if (!e.target.closest('button')) ouvrirModalSaisie(ev.id);
+        };
 
-        let rowHTML = `
-          <td class="sticky-col py-2 px-4 font-medium text-[#1d1d1f] border-r border-black/5 whitespace-nowrap bg-white">
-            ${eleveNom}
-          </td>
-          <td class="py-2 px-3 text-center font-semibold border-r border-black/5 ${moy !== '-' ? 'text-[#0071e3] bg-[#f5f5f7]/60' : 'text-[#86868b]'}">
-            ${moy !== '-' ? moy : '-'}
-          </td>
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full ${palette.bg}"></span>
+                <span class="text-[11px] font-bold ${palette.text} uppercase tracking-wider">${ev.matiere}</span>
+                <span class="text-[10px] text-[#86868b] font-bold ml-1">#${index + 1}</span>
+              </div>
+              <button onclick="supprimerColonneEvaluation('${ev.id}')" title="Supprimer" class="text-slate-300 hover:text-red-500 p-1 rounded-lg hover:bg-red-50 transition">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+            <h3 class="text-sm font-bold text-[#1d1d1f] line-clamp-1" title="${ev.titre}">${ev.titre}</h3>
+            ${ev.theme ? `<p class="text-[11px] text-[#86868b] italic truncate mt-0.5">${ev.theme}</p>` : '<p class="text-[11px] text-transparent select-none mt-0.5">-</p>'}
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-black/5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-semibold text-[#86868b]">Saisie des notes</span>
+              <span class="text-xs font-bold ${nbRemplies === 16 ? 'text-emerald-600' : 'text-[#1d1d1f]'}">${nbRemplies} / 16</span>
+            </div>
+            
+            <div class="w-full h-1.5 bg-[#f5f5f7] rounded-full overflow-hidden mb-3">
+              <div class="h-full ${nbRemplies === 16 ? 'bg-emerald-500' : 'bg-[#0071e3]'} rounded-full" style="width: ${(nbRemplies / 16) * 100}%"></div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-[#0071e3]">${moyDevoir !== '-' ? moyDevoir + '/20' : 'Pas de moyenne'}</span>
+              <button onclick="ouvrirModalSaisie('${ev.id}')" class="px-3 py-1.5 bg-[#f5f5f7] hover:bg-[#1d1d1f] hover:text-white rounded-xl text-[11px] font-bold transition flex items-center gap-1 text-[#1d1d1f]">
+                <i data-lucide="edit-3" class="w-3 h-3"></i> Saisir
+              </button>
+            </div>
+          </div>
         `;
-
-        current.evals.forEach(ev => {
-          const valNote = (current.notes[ev.id] || {})[eleveNom] || "";
-          rowHTML += `
-            <td class="py-1.5 px-2 text-center border-r border-black/5">
-              <input type="text"
-                     value="${valNote}"
-                     placeholder="-"
-                     data-evalid="${ev.id}"
-                     data-elevenom="${eleveNom}"
-                     data-eleveindex="${idx}"
-                     class="w-14 text-center font-semibold text-[#1d1d1f] bg-[#f5f5f7] border border-transparent focus:border-[#0071e3] focus:bg-white rounded-lg py-1 px-1 outline-none transition"
-                     onchange="modifierNoteMatrice('${ev.id}', '${eleveNom}', this.value)"
-                     onkeydown="naviguerMatrice(event, this)">
-            </td>
-          `;
-        });
-
-        tr.innerHTML = rowHTML;
-        tbody.appendChild(tr);
+        conteneur.appendChild(card);
       });
 
       lucide.createIcons();
     }
 
-    function naviguerMatrice(event, input) {
-      const evalId = input.getAttribute("data-evalid");
-      const idx = parseInt(input.getAttribute("data-eleveindex"));
+    // Modal Quick Flow interactif
+    function ouvrirModalSaisie(evalId) {
+      evalEnCoursId = evalId;
+      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
+      const evIndex = current.evals.findIndex(e => e.id === evalId);
+      if (evIndex === -1) return;
+      const ev = current.evals[evIndex];
 
+      document.getElementById("modalEvalBadge").textContent = `#${evIndex + 1}`;
+      document.getElementById("modalEvalMatiere").textContent = ev.matiere;
+      document.getElementById("modalEvalTitre").textContent = ev.titre;
+      document.getElementById("modalEvalTheme").textContent = ev.theme ? `Sous-domaine : ${ev.theme}` : "";
+
+      const listeConteneur = document.getElementById("modalSaisieListeEleves");
+      listeConteneur.innerHTML = "";
+
+      ELEVES_CM2.forEach((eleve, idx) => {
+        const valNote = (current.notes[ev.id] || {})[eleve] || "";
+        const div = document.createElement("div");
+        div.className = "flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-2xl hover:bg-[#f5f5f7] transition gap-2 border border-black/5 sm:border-transparent";
+        div.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="w-5 text-[11px] font-bold text-[#86868b]">${idx + 1}.</span>
+            <span class="text-xs font-bold text-[#1d1d1f]">${eleve}</span>
+          </div>
+
+          <div class="flex items-center gap-2 self-end sm:self-auto">
+            <!-- Boutons de raccourcis tactiles un-clic -->
+            <div class="flex items-center gap-1">
+              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', '20', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-emerald-50 hover:text-emerald-700 rounded-lg text-[#86868b] transition">20</button>
+              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', '10', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-blue-50 hover:text-blue-700 rounded-lg text-[#86868b] transition">10</button>
+              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'NE', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-purple-50 hover:text-purple-700 rounded-lg text-[#86868b] transition">NE</button>
+              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'ABS', ${idx})" class="px-2 py-1 text-[10px] font-bold bg-[#f5f5f7] hover:bg-amber-50 hover:text-amber-700 rounded-lg text-[#86868b] transition">ABS</button>
+            </div>
+
+            <div class="flex items-center gap-1 bg-white rounded-xl border border-black/10 px-2 py-1 shadow-xs focus-within:border-[#0071e3]">
+              <input type="text"
+                     value="${valNote}"
+                     placeholder="-"
+                     data-modalidx="${idx}"
+                     class="w-12 text-center font-bold text-xs outline-none bg-transparent"
+                     oninput="modifierNoteModal('${ev.id}', '${eleve}', this.value, this)"
+                     onkeydown="naviguerModal(event, ${idx})">
+              <span class="text-[10px] font-bold text-[#86868b]">/20</span>
+            </div>
+          </div>
+        `;
+        listeConteneur.appendChild(div);
+      });
+
+      actualiserBarreProgressionModal();
+      document.getElementById("modalSaisie").classList.remove("hidden");
+      lucide.createIcons();
+
+      setTimeout(() => {
+        const first = document.querySelector(`input[data-modalidx="0"]`);
+        if (first) { first.focus(); first.select(); }
+      }, 50);
+    }
+
+    function actualiserBarreProgressionModal() {
+      if (!evalEnCoursId) return;
+      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
+      const notesObj = current.notes[evalEnCoursId] || {};
+      const remplies = Object.values(notesObj).filter(v => v !== "" && v !== null && v !== undefined).length;
+      const pct = Math.round((remplies / 16) * 100);
+
+      document.getElementById("modalProgressText").textContent = `${remplies} / 16 (${pct}%)`;
+      document.getElementById("modalProgressBar").style.width = `${pct}%`;
+    }
+
+    function raccourciNote(evalId, eleveNom, val, idx) {
+      const input = document.querySelector(`input[data-modalidx="${idx}"]`);
+      modifierNoteModal(evalId, eleveNom, val, input);
+      naviguerVersSuivant(idx);
+    }
+
+    function naviguerVersSuivant(idx) {
+      const next = document.querySelector(`input[data-modalidx="${idx + 1}"]`);
+      if (next) { next.focus(); next.select(); }
+    }
+
+    function fermerModalSaisie() {
+      document.getElementById("modalSaisie").classList.add("hidden");
+      evalEnCoursId = null;
+      rafraichirCartesEvals();
+      genererApercu();
+      calculerEtAfficherStats();
+    }
+
+    function modifierNoteModal(evalId, eleveNom, val, inputEl) {
+      let rawVal = val.trim().toUpperCase().replace(",", ".");
+      let finalVal = "";
+
+      if (rawVal === "" || rawVal === "-") {
+        finalVal = "";
+      } else if (["NE", "NN", "ABS", "DISP"].includes(rawVal)) {
+        finalVal = rawVal;
+      } else {
+        const num = parseFloat(rawVal);
+        if (!isNaN(num) && num >= 0 && num <= 20) {
+          finalVal = String(num);
+        } else if (rawVal.length > 2) {
+          finalVal = "";
+        } else {
+          finalVal = rawVal;
+        }
+      }
+
+      if (inputEl) inputEl.value = finalVal;
+
+      if (!baseDonnees[periodeActive].notes[evalId]) {
+        baseDonnees[periodeActive].notes[evalId] = {};
+      }
+      baseDonnees[periodeActive].notes[evalId][eleveNom] = finalVal;
+      actualiserBarreProgressionModal();
+      sauvegarderCloud();
+    }
+
+    function naviguerModal(event, currentIdx) {
       if (event.key === "Enter" || event.key === "ArrowDown") {
         event.preventDefault();
-        const next = document.querySelector(`input[data-evalid="${evalId}"][data-eleveindex="${idx + 1}"]`);
-        if (next) { next.focus(); next.select(); }
+        naviguerVersSuivant(currentIdx);
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
-        const prev = document.querySelector(`input[data-evalid="${evalId}"][data-eleveindex="${idx - 1}"]`);
+        const prev = document.querySelector(`input[data-modalidx="${currentIdx - 1}"]`);
         if (prev) { prev.focus(); prev.select(); }
       }
     }
 
-    function modifierNoteMatrice(evalId, eleveNom, val) {
-      const cleanVal = val.trim().replace(",", ".");
-      if (!baseDonnees[periodeActive].notes[evalId]) {
-        baseDonnees[periodeActive].notes[evalId] = {};
-      }
-      baseDonnees[periodeActive].notes[evalId][eleveNom] = cleanVal;
-      sauvegarderCloud();
-      genererApercu();
-      calculerEtAfficherStats();
-      rafraichirMoyennesLignes();
-    }
-
-    function rafraichirMoyennesLignes() {
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const tbody = document.getElementById("tbodyMatrice");
-      Array.from(tbody.children).forEach((tr, index) => {
-        const eleveNom = ELEVES_CM2[index];
-        const notes = [];
-        current.evals.forEach(ev => {
-          const val = (current.notes[ev.id] || {})[eleveNom];
-          if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) notes.push(parseFloat(val));
-        });
-        const moy = calculerMoyenne(notes);
-        const tdMoy = tr.children[1];
-        tdMoy.textContent = moy !== '-' ? moy : '-';
-        tdMoy.className = `py-2 px-3 text-center font-semibold border-r border-black/5 ${moy !== '-' ? 'text-[#0071e3] bg-[#f5f5f7]/60' : 'text-[#86868b]'}`;
+    // Barre latérale macOS Aperçu
+    function genererSidebarEleves() {
+      const c = document.getElementById("listeElevesSidebar");
+      c.innerHTML = "";
+      ELEVES_CM2.forEach((eleve, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition ${idx === eleveActifIndex ? 'bg-[#0071e3] text-white shadow-sm' : 'hover:bg-[#f5f5f7] text-[#1d1d1f]'}`;
+        btn.onclick = () => {
+          eleveActifIndex = idx;
+          genererSidebarEleves();
+          document.getElementById(`bulletin-page-${idx}`).scrollIntoView({ behavior: 'smooth' });
+          document.getElementById("apercuEleveNomActif").textContent = eleve;
+        };
+        btn.innerHTML = `
+          <span class="truncate">${eleve}</span>
+          <span class="text-[10px] opacity-75 font-bold">p.${idx + 1}</span>
+        `;
+        c.appendChild(btn);
       });
     }
 
-    function importerSignature(event) {
+    function lancerImpressionGlobale() {
+      basculerVue('apercu');
+      setTimeout(() => {
+        window.print();
+      }, 300);
+    }
+
+    function lancerImpressionSeule() {
+      const pages = document.querySelectorAll('.bulletin-page');
+      pages.forEach((p, idx) => {
+        if (idx !== eleveActifIndex) p.style.display = 'none';
+      });
+      window.print();
+      setTimeout(() => {
+        pages.forEach(p => p.style.display = 'flex');
+      }, 500);
+    }
+
+    // Gestion de la Signature
+    function importerEtCompresserSignature(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 320;
+          const scaleSize = MAX_WIDTH / img.width;
+          canvas.width = MAX_WIDTH;
+          canvas.height = img.height * scaleSize;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          signatureDirectriceBase64 = canvas.toDataURL("image/png");
+
+          majAffichageBoutonSignature();
+          sauvegarderCloud();
+          genererApercu();
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function supprimerSignature() {
+      if (!confirm("Retirer la signature partagée ?")) return;
+      signatureDirectriceBase64 = null;
+      majAffichageBoutonSignature();
+      sauvegarderCloud();
+      genererApercu();
+    }
+
+    function majAffichageBoutonSignature() {
+      const btnSuppr = document.getElementById("btnSupprSig");
+      const txt = document.getElementById("txtSignature");
+      if (signatureDirectriceBase64) {
+        txt.textContent = "Signature active";
+        btnSuppr.classList.remove("hidden");
+      } else {
+        txt.textContent = "Signature";
+        btnSuppr.classList.add("hidden");
+      }
+    }
+
+    // Sauvegarde et Restauration JSON
+    function exporterSauvegardeJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(baseDonnees, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `bulletins_cm2_sauvegarde_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importerSauvegardeJSON(event) {
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(e) {
-        signatureDirectriceBase64 = e.target.result;
-        sauvegarderCloud();
-        genererApercu();
+        try {
+          const importData = JSON.parse(e.target.result);
+          if (confirm("Attention : cette action va restaurer les données du fichier et remplacer celles en ligne. Continuer ?")) {
+            baseDonnees = importData;
+            sauvegarderCloud();
+            rafraichirCartesEvals();
+            genererApercu();
+            calculerEtAfficherStats();
+            alert("Restauration effectuée avec succès !");
+          }
+        } catch (err) {
+          alert("Erreur lors de la lecture du fichier de sauvegarde JSON.");
+        }
       };
-      reader.readAsDataURL(file);
+      reader.readAsText(file);
     }
 
     function confirmerReset(mode) {
@@ -634,7 +1045,7 @@
         baseDonnees[periodeActive] = { evals: [], notes: {} };
       }
       sauvegarderCloud();
-      rafraichirMatrice();
+      rafraichirCartesEvals();
       genererApercu();
       calculerEtAfficherStats();
     }
@@ -648,39 +1059,37 @@
     function calculerHistorique(eleve) {
       const histo = [];
       const numPeriode = parseInt(periodeActive);
+
       for (let p = 1; p < numPeriode; p++) {
         const dataP = baseDonnees[String(p)];
-        if (!dataP || !dataP.evals) continue;
+        if (!dataP || !dataP.evals || dataP.evals.length === 0) continue;
         const notesP = [];
         dataP.evals.forEach(ev => {
           const val = (dataP.notes[ev.id] || {})[eleve];
           if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) notesP.push(parseFloat(val));
         });
         if (notesP.length > 0) {
-          histo.push(`Période ${p} : ${calculerMoyenne(notesP)}/20`);
+          histo.push(`Période ${p} : <b>${calculerMoyenne(notesP)}/20</b>`);
         }
       }
-      return histo.join("  —  ");
+
+      if (histo.length === 0) {
+        return numPeriode === 1 ? "Première période de l'année scolaire" : "Aucune note antérieure enregistrée";
+      }
+      return histo.join("&nbsp;&nbsp;&bull;&nbsp;&nbsp;");
     }
 
     function calculerEtAfficherStats() {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
       const toutesLesNotes = [];
-      const moyennesEleves = [];
 
       ELEVES_CM2.forEach(eleve => {
-        const notesEleve = [];
         current.evals.forEach(ev => {
           const v = (current.notes[ev.id] || {})[eleve];
           if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) {
-            const num = parseFloat(v);
-            notesEleve.push(num);
-            toutesLesNotes.push(num);
+            toutesLesNotes.push(parseFloat(v));
           }
         });
-        if (notesEleve.length > 0) {
-          moyennesEleves.push(parseFloat(calculerMoyenne(notesEleve)));
-        }
       });
 
       document.getElementById("statNbEvals").textContent = current.evals.length;
@@ -705,7 +1114,7 @@
       ELEVES_CM2.forEach(eleve => {
         const tr = document.createElement("tr");
         let moysP = [];
-        let htmlCols = `<td class="py-2.5 font-medium text-[#1d1d1f]">${eleve}</td>`;
+        let htmlCols = `<td class="py-3 font-semibold text-[#1d1d1f]">${eleve}</td>`;
 
         for (let p = 1; p <= 5; p++) {
           const dataP = baseDonnees[String(p)] || { evals: [], notes: {} };
@@ -716,25 +1125,30 @@
           });
           const m = calculerMoyenne(notesP);
           if (m !== "-") moysP.push(parseFloat(m));
-          htmlCols += `<td class="py-2.5 text-center ${p == periodeActive ? 'font-semibold text-[#0071e3]' : 'text-[#86868b]'}">${m}</td>`;
+          htmlCols += `<td class="py-3 text-center font-medium ${p == periodeActive ? 'font-bold text-[#0071e3] bg-[#0071e3]/5' : 'text-[#86868b]'}">${m}</td>`;
         }
 
         const moyAnnuelle = moysP.length > 0 ? (moysP.reduce((a,b)=>a+b,0)/moysP.length).toFixed(2) : "-";
-        htmlCols += `<td class="py-2.5 text-right font-bold text-[#1d1d1f]">${moyAnnuelle}</td>`;
+        htmlCols += `<td class="py-3 text-right font-extrabold text-[#1d1d1f]">${moyAnnuelle}</td>`;
 
         tr.innerHTML = htmlCols;
         tbody.appendChild(tr);
       });
     }
 
+    // Moteur de rendu officiel A4
     function genererApercu() {
       const conteneur = document.getElementById("apercuBulletins");
       conteneur.innerHTML = "";
 
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
       const dateStr = new Date().toLocaleDateString("fr-FR");
+      const nbEvalsTotal = current.evals.length;
 
-      ELEVES_CM2.forEach(eleveNom => {
+      const cellPad = nbEvalsTotal > 10 ? "2.5px 5px" : "3.5px 7px";
+      const fontSize = nbEvalsTotal > 10 ? "8pt" : "8.5pt";
+
+      ELEVES_CM2.forEach((eleveNom, idx) => {
         const matieresMap = {};
         const allNotesEleve = [];
 
@@ -757,7 +1171,7 @@
             if (theme && theme.trim() !== "") {
               sousLignesHTML += `
                 <tr style="background-color: #fafafa;">
-                  <td colspan="2" style="padding: 3px 8px; font-size: 8.5pt; font-style: italic; color: #4b5563; border: 1px solid #d1d5db;">
+                  <td colspan="2" style="padding: 2px 5px; font-size: 7.5pt; font-style: italic; color: #4b5563; border: 1px solid #d1d5db;">
                     ${theme}
                   </td>
                 </tr>
@@ -768,13 +1182,16 @@
               const numVal = dev.note !== "" && !isNaN(parseFloat(dev.note)) ? parseFloat(dev.note) : null;
               if (numVal !== null) notesMatiere.push(numVal);
 
+              const estStatutTexte = ["NE", "NN", "ABS", "DISP"].includes(dev.note);
+              const affichageNote = dev.note !== "" ? (estStatutTexte ? `<span style="color:#6b7280; font-size:7.5pt; font-weight:700;">${dev.note}</span>` : `${dev.note}`) : "-";
+
               sousLignesHTML += `
                 <tr>
-                  <td style="padding: 5px 8px; font-size: 9.5pt; color: #111827; border: 1px solid #d1d5db;">
+                  <td style="padding: ${cellPad}; font-size: ${fontSize}; color: #111827; border: 1px solid #d1d5db;">
                     ${dev.titre}
                   </td>
-                  <td style="padding: 5px 8px; font-size: 9.5pt; font-weight: 600; text-align: center; border: 1px solid #d1d5db; width: 85px;">
-                    ${dev.note !== "" ? dev.note : "-"}
+                  <td style="padding: ${cellPad}; font-size: ${fontSize}; font-weight: 600; text-align: center; border: 1px solid #d1d5db; width: 70px;">
+                    ${affichageNote}
                   </td>
                 </tr>
               `;
@@ -785,10 +1202,10 @@
 
           corpsTableauHTML += `
             <tr style="background-color: #f3f4f6; font-weight: 700;">
-              <td style="padding: 6px 8px; font-size: 10pt; color: #111827; border: 1px solid #9ca3af; text-transform: uppercase; letter-spacing: 0.3px;">
+              <td style="padding: 3.5px 5px; font-size: 8.5pt; color: #111827; border: 1px solid #9ca3af; text-transform: uppercase; letter-spacing: 0.3px;">
                 ${matiere}
               </td>
-              <td style="padding: 6px 8px; font-size: 10pt; text-align: center; border: 1px solid #9ca3af; color: #111827;">
+              <td style="padding: 3.5px 5px; font-size: 8.5pt; text-align: center; border: 1px solid #9ca3af; color: #111827;">
                 ${moyMatiere !== '-' ? moyMatiere : '-'}
               </td>
             </tr>
@@ -801,89 +1218,88 @@
 
         const page = document.createElement("div");
         page.className = "bulletin-page";
+        page.id = `bulletin-page-${idx}`;
         page.innerHTML = `
           <div>
-            <div style="border-bottom: 2px solid #111827; padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div style="border-bottom: 2px solid #111827; padding-bottom: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-end;">
               <div>
-                <div style="font-size: 13pt; font-weight: 700; color: #111827; font-family: 'Libre Baskerville', serif;">École élémentaire Jean des Vignes Rouges</div>
-                <div style="font-size: 9pt; color: #4b5563;">21200 Bligny-lès-Beaune</div>
+                <div style="font-size: 11.5pt; font-weight: 700; color: #111827; font-family: 'Libre Baskerville', serif;">École élémentaire Jean des Vignes Rouges</div>
+                <div style="font-size: 8pt; color: #4b5563;">21200 Bligny-lès-Beaune</div>
               </div>
               <div style="text-align: right;">
-                <div style="font-size: 11pt; font-weight: 700; color: #111827;">BULLETIN SCOLAIRE</div>
-                <div style="font-size: 9pt; color: #374151;">Année scolaire 2026/2027 &bull; <b>Période ${periodeActive}</b></div>
+                <div style="font-size: 10pt; font-weight: 700; color: #111827;">BULLETIN SCOLAIRE</div>
+                <div style="font-size: 8pt; color: #374151;">Année scolaire 2026/2027 &bull; <b>Période ${periodeActive}</b></div>
               </div>
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 14px; border: 1px solid #111827;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; border: 1px solid #111827;">
               <tr>
-                <td style="padding: 7px 10px; background-color: #f9fafb; width: 65%; border-right: 1px solid #111827;">
-                  <span style="font-size: 8.5pt; text-transform: uppercase; color: #4b5563;">Élève :</span>
-                  <div style="font-size: 12pt; font-weight: 700; color: #111827;">${eleveNom}</div>
+                <td style="padding: 5px 7px; background-color: #f9fafb; width: 65%; border-right: 1px solid #111827;">
+                  <span style="font-size: 7.5pt; text-transform: uppercase; color: #4b5563;">Élève :</span>
+                  <div style="font-size: 10.5pt; font-weight: 700; color: #111827;">${eleveNom}</div>
                 </td>
-                <td style="padding: 7px 10px; background-color: #f9fafb;">
-                  <span style="font-size: 8.5pt; text-transform: uppercase; color: #4b5563;">Niveau / Classe :</span>
-                  <div style="font-size: 12pt; font-weight: 700; color: #111827;">CM2</div>
+                <td style="padding: 5px 7px; background-color: #f9fafb;">
+                  <span style="font-size: 7.5pt; text-transform: uppercase; color: #4b5563;">Niveau / Classe :</span>
+                  <div style="font-size: 10.5pt; font-weight: 700; color: #111827;">CM2</div>
                 </td>
               </tr>
             </table>
 
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px;">
               <thead>
                 <tr style="background-color: #e5e7eb; border: 1px solid #9ca3af;">
-                  <th style="padding: 6px 8px; text-align: left; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.5px; color: #111827;">
+                  <th style="padding: 4px 5px; text-align: left; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; color: #111827;">
                     Domaines d'enseignement & Évaluations
                   </th>
-                  <th style="padding: 6px 8px; text-align: center; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.5px; width: 85px; color: #111827;">
+                  <th style="padding: 4px 5px; text-align: center; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; width: 70px; color: #111827;">
                     Note / 20
                   </th>
                 </tr>
               </thead>
               <tbody>
-                ${corpsTableauHTML || '<tr><td colspan="2" style="padding: 24px; text-align: center; color: #6b7280; font-style: italic; border: 1px solid #d1d5db;">Aucune évaluation enregistrée pour cette période.</td></tr>'}
+                ${corpsTableauHTML || '<tr><td colspan="2" style="padding: 16px; text-align: center; color: #6b7280; font-style: italic; border: 1px solid #d1d5db;">Aucune évaluation enregistrée pour cette période.</td></tr>'}
                 
                 <tr style="background-color: #e5e7eb; border-top: 2px solid #111827; font-weight: 700;">
-                  <td style="padding: 7px 8px; font-size: 10pt; text-align: right; text-transform: uppercase; letter-spacing: 0.5px; color: #111827; border: 1px solid #9ca3af;">
+                  <td style="padding: 4.5px 5px; font-size: 8.5pt; text-align: right; text-transform: uppercase; letter-spacing: 0.5px; color: #111827; border: 1px solid #9ca3af;">
                     Moyenne générale de la période :
                   </td>
-                  <td style="padding: 7px 8px; font-size: 11pt; text-align: center; color: #111827; border: 1px solid #9ca3af;">
+                  <td style="padding: 4.5px 5px; font-size: 9.5pt; text-align: center; color: #111827; border: 1px solid #9ca3af;">
                     ${moyGen} / 20
                   </td>
                 </tr>
               </tbody>
             </table>
 
-            ${histoStr ? `
-              <div style="font-size: 8.5pt; color: #4b5563; text-align: right; margin-bottom: 8px;">
-                Historique des périodes précédentes : <b>${histoStr}</b>
-              </div>
-            ` : ''}
+            <div style="font-size: 7.5pt; color: #4b5563; text-align: right; margin-bottom: 5px;">
+              Historique des périodes précédentes : <span>${histoStr}</span>
+            </div>
           </div>
 
           <div>
-            <div style="font-size: 9pt; color: #374151; margin-bottom: 10px;">
+            <div style="font-size: 8pt; color: #374151; margin-bottom: 6px;">
               Fait à Bligny-lès-Beaune, le ${dateStr}
             </div>
 
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
-                <td style="width: 48%; vertical-align: top; border: 1px solid #9ca3af; padding: 8px 10px; height: 95px;">
-                  <div style="font-size: 9pt; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">
+                <td style="width: 48%; vertical-align: top; border: 1px solid #9ca3af; padding: 5px 7px; height: 75px;">
+                  <div style="font-size: 8pt; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">
                     Signature des parents :
                   </div>
                 </td>
                 <td style="width: 4%;"></td>
-                <td style="width: 48%; vertical-align: top; border: 1px solid #111827; background-color: #ffffff; padding: 8px 10px; height: 95px; position: relative;">
-                  <div style="font-size: 9pt; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">
+                <td style="width: 48%; vertical-align: top; border: 1px solid #111827; background-color: #ffffff; padding: 5px 7px; height: 75px; position: relative;">
+                  <div style="font-size: 8pt; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">
                     La Directrice d'école :
                   </div>
                   
-                  <div style="position: absolute; top: 22px; right: 20px; bottom: 22px; left: 40px; display: flex; align-items: center; justify-content: flex-end;">
+                  <div style="position: absolute; top: 12px; right: 12px; bottom: 18px; left: 25px; display: flex; align-items: center; justify-content: flex-end;">
                     ${signatureDirectriceBase64 ? `
-                      <img src="${signatureDirectriceBase64}" alt="Signature" style="max-height: 58px; max-width: 160px; object-fit: contain;">
+                      <img src="${signatureDirectriceBase64}" alt="Signature" style="max-height: 48px; max-width: 130px; object-fit: contain;">
                     ` : ''}
                   </div>
 
-                  <div style="position: absolute; bottom: 8px; right: 10px; font-size: 9pt; font-weight: 600; color: #1f2937;">
+                  <div style="position: absolute; bottom: 4px; right: 8px; font-size: 8pt; font-weight: 600; color: #1f2937;">
                     Mme Estelle CHIRAT
                   </div>
                 </td>
