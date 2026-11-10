@@ -1,40 +1,60 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full bg-[#f5f5f7]">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestion des Bulletins Scolaires - CM2</title>
+  <title>Bulletins CM2 — École Jean des Vignes Rouges</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
 
-  <!-- SDK Firebase Officiels (Compatibilité Web) -->
+  <!-- SDK Firebase Compat -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Source Sans 3', sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+
+    :root {
+      --system-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      font-family: var(--system-font);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .glass-header {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
 
     .bulletin-page {
       width: 210mm;
       min-height: 297mm;
       padding: 16mm 18mm;
-      margin: 25px auto;
+      margin: 0 auto;
       background: #ffffff;
       box-sizing: border-box;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      border-radius: 8px;
     }
 
     @media print {
       body { background: transparent !important; padding: 0 !important; }
       .no-print { display: none !important; }
+      #tabApercu { display: block !important; }
+      #tabGrille, #tabStats { display: none !important; }
       .bulletin-page {
         margin: 0 !important;
         box-shadow: none !important;
+        border-radius: 0 !important;
         width: 100% !important;
         min-height: 100% !important;
         page-break-after: always !important;
@@ -49,161 +69,241 @@
     .sticky-corner { position: sticky; left: 0; top: 0; z-index: 15; }
   </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-900 antialiased">
+<body class="h-full text-[#1d1d1f] flex flex-col">
 
-  <!-- Écran de verrouillage par mot de passe -->
-  <div id="authOverlay" class="fixed inset-0 bg-slate-900 bg-opacity-80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-md w-full border border-slate-200 text-center">
-      <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-800">
+  <!-- Écran de verrouillage Apple Style -->
+  <div id="authOverlay" class="fixed inset-0 bg-[#000000]/30 backdrop-blur-2xl z-50 flex items-center justify-center p-4">
+    <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 max-w-sm w-full border border-black/5 text-center">
+      <div class="w-14 h-14 bg-[#f5f5f7] rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#1d1d1f] shadow-inner">
         <i data-lucide="lock" class="w-6 h-6"></i>
       </div>
-      <h2 class="text-lg font-bold text-slate-900">Accès aux Bulletins CM2</h2>
-      <p class="text-xs text-slate-500 mt-1 mb-6">École élémentaire Jean des Vignes Rouges</p>
+      <h2 class="text-xl font-semibold tracking-tight text-[#1d1d1f]">Bulletins CM2</h2>
+      <p class="text-[13px] text-[#86868b] mt-0.5 mb-6">École Jean des Vignes Rouges</p>
       
-      <form onsubmit="verifierMotDePasse(event)" class="space-y-4">
+      <form onsubmit="verifierMotDePasse(event)" class="space-y-3">
         <div>
           <input type="password" id="inputPass" placeholder="Mot de passe" required
-                 class="w-full text-center px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-semibold tracking-wider outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 transition">
-          <p id="authError" class="text-xs text-red-600 mt-2 font-medium hidden">Mot de passe incorrect.</p>
+                 class="w-full text-center px-4 py-3 bg-[#f5f5f7] rounded-xl text-sm font-medium tracking-wide outline-none border border-transparent focus:border-[#0071e3] focus:bg-white focus:ring-4 focus:ring-[#0071e3]/15 transition duration-200">
+          <p id="authError" class="text-xs text-red-500 mt-2 font-medium hidden">Mot de passe incorrect</p>
         </div>
-        <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg text-xs uppercase tracking-wider transition">
+        <button type="submit" class="w-full bg-[#0071e3] hover:bg-[#0077ed] active:scale-[0.98] text-white font-medium py-3 rounded-xl text-sm transition duration-200 shadow-sm">
           Déverrouiller
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Application Principale -->
-  <div id="mainApp" class="hidden no-print max-w-[1550px] mx-auto p-4 sm:p-6 space-y-5">
+  <!-- Contenu Principal -->
+  <div id="mainApp" class="hidden min-h-screen flex flex-col">
 
-    <!-- Bandeau Navigation -->
-    <header class="bg-white border border-slate-300 rounded-lg p-5 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-      <div>
-        <div class="text-xs uppercase tracking-widest text-slate-500 font-semibold">Académie de Dijon &bull; Direction des Services Départementaux</div>
-        <h1 class="text-xl font-bold tracking-tight text-slate-900 mt-0.5">École élémentaire Jean des Vignes Rouges &bull; CM2</h1>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2.5">
-        <div id="cloudStatus" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Synchronisé en direct</span>
-        </div>
-
-        <div class="flex items-center border border-slate-300 rounded bg-slate-50 px-3 py-1.5">
-          <span class="text-xs font-semibold uppercase text-slate-600 mr-2">Période :</span>
-          <select id="selectPeriode" onchange="changerPeriode(this.value)" class="bg-transparent font-bold text-slate-900 outline-none text-sm cursor-pointer">
-            <option value="1">Période 1</option>
-            <option value="2">Période 2</option>
-            <option value="3">Période 3</option>
-            <option value="4">Période 4</option>
-            <option value="5">Période 5</option>
-          </select>
-        </div>
-
-        <!-- Signature -->
-        <label class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 rounded cursor-pointer transition">
-          <i data-lucide="file-signature" class="w-4 h-4 text-slate-600"></i> 
-          <span id="btnSignatureLabel">Signature directrice</span>
-          <input type="file" id="inputSignature" accept="image/*" onchange="importerSignature(event)" class="hidden">
-        </label>
-        <button id="btnSupprSig" onclick="supprimerSignature()" title="Supprimer la signature" class="hidden px-2 py-2 text-xs bg-white hover:bg-red-50 text-red-600 border border-slate-300 rounded">
-          <i data-lucide="trash" class="w-3.5 h-3.5"></i>
-        </button>
-
-        <!-- Réinitialisation -->
-        <div class="relative inline-block">
-          <button onclick="toggleMenuReset()" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white hover:bg-red-50 text-red-700 border border-slate-300 rounded transition">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Réinitialiser
-            <i data-lucide="chevron-down" class="w-3 h-3 ml-0.5"></i>
-          </button>
-          <div id="menuReset" class="hidden absolute right-0 mt-2 w-60 bg-white rounded shadow-lg border border-slate-300 py-1 z-30">
-            <button onclick="confirmerReset('periode')" class="w-full text-left px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-              <i data-lucide="file-x" class="w-3.5 h-3.5 text-slate-500"></i> Vider la période en cours
-            </button>
-            <div class="h-px bg-slate-200 my-1"></div>
-            <button onclick="confirmerReset('tout')" class="w-full text-left px-3.5 py-2 text-xs text-red-700 hover:bg-red-50 font-semibold flex items-center gap-2">
-              <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-600"></i> Tout effacer (P1 à P5)
-            </button>
+    <!-- Header Flottant Verre Dépoli -->
+    <header class="glass-header sticky top-0 z-30 no-print">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#1d1d1f] to-[#434344] text-white flex items-center justify-center font-bold text-sm shadow-sm">
+            CM2
+          </div>
+          <div>
+            <h1 class="text-sm font-semibold tracking-tight text-[#1d1d1f]">École élémentaire Jean des Vignes Rouges</h1>
+            <p class="text-[11px] text-[#86868b]">Bligny-lès-Beaune &bull; Année 2026/2027</p>
           </div>
         </div>
 
-        <button onclick="window.print()" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded shadow-sm transition">
-          <i data-lucide="printer" class="w-4 h-4"></i> Imprimer les bulletins A4
-        </button>
+        <!-- Contrôle Segmenté Apple (Onglets) -->
+        <div class="bg-[#e8e8ed] p-1 rounded-xl flex items-center gap-1 text-xs font-medium">
+          <button id="btnTabGrille" onclick="basculerVue('grille')" class="px-3.5 py-1.5 rounded-lg bg-white text-[#1d1d1f] shadow-sm transition">
+            Grille des notes
+          </button>
+          <button id="btnTabApercu" onclick="basculerVue('apercu')" class="px-3.5 py-1.5 rounded-lg text-[#86868b] hover:text-[#1d1d1f] transition">
+            Bulletins A4
+          </button>
+          <button id="btnTabStats" onclick="basculerVue('stats')" class="px-3.5 py-1.5 rounded-lg text-[#86868b] hover:text-[#1d1d1f] transition">
+            Statistiques
+          </button>
+        </div>
+
+        <!-- Actions Principales -->
+        <div class="flex items-center gap-2">
+          <!-- Statut Cloud -->
+          <div id="cloudStatus" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-emerald-500/10 text-emerald-700 rounded-full">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Synchronisé</span>
+          </div>
+
+          <!-- Sélecteur Période -->
+          <div class="flex items-center bg-[#f5f5f7] rounded-xl px-3 py-1.5 border border-black/5">
+            <span class="text-xs text-[#86868b] mr-1.5">Période</span>
+            <select id="selectPeriode" onchange="changerPeriode(this.value)" class="bg-transparent font-semibold text-xs outline-none cursor-pointer">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </div>
+
+          <!-- Signature -->
+          <label class="p-2 text-xs font-medium text-[#1d1d1f] bg-white hover:bg-[#f5f5f7] border border-black/10 rounded-xl cursor-pointer transition shadow-sm" title="Importer signature de la directrice">
+            <i data-lucide="file-signature" class="w-4 h-4"></i>
+            <input type="file" id="inputSignature" accept="image/*" onchange="importerSignature(event)" class="hidden">
+          </label>
+
+          <!-- Réinitialisation -->
+          <button onclick="confirmerReset('periode')" class="p-2 text-xs text-[#86868b] hover:text-red-600 bg-white hover:bg-red-50 border border-black/10 rounded-xl transition shadow-sm" title="Vider la période en cours">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Bouton Imprimer -->
+          <button onclick="lancerImpression()" class="inline-flex items-center gap-1.5 bg-[#0071e3] hover:bg-[#0077ed] active:scale-[0.98] text-white text-xs font-medium py-2 px-3.5 rounded-xl shadow-sm transition">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>Imprimer</span>
+          </button>
+        </div>
+
       </div>
     </header>
 
-    <!-- Formulaire d'ajout rapide -->
-    <div class="bg-white border border-slate-300 rounded-lg p-4 shadow-sm">
-      <div class="flex flex-col md:flex-row items-end gap-3">
-        <div class="w-full md:w-52">
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Matière</label>
-          <select id="selectMatiere" onchange="majThemes()" class="w-full border border-slate-300 text-slate-800 rounded p-1.5 text-xs bg-slate-50 focus:bg-white outline-none">
-            <option value="Français">Français</option>
-            <option value="Maths">Maths</option>
-            <option value="Histoire">Histoire</option>
-            <option value="Géographie">Géographie</option>
-            <option value="EMC">EMC</option>
-            <option value="Sciences">Sciences</option>
-            <option value="Anglais">Anglais</option>
-          </select>
+    <!-- Conteneur Général -->
+    <main class="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6 flex-1">
+
+      <!-- ================= VUE 1 : GRILLE DE SAISIE ================= -->
+      <section id="tabGrille" class="space-y-5">
+
+        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-black/5">
+          <div class="text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-3">Nouvelle évaluation</div>
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+            
+            <div class="md:col-span-3">
+              <label class="block text-xs font-medium text-[#1d1d1f] mb-1">Matière</label>
+              <select id="selectMatiere" onchange="majThemes()" class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3 py-2 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition">
+                <option value="Français">Français</option>
+                <option value="Maths">Maths</option>
+                <option value="Histoire">Histoire</option>
+                <option value="Géographie">Géographie</option>
+                <option value="EMC">EMC</option>
+                <option value="Sciences">Sciences</option>
+                <option value="Anglais">Anglais</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-4">
+              <label class="block text-xs font-medium text-[#1d1d1f] mb-1">Sous-domaine <span class="text-[#86868b] font-normal">(facultatif)</span></label>
+              <select id="selectTheme" class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3 py-2 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition"></select>
+            </div>
+
+            <div class="md:col-span-3">
+              <label class="block text-xs font-medium text-[#1d1d1f] mb-1">Intitulé</label>
+              <input type="text" id="inputTitreEval" placeholder="Ex: Dictée n°1, Calcul mental..." class="w-full bg-[#f5f5f7] text-[#1d1d1f] rounded-xl px-3 py-2 text-xs font-medium outline-none border border-transparent focus:border-[#0071e3] focus:bg-white transition">
+            </div>
+
+            <div class="md:col-span-2">
+              <button onclick="ajouterColonneEvaluation()" class="w-full inline-flex items-center justify-center gap-1.5 bg-[#1d1d1f] hover:bg-[#2d2d2f] text-white font-medium py-2 px-3 rounded-xl text-xs transition shadow-sm active:scale-[0.98]">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Ajouter
+              </button>
+            </div>
+
+          </div>
         </div>
 
-        <div class="w-full md:w-60">
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Sous-domaine</label>
-          <select id="selectTheme" class="w-full border border-slate-300 text-slate-800 rounded p-1.5 text-xs bg-slate-50 focus:bg-white outline-none"></select>
+        <div class="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden flex flex-col">
+          <div class="px-5 py-3 border-b border-black/5 flex justify-between items-center bg-[#fafafa]">
+            <span class="text-xs font-medium text-[#1d1d1f]">Matrice des élèves &bull; Période <span id="lblPeriode">1</span></span>
+            <span class="text-[11px] text-[#86868b]">Touches <kbd class="px-1.5 py-0.5 bg-white border border-black/10 rounded">Entrée</kbd> ou flèches pour naviguer</span>
+          </div>
+
+          <div class="overflow-x-auto max-h-[580px] relative">
+            <table class="w-full border-collapse text-xs">
+              <thead>
+                <tr id="theadRow" class="bg-[#f5f5f7] text-[#1d1d1f] border-b border-black/5">
+                  <th class="sticky-corner bg-[#f5f5f7] py-3 px-4 text-left font-semibold border-r border-black/5 min-w-[210px]">
+                    Élève (16)
+                  </th>
+                  <th class="sticky-header bg-[#f5f5f7] py-3 px-3 text-center font-semibold border-r border-black/5 w-24">
+                    Moyenne
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="tbodyMatrice" class="divide-y divide-black/5"></tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="flex-1 w-full">
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Intitulé de l'évaluation</label>
-          <input type="text" id="inputTitreEval" placeholder="Ex: Dictée bilan n°2, Fractions..." class="w-full border border-slate-300 text-slate-800 rounded p-1.5 text-xs outline-none">
+      </section>
+
+      <!-- ================= VUE 2 : APERÇU BULLETINS A4 ================= -->
+      <section id="tabApercu" class="hidden space-y-6">
+        <div class="no-print flex items-center justify-between pb-1">
+          <div>
+            <h2 class="text-sm font-semibold text-[#1d1d1f]">Aperçu prêt pour l'impression A4</h2>
+            <p class="text-xs text-[#86868b]">16 bulletins générés avec signature et moyennes consolidées</p>
+          </div>
+          <button onclick="lancerImpression()" class="inline-flex items-center gap-2 bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-medium py-2 px-4 rounded-xl shadow-sm transition">
+            <i data-lucide="printer" class="w-4 h-4"></i> Imprimer les 16 bulletins
+          </button>
         </div>
 
-        <button onclick="ajouterColonneEvaluation()" class="w-full md:w-auto shrink-0 inline-flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-900 text-white font-medium py-1.5 px-4 rounded text-xs transition">
-          <i data-lucide="plus" class="w-3.5 h-3.5"></i> Ajouter l'évaluation
-        </button>
-      </div>
-    </div>
+        <div id="apercuBulletins" class="space-y-8 bg-[#e8e8ed] p-6 rounded-3xl overflow-x-auto"></div>
+      </section>
 
-    <!-- Carnet matriciel -->
-    <div class="bg-white border border-slate-300 rounded-lg shadow-sm overflow-hidden flex flex-col">
-      <div class="p-3 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-        <span class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Carnet d'évaluations &bull; Période <span id="lblPeriode">1</span></span>
-        <span class="text-xs text-slate-500">Touche <b>Entrée</b> pour descendre à l'élève suivant &bull; Enregistrement automatique</span>
-      </div>
+      <!-- ================= VUE 3 : STATISTIQUES DE CLASSE ================= -->
+      <section id="tabStats" class="hidden space-y-6">
+        
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-black/5">
+            <div class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Moyenne de classe</div>
+            <div id="statMoyenneClasse" class="text-2xl font-bold tracking-tight text-[#1d1d1f] mt-1">-</div>
+            <div class="text-[11px] text-[#86868b] mt-0.5">Sur 20 &bull; Période en cours</div>
+          </div>
 
-      <div class="overflow-x-auto max-h-[620px] relative">
-        <table class="w-full border-collapse text-xs">
-          <thead>
-            <tr id="theadRow" class="bg-slate-100 text-slate-800 border-b border-slate-300">
-              <th class="sticky-corner bg-slate-100 py-2.5 px-3 text-left font-bold border-r border-slate-300 min-w-[200px]">
-                Élève (16)
-              </th>
-              <th class="sticky-header bg-slate-100 py-2.5 px-2 text-center font-bold border-r border-slate-300 w-24 text-slate-900">
-                Moy. Période
-              </th>
-            </tr>
-          </thead>
-          <tbody id="tbodyMatrice" class="divide-y divide-slate-200"></tbody>
-        </table>
-      </div>
-    </div>
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-black/5">
+            <div class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Note la plus haute</div>
+            <div id="statNoteMax" class="text-2xl font-bold tracking-tight text-emerald-600 mt-1">-</div>
+            <div class="text-[11px] text-[#86868b] mt-0.5">Meilleure performance</div>
+          </div>
 
-    <!-- Aperçu des bulletins -->
-    <div class="pt-4">
-      <div class="flex items-center justify-between pb-3">
-        <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Aperçu officiel avant impression</h2>
-        <span class="text-xs text-slate-500">16 bulletins prêts au format standard A4</span>
-      </div>
-      <div id="apercuBulletins" class="space-y-6 bg-slate-300 p-6 rounded-lg overflow-x-auto"></div>
-    </div>
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-black/5">
+            <div class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Note la plus basse</div>
+            <div id="statNoteMin" class="text-2xl font-bold tracking-tight text-amber-600 mt-1">-</div>
+            <div class="text-[11px] text-[#86868b] mt-0.5">Point de vigilance</div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-black/5">
+            <div class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">Évaluations saisies</div>
+            <div id="statNbEvals" class="text-2xl font-bold tracking-tight text-[#0071e3] mt-1">0</div>
+            <div class="text-[11px] text-[#86868b] mt-0.5">Dans la période active</div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-black/5 p-5">
+          <h3 class="text-sm font-semibold text-[#1d1d1f] mb-3">Synthèse individuelle des moyennes</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead>
+                <tr class="border-b border-black/5 text-[#86868b]">
+                  <th class="py-2.5 font-semibold">Élève</th>
+                  <th class="py-2.5 font-semibold text-center">Période 1</th>
+                  <th class="py-2.5 font-semibold text-center">Période 2</th>
+                  <th class="py-2.5 font-semibold text-center">Période 3</th>
+                  <th class="py-2.5 font-semibold text-center">Période 4</th>
+                  <th class="py-2.5 font-semibold text-center">Période 5</th>
+                  <th class="py-2.5 font-semibold text-right">Moyenne annuelle</th>
+                </tr>
+              </thead>
+              <tbody id="tbodySyntheseStats" class="divide-y divide-black/5"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
 
   </div>
 
   <script>
     const MOT_DE_PASSE_VALIDE = "Estelle21190";
 
-    // 1. Configuration Firebase injectée
     const firebaseConfig = {
       apiKey: "AIzaSyDnrlDhDo2tc6z2O7KyM3IuwGroc5tIfPA",
       authDomain: "bulletins-jdvr.firebaseapp.com",
@@ -228,18 +328,17 @@
     const MATIERES_CONFIG = {
       "Français": ["Grammaire", "Conjugaison", "Orthographe", "Lexique", "Lecture", "Poésie"],
       "Maths": ["Numération", "Calcul", "Grandeur et Mesure", "Géométrie", "Résolution de problèmes"],
-      "Histoire": ["Histoire"],
-      "Géographie": ["Géographie"],
-      "EMC": ["Enseignement Moral et Civique"],
-      "Sciences": ["Sciences et Technologie"],
-      "Anglais": ["Langue vivante (Anglais)"]
+      "Histoire": [],
+      "Géographie": [],
+      "EMC": [],
+      "Sciences": [],
+      "Anglais": []
     };
 
     let baseDonnees = { "1": { evals: [], notes: {} }, "2": { evals: [], notes: {} }, "3": { evals: [], notes: {} }, "4": { evals: [], notes: {} }, "5": { evals: [], notes: {} } };
     let periodeActive = "1";
     let signatureDirectriceBase64 = null;
 
-    // Gestion du mot de passe
     function verifierMotDePasse(e) {
       if (e) e.preventDefault();
       const saisie = document.getElementById("inputPass").value;
@@ -266,39 +365,70 @@
       }
     });
 
-    // Écouteur Firestore en temps réel
+    function basculerVue(vue) {
+      document.getElementById("tabGrille").classList.add("hidden");
+      document.getElementById("tabApercu").classList.add("hidden");
+      document.getElementById("tabStats").classList.add("hidden");
+
+      const bGrille = document.getElementById("btnTabGrille");
+      const bApercu = document.getElementById("btnTabApercu");
+      const bStats = document.getElementById("btnTabStats");
+
+      [bGrille, bApercu, bStats].forEach(b => {
+        b.className = "px-3.5 py-1.5 rounded-lg text-[#86868b] hover:text-[#1d1d1f] transition";
+      });
+
+      if (vue === 'grille') {
+        document.getElementById("tabGrille").classList.remove("hidden");
+        bGrille.className = "px-3.5 py-1.5 rounded-lg bg-white text-[#1d1d1f] shadow-sm transition";
+      } else if (vue === 'apercu') {
+        document.getElementById("tabApercu").classList.remove("hidden");
+        bApercu.className = "px-3.5 py-1.5 rounded-lg bg-white text-[#1d1d1f] shadow-sm transition";
+        genererApercu();
+      } else if (vue === 'stats') {
+        document.getElementById("tabStats").classList.remove("hidden");
+        bStats.className = "px-3.5 py-1.5 rounded-lg bg-white text-[#1d1d1f] shadow-sm transition";
+        calculerEtAfficherStats();
+      }
+      lucide.createIcons();
+    }
+
+    function lancerImpression() {
+      basculerVue('apercu');
+      setTimeout(() => {
+        window.print();
+      }, 250);
+    }
+
     function ecouterDonneesCloud() {
       docRef.onSnapshot((doc) => {
         if (doc.exists) {
           const data = doc.data();
           if (data.baseDonnees) baseDonnees = data.baseDonnees;
-          if (data.signature) {
-            signatureDirectriceBase64 = data.signature;
-            majAffichageBoutonSignature();
-          }
+          if (data.signature) signatureDirectriceBase64 = data.signature;
           rafraichirMatrice();
           genererApercu();
-          indiquerSynchro("Synchronisé en direct", "emerald");
+          calculerEtAfficherStats();
+          indiquerSynchro("Synchronisé", "emerald");
         } else {
           sauvegarderCloud();
         }
       }, (error) => {
-        console.error("Erreur Firebase:", error);
-        indiquerSynchro("Erreur de connexion", "red");
+        console.error("Firebase:", error);
+        indiquerSynchro("Erreur connexion", "red");
       });
     }
 
     function sauvegarderCloud() {
-      indiquerSynchro("Enregistrement cloud...", "amber");
+      indiquerSynchro("Enregistrement...", "amber");
       docRef.set({
         baseDonnees: baseDonnees,
         signature: signatureDirectriceBase64 || null,
-        secretKey: MOT_DE_PASSE_VALIDE,
         derniereMaj: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true })
-      .then(() => indiquerSynchro("Synchronisé en direct", "emerald"))
+      .then(() => indiquerSynchro("Synchronisé", "emerald"))
       .catch((err) => {
-        console.error("Erreur écriture:", err);
+        console.error(err);
         indiquerSynchro("Erreur sauvegarde", "red");
       });
     }
@@ -306,14 +436,14 @@
     function indiquerSynchro(texte, couleur) {
       const el = document.getElementById("cloudStatus");
       if (!el) return;
-      el.className = `inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-${couleur}-50 text-${couleur}-700 border border-${couleur}-200 rounded`;
-      el.innerHTML = `<span class="w-2 h-2 rounded-full bg-${couleur}-500 ${couleur === 'emerald' ? 'animate-pulse' : ''}"></span><span>${texte}</span>`;
+      el.className = `inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-${couleur}-500/10 text-${couleur}-700 rounded-full`;
+      el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-${couleur}-500 ${couleur === 'emerald' ? 'animate-pulse' : ''}"></span><span>${texte}</span>`;
     }
 
     function majThemes() {
       const mat = document.getElementById("selectMatiere").value;
       const select = document.getElementById("selectTheme");
-      select.innerHTML = "";
+      select.innerHTML = '<option value="">Aucun (général)</option>';
       (MATIERES_CONFIG[mat] || []).forEach(th => {
         const opt = document.createElement("option");
         opt.value = th;
@@ -327,26 +457,15 @@
       document.getElementById("lblPeriode").textContent = periodeActive;
       rafraichirMatrice();
       genererApercu();
+      calculerEtAfficherStats();
     }
-
-    function toggleMenuReset() {
-      document.getElementById("menuReset").classList.toggle("hidden");
-    }
-
-    window.addEventListener('click', (e) => {
-      const m = document.getElementById("menuReset");
-      if (!e.target.closest('#menuReset') && !e.target.closest('button[onclick="toggleMenuReset()"]')) {
-        m.classList.add("hidden");
-      }
-    });
 
     function ajouterColonneEvaluation() {
       const mat = document.getElementById("selectMatiere").value;
-      const theme = document.getElementById("selectTheme").value;
+      const theme = document.getElementById("selectTheme").value.trim();
       const titre = document.getElementById("inputTitreEval").value.trim();
 
       if (!titre) {
-        alert("Veuillez indiquer le libellé de l'évaluation.");
         document.getElementById("inputTitreEval").focus();
         return;
       }
@@ -363,6 +482,7 @@
       sauvegarderCloud();
       rafraichirMatrice();
       genererApercu();
+      calculerEtAfficherStats();
 
       setTimeout(() => {
         const first = document.querySelector(`input[data-evalid="${evalId}"][data-eleveindex="0"]`);
@@ -371,12 +491,13 @@
     }
 
     function supprimerColonneEvaluation(evalId) {
-      if (!confirm("Supprimer cette évaluation et les notes associées ?")) return;
+      if (!confirm("Supprimer cette évaluation et ses notes ?")) return;
       baseDonnees[periodeActive].evals = baseDonnees[periodeActive].evals.filter(e => e.id !== evalId);
       delete baseDonnees[periodeActive].notes[evalId];
       sauvegarderCloud();
       rafraichirMatrice();
       genererApercu();
+      calculerEtAfficherStats();
     }
 
     function rafraichirMatrice() {
@@ -391,17 +512,17 @@
 
       current.evals.forEach(ev => {
         const th = document.createElement("th");
-        th.className = "sticky-header bg-slate-100 py-2 px-2 text-center border-r border-slate-300 min-w-[110px] max-w-[130px]";
+        th.className = "sticky-header bg-[#f5f5f7] py-2.5 px-3 text-center border-r border-black/5 min-w-[120px] max-w-[140px]";
         th.innerHTML = `
           <div class="flex flex-col items-center">
-            <div class="flex items-center justify-between w-full mb-0.5">
-              <span class="text-[10px] font-semibold text-slate-600 truncate max-w-[85px]">${ev.matiere}</span>
-              <button onclick="supprimerColonneEvaluation('${ev.id}')" title="Supprimer" class="text-slate-400 hover:text-red-600">
+            <div class="flex items-center justify-between w-full mb-1">
+              <span class="text-[10px] font-semibold text-[#86868b] truncate max-w-[90px] uppercase">${ev.matiere}</span>
+              <button onclick="supprimerColonneEvaluation('${ev.id}')" title="Supprimer" class="text-slate-400 hover:text-red-500 transition">
                 <i data-lucide="x" class="w-3 h-3"></i>
               </button>
             </div>
-            <div class="text-[11px] font-bold text-slate-900 truncate w-full" title="${ev.titre}">${ev.titre}</div>
-            <div class="text-[9px] text-slate-500 italic truncate w-full" title="${ev.theme}">${ev.theme}</div>
+            <div class="text-[11px] font-semibold text-[#1d1d1f] truncate w-full" title="${ev.titre}">${ev.titre}</div>
+            ${ev.theme ? `<div class="text-[10px] text-[#86868b] italic truncate w-full" title="${ev.theme}">${ev.theme}</div>` : ''}
           </div>
         `;
         theadRow.appendChild(th);
@@ -409,7 +530,7 @@
 
       ELEVES_CM2.forEach((eleveNom, idx) => {
         const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-50";
+        tr.className = "hover:bg-[#fbfbfd] transition-colors";
 
         const notes = [];
         current.evals.forEach(ev => {
@@ -419,10 +540,10 @@
         const moy = calculerMoyenne(notes);
 
         let rowHTML = `
-          <td class="sticky-col py-1.5 px-3 font-semibold text-slate-800 border-r border-slate-300 whitespace-nowrap bg-white">
+          <td class="sticky-col py-2 px-4 font-medium text-[#1d1d1f] border-r border-black/5 whitespace-nowrap bg-white">
             ${eleveNom}
           </td>
-          <td class="py-1.5 px-2 text-center font-bold border-r border-slate-300 ${moy !== '-' ? 'text-slate-900 bg-slate-50' : 'text-slate-400'}">
+          <td class="py-2 px-3 text-center font-semibold border-r border-black/5 ${moy !== '-' ? 'text-[#0071e3] bg-[#f5f5f7]/60' : 'text-[#86868b]'}">
             ${moy !== '-' ? moy : '-'}
           </td>
         `;
@@ -430,14 +551,14 @@
         current.evals.forEach(ev => {
           const valNote = (current.notes[ev.id] || {})[eleveNom] || "";
           rowHTML += `
-            <td class="py-1 px-1.5 text-center border-r border-slate-300">
+            <td class="py-1.5 px-2 text-center border-r border-black/5">
               <input type="text"
                      value="${valNote}"
                      placeholder="-"
                      data-evalid="${ev.id}"
                      data-elevenom="${eleveNom}"
                      data-eleveindex="${idx}"
-                     class="w-14 text-center font-semibold text-slate-900 bg-white border border-slate-300 focus:border-slate-800 rounded py-0.5 px-1 outline-none"
+                     class="w-14 text-center font-semibold text-[#1d1d1f] bg-[#f5f5f7] border border-transparent focus:border-[#0071e3] focus:bg-white rounded-lg py-1 px-1 outline-none transition"
                      onchange="modifierNoteMatrice('${ev.id}', '${eleveNom}', this.value)"
                      onkeydown="naviguerMatrice(event, this)">
             </td>
@@ -474,6 +595,7 @@
       baseDonnees[periodeActive].notes[evalId][eleveNom] = cleanVal;
       sauvegarderCloud();
       genererApercu();
+      calculerEtAfficherStats();
       rafraichirMoyennesLignes();
     }
 
@@ -490,7 +612,7 @@
         const moy = calculerMoyenne(notes);
         const tdMoy = tr.children[1];
         tdMoy.textContent = moy !== '-' ? moy : '-';
-        tdMoy.className = `py-1.5 px-2 text-center font-bold border-r border-slate-300 ${moy !== '-' ? 'text-slate-900 bg-slate-50' : 'text-slate-400'}`;
+        tdMoy.className = `py-2 px-3 text-center font-semibold border-r border-black/5 ${moy !== '-' ? 'text-[#0071e3] bg-[#f5f5f7]/60' : 'text-[#86868b]'}`;
       });
     }
 
@@ -500,45 +622,21 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         signatureDirectriceBase64 = e.target.result;
-        majAffichageBoutonSignature();
         sauvegarderCloud();
         genererApercu();
       };
       reader.readAsDataURL(file);
     }
 
-    function supprimerSignature() {
-      if (!confirm("Retirer l'image de la signature partagée ?")) return;
-      signatureDirectriceBase64 = null;
-      majAffichageBoutonSignature();
-      sauvegarderCloud();
-      genererApercu();
-    }
-
-    function majAffichageBoutonSignature() {
-      const btnSuppr = document.getElementById("btnSupprSig");
-      const label = document.getElementById("btnSignatureLabel");
-      if (signatureDirectriceBase64) {
-        label.textContent = "Signature active";
-        btnSuppr.classList.remove("hidden");
-      } else {
-        label.textContent = "Signature directrice";
-        btnSuppr.classList.add("hidden");
-      }
-    }
-
     function confirmerReset(mode) {
-      document.getElementById("menuReset").classList.add("hidden");
       if (mode === 'periode') {
         if (!confirm(`Supprimer toutes les notes et évaluations de la Période ${periodeActive} ?`)) return;
         baseDonnees[periodeActive] = { evals: [], notes: {} };
-      } else if (mode === 'tout') {
-        if (!confirm("Attention : supprimer définitivement l'ensemble des données de toutes les périodes pour tout le monde ?")) return;
-        baseDonnees = { "1": { evals: [], notes: {} }, "2": { evals: [], notes: {} }, "3": { evals: [], notes: {} }, "4": { evals: [], notes: {} }, "5": { evals: [], notes: {} } };
       }
       sauvegarderCloud();
       rafraichirMatrice();
       genererApercu();
+      calculerEtAfficherStats();
     }
 
     function calculerMoyenne(tab) {
@@ -565,6 +663,70 @@
       return histo.join("  —  ");
     }
 
+    function calculerEtAfficherStats() {
+      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
+      const toutesLesNotes = [];
+      const moyennesEleves = [];
+
+      ELEVES_CM2.forEach(eleve => {
+        const notesEleve = [];
+        current.evals.forEach(ev => {
+          const v = (current.notes[ev.id] || {})[eleve];
+          if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) {
+            const num = parseFloat(v);
+            notesEleve.push(num);
+            toutesLesNotes.push(num);
+          }
+        });
+        if (notesEleve.length > 0) {
+          moyennesEleves.push(parseFloat(calculerMoyenne(notesEleve)));
+        }
+      });
+
+      document.getElementById("statNbEvals").textContent = current.evals.length;
+
+      if (toutesLesNotes.length > 0) {
+        const moyClasse = (toutesLesNotes.reduce((a,b) => a+b, 0) / toutesLesNotes.length).toFixed(2);
+        const max = Math.max(...toutesLesNotes).toFixed(2);
+        const min = Math.min(...toutesLesNotes).toFixed(2);
+
+        document.getElementById("statMoyenneClasse").textContent = moyClasse;
+        document.getElementById("statNoteMax").textContent = max;
+        document.getElementById("statNoteMin").textContent = min;
+      } else {
+        document.getElementById("statMoyenneClasse").textContent = "-";
+        document.getElementById("statNoteMax").textContent = "-";
+        document.getElementById("statNoteMin").textContent = "-";
+      }
+
+      const tbody = document.getElementById("tbodySyntheseStats");
+      tbody.innerHTML = "";
+
+      ELEVES_CM2.forEach(eleve => {
+        const tr = document.createElement("tr");
+        let moysP = [];
+        let htmlCols = `<td class="py-2.5 font-medium text-[#1d1d1f]">${eleve}</td>`;
+
+        for (let p = 1; p <= 5; p++) {
+          const dataP = baseDonnees[String(p)] || { evals: [], notes: {} };
+          const notesP = [];
+          dataP.evals.forEach(ev => {
+            const val = (dataP.notes[ev.id] || {})[eleve];
+            if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) notesP.push(parseFloat(val));
+          });
+          const m = calculerMoyenne(notesP);
+          if (m !== "-") moysP.push(parseFloat(m));
+          htmlCols += `<td class="py-2.5 text-center ${p == periodeActive ? 'font-semibold text-[#0071e3]' : 'text-[#86868b]'}">${m}</td>`;
+        }
+
+        const moyAnnuelle = moysP.length > 0 ? (moysP.reduce((a,b)=>a+b,0)/moysP.length).toFixed(2) : "-";
+        htmlCols += `<td class="py-2.5 text-right font-bold text-[#1d1d1f]">${moyAnnuelle}</td>`;
+
+        tr.innerHTML = htmlCols;
+        tbody.appendChild(tr);
+      });
+    }
+
     function genererApercu() {
       const conteneur = document.getElementById("apercuBulletins");
       conteneur.innerHTML = "";
@@ -578,10 +740,11 @@
 
         current.evals.forEach(ev => {
           const val = (current.notes[ev.id] || {})[eleveNom] || "";
+          const thKey = ev.theme || "";
           if (!matieresMap[ev.matiere]) matieresMap[ev.matiere] = {};
-          if (!matieresMap[ev.matiere][ev.theme]) matieresMap[ev.matiere][ev.theme] = [];
+          if (!matieresMap[ev.matiere][thKey]) matieresMap[ev.matiere][thKey] = [];
 
-          matieresMap[ev.matiere][ev.theme].push({ titre: ev.titre, note: val });
+          matieresMap[ev.matiere][thKey].push({ titre: ev.titre, note: val });
           if (val !== "" && !isNaN(parseFloat(val))) allNotesEleve.push(parseFloat(val));
         });
 
@@ -591,7 +754,7 @@
           let sousLignesHTML = "";
 
           for (const [theme, devoirs] of Object.entries(themes)) {
-            if (theme && theme !== matiere && theme !== "Histoire" && theme !== "Géographie" && theme !== "Enseignement Moral et Civique" && theme !== "Sciences et Technologie" && theme !== "Langue vivante (Anglais)") {
+            if (theme && theme.trim() !== "") {
               sousLignesHTML += `
                 <tr style="background-color: #fafafa;">
                   <td colspan="2" style="padding: 3px 8px; font-size: 8.5pt; font-style: italic; color: #4b5563; border: 1px solid #d1d5db;">
@@ -642,7 +805,6 @@
           <div>
             <div style="border-bottom: 2px solid #111827; padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end;">
               <div>
-                <div style="font-size: 8.5pt; text-transform: uppercase; letter-spacing: 1px; color: #4b5563;">RÉPUBLIQUE FRANÇAISE &bull; ÉDUCATION NATIONALE</div>
                 <div style="font-size: 13pt; font-weight: 700; color: #111827; font-family: 'Libre Baskerville', serif;">École élémentaire Jean des Vignes Rouges</div>
                 <div style="font-size: 9pt; color: #4b5563;">21200 Bligny-lès-Beaune</div>
               </div>
