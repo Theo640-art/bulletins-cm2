@@ -260,18 +260,13 @@
         <!-- Barre supérieure avec menu déroulant et options à cocher -->
         <div id="studioTopActions" class="no-print ios-glass p-3.5 sm:p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3">
           
-          <!-- Sélection élève par menu déroulant + Options -->
           <div class="flex flex-wrap items-center gap-3 text-xs">
-            
-            <!-- Sélecteur élève direct -->
             <div class="flex items-center bg-black/[0.04] hover:bg-black/[0.07] border border-black/10 rounded-xl px-2.5 py-1.5 shadow-xs">
               <span class="text-slate-500 font-semibold mr-1.5">Élève :</span>
               <select id="selectEleveStudio" onchange="changerEleveActif(this.value)" class="bg-transparent font-bold text-slate-900 outline-none cursor-pointer pr-1">
-                <!-- Rempli en JS -->
               </select>
             </div>
 
-            <!-- Boutons d'options -->
             <div class="flex items-center gap-2">
               <button id="toggleOptMoyClasse" onclick="inverserOptionBulletin('moyClasse')" class="ios-btn px-3 py-1.5 rounded-xl border border-black/10 bg-white font-medium text-slate-700 shadow-xs flex items-center gap-1.5">
                 <span id="dotOptMoyClasse" class="w-2 h-2 rounded-full bg-slate-300"></span>
@@ -285,7 +280,6 @@
             </div>
           </div>
 
-          <!-- Boutons d'exportation -->
           <div class="flex items-center gap-2">
             <button onclick="telechargerBulletinEleveActifPDF()" class="ios-btn bg-white hover:bg-slate-50 border border-black/10 text-slate-800 text-xs font-semibold py-2 px-3.5 rounded-xl shadow-xs">
               PDF de cet élève
@@ -490,7 +484,6 @@
       "PIERRE Louca", "TALAGHZI Safiyah", "TALAGHZI Younes", "ZUBER Léon"
     ];
 
-    // Tokens Apple Design System : teintures douces de cartes et badges
     const THEME_MATIERES = {
       "Français": { 
         cardBg: "bg-blue-500/[0.04]", 
@@ -573,6 +566,7 @@
     let eleveStudioActif = "BONIN Nathan";
     let signatureDirectriceBase64 = null;
     let evalEnCoursId = null;
+    let premierChargementEffectue = false;
 
     // Options du Bulletin A4
     let optionsBulletin = {
@@ -659,7 +653,12 @@
     function changerPeriode(val) {
       periodeActive = String(val);
       matiereFiltreeActive = "TOUS";
+      
+      const selectP = document.getElementById("selectPeriode");
+      if (selectP && selectP.value !== periodeActive) selectP.value = periodeActive;
+
       document.getElementById("lblResetPeriode").textContent = periodeActive;
+      document.getElementById("lblApercuPeriode").textContent = periodeActive;
       document.getElementById("statNumPeriode1").textContent = periodeActive;
       document.getElementById("statNumPeriode2").textContent = periodeActive;
       document.getElementById("statNumPeriodeGraphe").textContent = periodeActive;
@@ -717,6 +716,7 @@
       ouvrirModalSaisie(evalId);
     }
 
+    // ÉCOUTE CLOUD AVEC DÉTECTION AUTOMATIQUE DE LA DERNIÈRE PÉRIODE
     function ecouterDonneesCloud() {
       docRef.onSnapshot((doc) => {
         if (doc.exists) {
@@ -726,9 +726,22 @@
             signatureDirectriceBase64 = data.signature;
             majAffichageBoutonSignature();
           }
-          rafraichirCartesEvals();
-          actualiserStudioBulletins();
-          calculerEtAfficherStats();
+
+          // DÉTECTION AUTOMATIQUE DE LA DERNIÈRE PÉRIODE AU PREMIER CHARGEMENT
+          if (!premierChargementEffectue) {
+            let dernierePeriodeRemplie = "1";
+            for (let p = 5; p >= 1; p--) {
+              const strP = String(p);
+              if (baseDonnees[strP] && baseDonnees[strP].evals && baseDonnees[strP].evals.length > 0) {
+                dernierePeriodeRemplie = strP;
+                break;
+              }
+            }
+            periodeActive = dernierePeriodeRemplie;
+            premierChargementEffectue = true;
+          }
+
+          changerPeriode(periodeActive);
         } else {
           sauvegarderCloud();
         }
@@ -743,7 +756,7 @@
       }, { merge: true });
     }
 
-    // Gestion des cartes d'évaluations avec subtiles teintes Apple
+    // Cartes d'évaluation avec légères teintes Apple
     function rafraichirCartesEvals() {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
       const conteneur = document.getElementById("listeEvalsCards");
@@ -1170,7 +1183,6 @@
       conteneur.innerHTML = construireHTMLBulletinSobre(eleveStudioActif);
     }
 
-    // Calculateur des moyennes de classe par évaluation
     function getMoyennesClasseParEval() {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
       const mapMoy = {};
@@ -1182,7 +1194,7 @@
       return mapMoy;
     }
 
-    // Calculateur précis des moyennes de classe par matière
+    // Calculateur des moyennes de classe par matière
     function getMoyennesClasseParMatiere() {
       const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
       const notesParMat = {};
@@ -1313,7 +1325,6 @@
 
       const moyGen = calculerMoyenne(allNotesEleve);
       
-      // Moyenne générale de la classe (toutes notes confondues)
       let moyGenClasse = "-";
       if (optionsBulletin.moyClasse) {
         const toutesNotesClasse = [];
