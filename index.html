@@ -5,7 +5,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bulletins CM2 — Jean des Vignes Rouges</title>
+<title>Bulletins CM2 — Jean des Vignes</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -104,7 +104,7 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
 <div class="aurora"><i></i><i></i><i></i></div>
 
 <div id="auth" class="ov hide"><div id="authCard" class="glass pw">
-  <div class="logo">CM2</div><h2 style="font-size:18px">Jean des Vignes Rouges</h2><p class="lbl" style="margin:4px 0 18px">Connexion sécurisée · Bulletins scolaires</p>
+  <div class="logo">CM2</div><h2 style="font-size:18px">Jean des Vignes</h2><p class="lbl" style="margin:4px 0 18px">Connexion sécurisée · Bulletins scolaires</p>
   <form onsubmit="login(event)"><input type="password" id="pass" class="fld" placeholder="Mot de passe" autocomplete="current-password" required autofocus>
   <p id="aerr" class="hide" style="color:#ff453a;font-size:12px;font-weight:600;margin-bottom:10px"></p>
   <button class="btn" id="lbtn" style="width:100%">Se connecter</button></form>
@@ -286,7 +286,7 @@ function construireHTMLBulletinSobre(eleveNom){
  const moyGen=calculerMoyenne(allNotesEleve);let moyGenClasse="-";if(opt.moyClasse)moyGenClasse=calculerMoyenne(notesC(P));
  const histoStr=calculerHistorique(eleveNom);
  return`<div class="bulletin-page" id="bulletin-${eleveNom.replace(/\s+/g,"-")}"><div>
- <div style="border-bottom:2px solid #0f172a;padding-bottom:4px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:flex-end;"><div><div style="font-size:11pt;font-weight:700;color:#0f172a;font-family:'Libre Baskerville',serif;">École élémentaire Jean des Vignes Rouges</div><div style="font-size:8pt;color:#475569;">21200 Bligny-lès-Beaune</div></div><div style="text-align:right;"><div style="font-size:10pt;font-weight:800;color:#0f172a;">BULLETIN SCOLAIRE</div><div style="font-size:8pt;color:#334155;">Année scolaire 2026/2027 &bull; <b>Période ${P}</b></div></div></div>
+ <div style="border-bottom:2px solid #0f172a;padding-bottom:4px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:flex-end;"><div><div style="font-size:11pt;font-weight:700;color:#0f172a;font-family:'Libre Baskerville',serif;">École élémentaire Jean des Vignes</div><div style="font-size:8pt;color:#475569;">21200 Bligny-lès-Beaune</div></div><div style="text-align:right;"><div style="font-size:10pt;font-weight:800;color:#0f172a;">BULLETIN SCOLAIRE</div><div style="font-size:8pt;color:#334155;">Année scolaire 2026/2027 &bull; <b>Période ${P}</b></div></div></div>
  <table style="width:100%;border-collapse:collapse;margin-bottom:6px;border:1px solid #0f172a;"><tr style="background-color:#f8fafc;"><td style="padding:4px 8px;width:65%;border-right:1px solid #0f172a;"><span style="font-size:7pt;text-transform:uppercase;color:#64748b;font-weight:700;">Élève :</span><div style="font-size:10.5pt;font-weight:800;color:#0f172a;">${eleveNom}</div></td><td style="padding:4px 8px;"><span style="font-size:7pt;text-transform:uppercase;color:#64748b;font-weight:700;">Classe :</span><div style="font-size:10.5pt;font-weight:800;color:#0f172a;">CM2</div></td></tr></table>
  <table style="width:100%;border-collapse:collapse;margin-bottom:4px;"><thead><tr style="background-color:#e2e8f0;border:1px solid #94a3b8;"><th style="padding:4px 6px;text-align:left;font-size:7.5pt;text-transform:uppercase;letter-spacing:0.4px;color:#0f172a;">Domaines d'enseignement & Évaluations</th><th style="padding:4px 6px;text-align:center;font-size:7.5pt;text-transform:uppercase;letter-spacing:0.4px;width:70px;color:#0f172a;">Note / 20</th>${opt.moyClasse?`<th style="padding:4px 6px;text-align:center;font-size:7.5pt;text-transform:uppercase;letter-spacing:0.4px;width:65px;color:#475569;">Moy. Classe</th>`:""}</tr></thead><tbody>
  ${corps||`<tr><td colspan="${opt.moyClasse?3:2}" style="padding:14px;text-align:center;color:#94a3b8;font-style:italic;border:1px solid #cbd5e1;">Aucune évaluation enregistrée pour cette période.</td></tr>`}
