@@ -80,7 +80,7 @@ main{max-width:1200px;margin:0 auto;padding:12px 20px}
 .tool{padding:14px 18px;border-radius:24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{all:unset;box-sizing:border-box;cursor:pointer;padding:7px 14px;border-radius:99px;font-size:12px;font-weight:600;background:var(--track);color:var(--mut)}.chip.on{background:var(--ink);color:var(--bg)}
-.btn{all:unset;box-sizing:border-box;cursor:pointer;padding:10px 18px;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;font-size:13px;text-align:center;transition:transform .15s,filter .2s,box-shadow .2s}.btn:active{transform:scale(.96)}.btn:hover{filter:brightness(1.12);box-shadow:0 8px 22px -8px rgba(10,132,255,.5)}.btn[disabled]{opacity:.5;pointer-events:none}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;padding:10px 18px;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;font-size:13px;text-align:center;transition:transform .15s,filter .2s,box-shadow .2s}.btn:active{transform:scale(.96)}.btn:hover{filter:brightness(1.12);box-shadow:0 8px 20px -10px rgba(10,132,255,.35)}.btn[disabled]{opacity:.5;pointer-events:none}
 .btn.s{background:var(--field);color:var(--ink);border:1px solid var(--line)}.btn.g{background:#1f9d46;color:#fff}.btn.b{background:#0a84ff;color:#fff}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
 .ev{padding:20px;border-radius:26px;cursor:pointer;display:flex;flex-direction:column;gap:12px;transition:transform .25s cubic-bezier(.16,1,.3,1)}.ev:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-5px)}
@@ -91,10 +91,36 @@ main{max-width:1200px;margin:0 auto;padding:12px 20px}
 
 /* ===== Effets modernes : halo curseur, bordure animée, entrée en cascade ===== */
 .c,.ev,.tool{position:relative}
-.c::before,.ev::before,.tool::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(380px circle at var(--mx,50%) var(--my,50%),rgba(120,160,255,.22),transparent 62%)}
+.c::before,.ev::before,.tool::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(300px circle at var(--mx,50%) var(--my,50%),rgba(140,170,255,.07),transparent 65%)}
 .c:hover::before,.ev:hover::before,.tool:hover::before{opacity:1}
 .hero::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;background:conic-gradient(from var(--ang),transparent 0 68%,var(--a1),var(--a2),var(--a3),transparent);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 7s linear infinite}
 body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i,0)*55ms)}
+
+/* ===== Dock affiné : icônes vectorielles, actif en plein ===== */
+.dock{gap:8px;padding:8px 10px;border-radius:28px}
+.dock button{color:var(--mut);border-radius:17px;background:transparent;border-color:transparent;box-shadow:none}
+.dock button svg{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.dock button:hover{background:var(--track);border-color:transparent;color:var(--ink)}
+.dock button:hover svg{transform:translateY(-2px) scale(1.06)}
+.dock-item.on button{background:var(--ink);color:var(--bg);box-shadow:0 8px 20px -8px rgba(0,0,0,.5)}
+.dock-item.on button:hover{background:var(--ink);color:var(--bg)}
+.dock-item.on::after{display:none}
+.dock .tip{top:-40px;border-radius:10px;backdrop-filter:blur(12px)}
+
+/* ===== Courbe d'évolution annuelle ===== */
+@keyframes draw{from{stroke-dashoffset:1}}
+@keyframes fadeIn{from{opacity:0}}
+@keyframes dotin{from{transform:scale(0);opacity:0}}
+@keyframes pulse{0%{transform:scale(.6);opacity:.55}100%{transform:scale(2);opacity:0}}
+.evo{width:100%;height:auto;display:block;overflow:visible}
+.evo text{font-family:inherit;text-anchor:middle;font-variant-numeric:tabular-nums}
+.evo .ln{stroke-dasharray:1;animation:draw 1.7s cubic-bezier(.16,1,.3,1) both}
+.evo .ar{animation:fadeIn 1.4s .35s both}
+.evo .dt{transform-box:fill-box;transform-origin:center;animation:dotin .6s cubic-bezier(.34,1.56,.64,1) both;animation-delay:calc(var(--k)*.2s + .5s)}
+.evo .pl{transform-box:fill-box;transform-origin:center;animation:pulse 2.2s ease-out infinite}
+.evo .pt{cursor:pointer}
+.evo .band{opacity:0;transition:opacity .25s}
+.evo .pt:hover .band{opacity:.06}.evo .pt.on .band{opacity:.07}
 
 /* ===== Palette de commandes ===== */
 #kp{align-items:flex-start;padding-top:14vh}
@@ -279,15 +305,15 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
   <nav class="dock" id="dock">
     <div class="dock-item on" data-v="dash">
       <span class="tip">Tableau de bord</span>
-      <button aria-label="Tableau de bord">📊</button>
+      <button aria-label="Tableau de bord"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg></button>
     </div>
     <div class="dock-item" data-v="evals">
       <span class="tip">Évaluations</span>
-      <button aria-label="Évaluations">📝</button>
+      <button aria-label="Évaluations"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1.5"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg></button>
     </div>
     <div class="dock-item" data-v="bul">
       <span class="tip">Bulletins A4</span>
-      <button aria-label="Bulletins">📄</button>
+      <button aria-label="Bulletins"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg></button>
     </div>
   </nav>
 </div>
@@ -355,7 +381,7 @@ function burst(){try{const c=$("cf"),x=c.getContext("2d");c.width=innerWidth;c.h
 function celebrate(id){try{if(!id||!DB[P])return;const no=DB[P].notes[id]||{};if(!done.has(id)&&DB[P].evals.some(v=>v.id===id)&&E.every(e=>no[e]!==undefined&&no[e]!==""&&no[e]!==null)){done.add(id);burst()}}catch(e){}}
 try{addEventListener("pointermove",e=>{const r0=document.documentElement;r0.style.setProperty("--px",(e.clientX/innerWidth-.5)*2);r0.style.setProperty("--py",(e.clientY/innerHeight-.5)*2);
   const c=e.target&&e.target.closest?e.target.closest(".c,.ev,.tool"):null;if(!c)return;const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
-  c.style.setProperty("--mx",x+"px");c.style.setProperty("--my",y+"px");if(c.classList.contains("ev")){c.style.setProperty("--ry",((x/r.width-.5)*10)+"deg");c.style.setProperty("--rx",((.5-y/r.height)*10)+"deg")}},{passive:true})}catch(e){}
+  c.style.setProperty("--mx",x+"px");c.style.setProperty("--my",y+"px");if(c.classList.contains("ev")){c.style.setProperty("--ry",((x/r.width-.5)*6)+"deg");c.style.setProperty("--rx",((.5-y/r.height)*6)+"deg")}},{passive:true})}catch(e){}
 
 /* palette de commandes */
 const nz=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
@@ -428,7 +454,7 @@ document.querySelectorAll("#dock .dock-item").forEach(item=>{
 
 const dockEl=$("dock");
 const dockItems=[...dockEl.querySelectorAll(".dock-item")];
-const BASE_SIZE=50, MAX_SCALE=1.45, RANGE=110;
+const BASE_SIZE=50, MAX_SCALE=1.28, RANGE=100;
 
 dockEl.onmousemove=e=>{
   dockItems.forEach(item=>{
@@ -467,6 +493,31 @@ dockEl.onmouseleave=()=>{
 
 addEventListener("resize",pills);
 
+/* ---------- courbe d'évolution (P1 à P5) ---------- */
+function evoChart(per,n){
+  const W=600,H=190,L=50,Rt=50,top=46,bot=H-40,cw=(W-L-Rt)/4,X=i=>L+i*cw;
+  const vs=per.filter(x=>x.a!=null).map(x=>x.a);let lo=0,hi=20;
+  if(vs.length){const mn=Math.min(...vs),mx=Math.max(...vs),pad=Math.max(1.5,(mx-mn)*.5);lo=Math.max(0,mn-pad);hi=Math.min(20,mx+pad);if(hi-lo<4){lo=Math.max(0,hi-4);hi=lo+4}}
+  const Y=v=>bot-(v-lo)/(hi-lo)*(bot-top),pts=per.map((x,i)=>x.a==null?null:[X(i),Y(x.a)]).filter(Boolean);
+  let d="";pts.forEach((q,k)=>{if(!k){d="M"+q[0]+" "+q[1];return}const o=pts[k-1],m=(o[0]+q[0])/2;d+=` C${m} ${o[1]} ${m} ${q[1]} ${q[0]} ${q[1]}`});
+  const area=pts.length>1?`<path class="ar" d="${d} L${pts[pts.length-1][0]} ${bot} L${pts[0][0]} ${bot}Z" fill="url(#evA)"/>`:"";
+  const line=pts.length>1?`<path class="ln" pathLength="1" d="${d}" fill="none" stroke="url(#evL)" stroke-width="4" stroke-linecap="round" style="filter:drop-shadow(0 6px 10px rgba(160,100,255,.45))"/>`:"";
+  let k=0;
+  const cols=per.map((x,i)=>{const on=x.p===n,cx=X(i),cy=x.a!=null?Y(x.a):bot,lab=`<text x="${cx}" y="${H-12}" font-size="12" font-weight="800" style="fill:var(${on?"--ink":"--mut"})">P${x.p}</text>`;
+    const band=`<rect class="band" x="${cx-cw/2+4}" y="6" width="${cw-8}" height="${H-6}" rx="20" style="fill:var(--ink)"/>`;
+    let g="";
+    if(x.a==null)g=`<circle cx="${cx}" cy="${bot}" r="3.5" fill="none" stroke-width="1.5" stroke-dasharray="2 3" style="stroke:var(--mut)" opacity=".7"/>`;
+    else if(on)g=`<line x1="${cx}" y1="${cy}" x2="${cx}" y2="${bot}" stroke-width="1.5" stroke-dasharray="3 4" stroke-linecap="round" style="stroke:var(--mut)" opacity=".6"/>
+      <circle class="pl" cx="${cx}" cy="${cy}" r="12" fill="#b57bff"/>
+      <circle class="dt" style="--k:${k++}" cx="${cx}" cy="${cy}" r="7" fill="#fff" stroke="#a56bff" stroke-width="3.5"/>
+      <rect x="${cx-33}" y="${cy-40}" width="66" height="26" rx="13" style="fill:var(--ink)"/><text x="${cx}" y="${cy-22.5}" font-size="12.5" font-weight="800" style="fill:var(--bg)">${f(x.a)}</text>`;
+    else g=`<circle class="dt" style="--k:${k++};fill:var(--paper);stroke:#a56bff" cx="${cx}" cy="${cy}" r="5" stroke-width="2.5"/><text x="${cx}" y="${cy-14}" font-size="11" font-weight="700" style="fill:var(--mut)">${f(x.a)}</text>`;
+    return`<g class="pt ${on?"on":""}" onclick="chgP('${x.p}')" role="button" aria-label="Période ${x.p}">${band}${g}${lab}</g>`}).join("");
+  return`<svg class="evo" viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution de la moyenne de classe sur l'année"><defs>
+    <linearGradient id="evL" x1="0" x2="1"><stop offset="0" stop-color="#5e8bff"/><stop offset=".55" stop-color="#b86bff"/><stop offset="1" stop-color="#ff6fa8"/></linearGradient>
+    <linearGradient id="evA" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#b86bff" stop-opacity=".32"/><stop offset="1" stop-color="#b86bff" stop-opacity="0"/></linearGradient></defs>
+    <line x1="${L-24}" y1="${bot}" x2="${W-Rt+24}" y2="${bot}" stroke-width="1.5" style="stroke:var(--track)"/>${area}${line}${cols}</svg>`}
+
 /* ---------- tableau de bord ---------- */
 function dash(){
   const el=$("v-dash"),cu=D(P),n=+P,pp=prevP(),mp=avgC(P),mpr=pp?avgC(pp):null,d=mp!=null&&mpr!=null?mp-mpr:null;
@@ -477,7 +528,7 @@ function dash(){
   const pct=exp?Math.round(got/exp*100):0;
 
   /* hero : moyenne + évolution sur les 5 périodes */
-  const yr=`<div class="yr">${per.map(x=>`<button class="yc ${x.p===n?"on":""} ${x.a==null?"empty":""}" onclick="chgP('${x.p}')" aria-label="Période ${x.p}"><span class="yv">${x.a!=null?f(x.a):"—"}</span><span class="yb"><i data-h="${(x.a||0)*5}%"></i></span><span class="yl">P${x.p}</span></button>`).join("")}</div>`;
+  const yr=evoChart(per,n);
   const hero=`<div class="c glass hero"><div class="lbl">Moyenne de la classe · Période ${P}</div>
     <div class="big">${mp!=null?`<span data-count="${mp}">${f(mp)}</span>`:"-"}<small>/20</small></div>
     <div class="row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap"><span class="delta ${d==null?"nul":d<0?"neg":""}">${d!=null?(d>=0?"▲ ":"▼ ")+fd(d)+" pt vs P"+pp:(pp?"Pas encore de notes":"Première période")}</span>${ann!=null?`<span class="lbl">Moyenne annuelle : <b style="color:var(--ink)">${f(ann)}</b> / 20</span>`:""}</div>
