@@ -1,21 +1,3 @@
-Claude
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Bulletins v3 · HTML
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -120,14 +102,14 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
 </head>
 <body>
 <div class="aurora"><i></i><i></i><i></i></div>
- 
+
 <div id="auth" class="ov hide"><div id="authCard" class="glass pw">
   <div class="logo">CM2</div><h2 style="font-size:18px">Jean des Vignes Rouges</h2><p class="lbl" style="margin:4px 0 18px">Connexion sécurisée · Bulletins scolaires</p>
   <form onsubmit="login(event)"><input type="password" id="pass" class="fld" placeholder="Mot de passe" autocomplete="current-password" required autofocus>
   <p id="aerr" class="hide" style="color:#ff453a;font-size:12px;font-weight:600;margin-bottom:10px"></p>
   <button class="btn" id="lbtn" style="width:100%">Se connecter</button></form>
   <button class="chip" style="margin-top:12px" onclick="resetPw()">Mot de passe oublié ?</button></div></div>
- 
+
 <div id="app" class="hide">
 <header>
   <div><div class="sub">CM2 · Année scolaire 2026/2027 <span class="live">● En direct</span></div><h1>École Jean des Vignes Rouges</h1></div>
@@ -158,21 +140,21 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
   <button data-v="bul" aria-label="Bulletins">📄<span class="tip">Bulletins A4</span></button>
 </nav>
 <aside class="sheet glass" id="sheet"></aside>
- 
+
 <div id="mCre" class="ov hide"><div class="glass mod">
   <div class="row" style="margin-bottom:16px"><h3>Nouvelle évaluation</h3><button class="x" onclick="$('mCre').classList.add('hide')">✕</button></div>
   <label>Matière</label><select id="cMat" class="fld" onchange="subs()"></select>
   <label>Sous-domaine (facultatif)</label><select id="cThe" class="fld"></select>
   <label>Titre de l'évaluation</label><input id="cTit" class="fld" placeholder="Ex : Bilan numération, Dictée n°2…" onkeydown="if(event.key==='Enter')creer()">
   <div class="row" style="justify-content:flex-end"><button class="btn s" onclick="$('mCre').classList.add('hide')">Annuler</button><button class="btn b" onclick="creer()">Enregistrer le devoir</button></div></div></div>
- 
+
 <div id="mSai" class="ov hide"><div class="glass sai">
   <div class="hd"><div><span id="sBadge" class="badge"></span><h3 id="sTit" style="margin-top:6px"></h3><p id="sThe" class="lbl" style="font-style:italic"></p></div><button class="btn s" onclick="closeSai()">Fermer</button></div>
   <div class="ls" id="sList"></div>
   <div class="ft"><span>Raccourcis : <b>NE</b>, <b>NN</b>, <b>ABS</b></span><button class="btn" onclick="closeSai()">Valider et fermer</button></div></div></div>
 </div>
 <div id="printZone"></div>
- 
+
 <script>
 const $=i=>document.getElementById(i);
 firebase.initializeApp({apiKey:"AIzaSyDnrlDhDo2tc6z2O7KyM3IuwGroc5tIfPA",authDomain:"bulletins-jdvr.firebaseapp.com",projectId:"bulletins-jdvr",storageBucket:"bulletins-jdvr.firebasestorage.app",messagingSenderId:"21997926025",appId:"1:21997926025:web:a4a44ae594a036f1c4f858",measurementId:"G-EKJFY0XLQV"});
@@ -186,7 +168,7 @@ const COL={"Français":"#0a84ff","Maths":"#bf5af2","Histoire":"#ff9f0a","Géogra
 const SUB={"Français":["Grammaire","Conjugaison","Orthographe","Lexique","Lecture","Poésie"],"Maths":["Numération","Calcul","Grandeur et Mesure","Géométrie","Résolution de problèmes"]};
 let DB={1:{evals:[],notes:{}},2:{evals:[],notes:{}},3:{evals:[],notes:{}},4:{evals:[],notes:{}},5:{evals:[],notes:{}}};
 let P="1",V="dash",F="TOUS",cur=E[0],sig=null,evId=null,loaded=false,userP=false,unsub=null,opt={moyClasse:false,histo:true};
- 
+
 /* ---------- calculs ---------- */
 const ok=v=>v!==undefined&&v!==null&&v!==""&&!isNaN(parseFloat(v));
 const av=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
@@ -199,7 +181,7 @@ const notesC=(p,m)=>E.flatMap(e=>notesE(p,e,m));
 const avgC=(p,m)=>av(notesC(p,m));
 const prevP=()=>{for(let q=+P-1;q>=1;q--)if(D(q).evals.length)return q;return null};
 const heat=v=>{if(v==null)return"var(--track)";const t=Math.max(0,Math.min(1,(v-8)/11));return`hsl(${Math.round(25+t*120)} 85% ${58-t*8}% / .${Math.round(35+t*30)})`};
- 
+
 /* ---------- visuels ---------- */
 function ring(vals,size,w){const c=size/2;let o=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="transform:rotate(-90deg)">`;
  vals.forEach((v,i)=>{const R=c-w/2-i*(w+3),L=2*Math.PI*R;if(R<4)return;o+=`<circle cx="${c}" cy="${c}" r="${R}" fill="none" stroke="${COL[MAT[i]]}" stroke-opacity=".16" stroke-width="${w}"/><circle class="rg" cx="${c}" cy="${c}" r="${R}" fill="none" stroke="${COL[MAT[i]]}" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${L}" data-to="${L*(1-(v||0)/20)}" style="transition:stroke-dashoffset 1.3s cubic-bezier(.16,1,.3,1) ${i*90}ms"/>`});return o+"</svg>"}
@@ -208,7 +190,7 @@ function play(root){requestAnimationFrame(()=>requestAnimationFrame(()=>{root.qu
 function spark(){const pts=[1,2,3,4,5].map(p=>[p,avgC(p)]).filter(x=>x[1]!=null);if(!pts.length)return"";const vs=pts.map(x=>x[1]),mn=Math.min(...vs)-1,mx=Math.max(...vs)+1;
  const xy=pts.map((q,i)=>[20+i*(pts.length>1?260/(pts.length-1):120),66-(q[1]-mn)/(mx-mn)*54]);
  return`<svg viewBox="0 0 300 82" width="100%" height="82"><path d="${xy.map((q,i)=>(i?"L":"M")+q[0]+" "+q[1]).join(" ")}" fill="none" stroke="#0a84ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>${xy.map((q,i)=>`<circle cx="${q[0]}" cy="${q[1]}" r="5" fill="#0a84ff"/><text x="${q[0]}" y="80" font-size="10" text-anchor="middle" fill="currentColor" opacity=".55">P${pts[i][0]}</text>`).join("")}</svg>`}
- 
+
 /* ---------- navigation ---------- */
 function R(){if(!loaded)return;({dash,evals,bul})[V]()}
 function setV(v){V=v;["dash","evals","bul"].forEach(k=>$("v-"+k).classList.toggle("hide",k!==v));document.querySelectorAll("#dock [data-v]").forEach(b=>b.classList.toggle("on",b.dataset.v===v));R()}
@@ -220,7 +202,7 @@ const dk=$("dock"),dbs=[...dk.querySelectorAll("button")];
 dk.onmousemove=e=>dbs.forEach(b=>{const q=b.getBoundingClientRect();b.style.transform=`scale(${1+.5*Math.max(0,1-Math.abs(e.clientX-(q.left+q.width/2))/110)})`});
 dk.onmouseleave=()=>dbs.forEach(b=>b.style.transform="");
 addEventListener("resize",pills);
- 
+
 /* ---------- tableau de bord (statistiques) ---------- */
 function dash(){
  const el=$("v-dash"),cu=D(P),n=+P,pp=prevP(),mp=avgC(P),mpr=pp?avgC(pp):null,d=mp!=null&&mpr!=null?mp-mpr:null;
@@ -239,7 +221,7 @@ function dash(){
  ${bw("Meilleure moyenne",pe[0],"#1f9d46")}${bw("Moins bonne moyenne",pe[pe.length-1],"#c77700")}${cmp}
  <div class="c glass s12"><h3>Détails par évaluation (Période ${P})</h3><p class="lbl" style="margin-bottom:14px">Moyenne, plus haute et plus basse note pour chaque devoir.</p><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">${det}</div></div>`;
  play(el)}
- 
+
 /* ---------- fiche élève ---------- */
 function openS(n){const sh=$("sheet"),sm=MAT.map(m=>avgE(P,n,m)),a=avgE(P,n);
  sh.innerHTML=`<button class="x" style="position:absolute;top:18px;right:20px" onclick="closeS()" aria-label="Fermer">✕</button><div class="lbl">${n.split(" ")[0]} · Période ${P}</div><h1 style="font-size:32px;margin:2px 0 14px">${n.split(" ").slice(1).join(" ")}</h1>
@@ -250,7 +232,7 @@ function openS(n){const sh=$("sheet"),sm=MAT.map(m=>avgE(P,n,m)),a=avgE(P,n);
  sh.classList.add("open");play(sh)}
 const closeS=()=>$("sheet").classList.remove("open");
 addEventListener("keydown",e=>{if(e.key==="Escape")closeS()});
- 
+
 /* ---------- évaluations ---------- */
 function evals(){const cu=D(P),ev=cu.evals||[],cnt={TOUS:ev.length};ev.forEach(x=>cnt[x.matiere]=(cnt[x.matiere]||0)+1);
  $("chips").innerHTML=Object.entries(cnt).map(([m,c])=>`<button class="chip ${F===m?"on":""}" data-m="${esc(m)}" onclick="F=this.dataset.m;evals()">${m==="TOUS"?"Tous":esc(m)} (${c})</button>`).join("");
@@ -277,7 +259,7 @@ function setNote(k,val,el){let r=val.trim().toUpperCase().replace(",","."),o="";
  if(el)el.value=o;if(!DB[P].notes[evId])DB[P].notes[evId]={};DB[P].notes[evId][E[k]]=o;save()}
 function nav(e,k){if(e.key==="Enter"||e.key==="ArrowDown"){e.preventDefault();const n=inp(k+1);if(n){n.focus();n.select()}}else if(e.key==="ArrowUp"){e.preventDefault();const n=inp(k-1);if(n){n.focus();n.select()}}}
 function closeSai(){$("mSai").classList.add("hide");evId=null;R()}
- 
+
 /* ---------- bulletins ---------- */
 function tog(k){opt[k]=!opt[k];$(k==="moyClasse"?"oMoy":"oHis").classList.toggle("on",opt[k]);bul()}
 function bul(){$("selE").innerHTML=E.map(e=>`<option ${e===cur?"selected":""}>${e}</option>`).join("");side();$("zone").innerHTML=construireHTMLBulletinSobre(cur)}
@@ -323,7 +305,7 @@ function pdfAll(){const b=$("bAll");b.textContent="Création du livret...";b.sty
  const end=()=>{if(z.parentNode)document.body.removeChild(z);b.textContent="Télécharger tout (17 PDF)";b.style.pointerEvents=""};
  html2pdf().set(PDFO(`bulletins_CM2_periode_${P}_complet.pdf`)).from(z).save().then(end).catch(er=>{console.error(er);end();alert("Erreur lors de la génération. Utilisez le bouton 'Imprimer'.")})}
 function imprimer(){const z=$("printZone");z.innerHTML="";E.forEach(e=>{const w=document.createElement("div");w.innerHTML=construireHTMLBulletinSobre(e);const p=w.firstElementChild;p.style.cssText+=";margin:0;box-shadow:none;border-radius:0";z.appendChild(p)});setTimeout(()=>{print();z.innerHTML=""},350)}
- 
+
 /* ---------- cloud, signature, sauvegarde ---------- */
 function save(){docRef.set({baseDonnees:DB,signature:sig||null,derniereMaj:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})}
 function normDB(d){if(!d||typeof d!=="object")return null;const o={};for(let p=1;p<=5;p++){const x=d[p]||{evals:[],notes:{}};if(!Array.isArray(x.evals)||!x.notes||typeof x.notes!=="object"||!x.evals.every(e=>e&&typeof e.id==="string"&&typeof e.titre==="string"&&typeof e.matiere==="string"))return null;o[p]=x}return o}
@@ -341,7 +323,7 @@ function importJSON(ev){const file=ev.target.files[0];if(!file)return;const r=ne
 function resetP(){if(!confirm(`Supprimer toutes les notes de la Période ${P} ?`))return;DB[P]={evals:[],notes:{}};save();R()}
 $("mbtn").onclick=e=>{e.stopPropagation();$("menu").classList.toggle("hide")};
 document.addEventListener("click",e=>{if(!e.target.closest("#menu"))$("menu").classList.add("hide")});
- 
+
 /* ---------- accès sécurisé (Firebase Auth) ---------- */
 let idleT;
 function idle(){clearTimeout(idleT);if(auth.currentUser)idleT=setTimeout(()=>auth.signOut(),30*60*1000)}
@@ -358,4 +340,3 @@ auth.onAuthStateChanged(u=>{
 </script>
 </body>
 </html>
- 
