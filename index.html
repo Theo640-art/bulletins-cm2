@@ -15,7 +15,7 @@
 :root{--bg:#eef0f6;--ink:#1d1d1f;--mut:#6e6e73;--glass:rgba(255,255,255,.62);--line:rgba(255,255,255,.75);--sh:0 1px 0 rgba(255,255,255,.9) inset,0 20px 50px -20px rgba(30,40,90,.25);--a1:#7aa8ff;--a2:#d7a4ff;--a3:#8be9c8;--track:rgba(0,0,0,.07);--paper:#fff;--field:rgba(255,255,255,.8)}
 @media(prefers-color-scheme:dark){:root{--bg:#07080d;--ink:#f5f5f7;--mut:#9a9aa3;--glass:rgba(34,36,48,.55);--line:rgba(255,255,255,.1);--sh:0 1px 0 rgba(255,255,255,.08) inset,0 24px 60px -20px rgba(0,0,0,.7);--a1:#2b52c9;--a2:#7a2fc0;--a3:#0f8a6a;--track:rgba(255,255,255,.09);--paper:#1b1c26;--field:rgba(255,255,255,.08)}}
 *{box-sizing:border-box;margin:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:120px;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:100px;min-height:100vh}
 button,input,select{font-family:inherit;color:inherit}
 .aurora{position:fixed;inset:0;z-index:-1;overflow:hidden}
 .aurora i{position:absolute;width:55vmax;height:55vmax;border-radius:50%;filter:blur(90px);opacity:.55;animation:drift 22s ease-in-out infinite alternate;translate:calc(var(--px,0)*38px) calc(var(--py,0)*38px);transition:translate 1.4s cubic-bezier(.16,1,.3,1)}
@@ -106,7 +106,7 @@ main{max-width:1200px;margin:0 auto;padding:12px 20px}
 .hero::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;background:conic-gradient(from var(--ang),transparent 0 68%,var(--a1),var(--a2),var(--a3),transparent);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 7s linear infinite}
 body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i,0)*55ms)}
 
-/* ===== Dock macOS épuré (point blanc retiré) ===== */
+/* ===== Dock macOS épuré (sans point résiduel) ===== */
 .dock-wrap{
   position:fixed;
   left:0;
@@ -224,7 +224,17 @@ body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bez
 .evo .band{opacity:0;transition:opacity .25s}
 .evo .pt:hover .band{opacity:.06}.evo .pt.on .band{opacity:.07}
 
-/* Modales & Champs */
+/* ===== Palette de commandes (Spotlight compacte) ===== */
+#kp{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.35);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;justify-content:center;align-items:flex-start;padding:12vh 16px 20px}
+#kp .box{width:100%;max-width:540px;background:var(--paper);border:1px solid var(--line);box-shadow:0 24px 60px -15px rgba(0,0,0,.35);border-radius:22px;overflow:hidden;animation:pop .25s cubic-bezier(.16,1,.3,1)}
+#kq{width:100%;box-sizing:border-box;margin:0;border:0;border-bottom:1px solid var(--track);padding:14px 18px;font-size:15px;font-weight:600;background:transparent;color:var(--ink);outline:none}
+#kq::placeholder{color:var(--mut);font-weight:500}
+#kl{max-height:380px;overflow-y:auto;padding:8px}
+#kl .si{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:12px;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink);transition:background .15s}
+#kl .si:hover,#kl .si.on{background:var(--ink);color:var(--bg)}
+#kl .si small{color:var(--mut);font-size:11px;font-weight:600}
+#kl .si:hover small,#kl .si.on small{color:var(--bg);opacity:.75}
+
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
 .ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.32);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:14px}
 .ov>div{animation:pop .35s cubic-bezier(.16,1,.3,1)}
@@ -247,14 +257,47 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .side .lst{max-height:70vh;overflow-y:auto;margin-top:8px}
 .si{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:12px;cursor:pointer;font-size:12px;font-weight:600;transition:background .15s}
 .si:hover{background:var(--track)}.si.on{background:var(--ink);color:var(--bg)}
-.zone{flex:1;width:100%;overflow-x:auto;padding:24px;border-radius:30px;background:var(--track);display:flex;justify-content:center}
+
+/* ===== Zone Bulletin A4 & Verrouillage vertical ===== */
+.zone{
+  flex:1;
+  width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding:20px;
+  border-radius:26px;
+  background:var(--track);
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+}
 table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(--mut);padding:10px 8px;text-align:center}.cmp td{padding:9px 8px;text-align:center;border-top:1px solid var(--track)}.cmp td:first-child,.cmp th:first-child{text-align:left;font-weight:600}
-.bulletin-page{width:210mm;height:296mm;max-height:296mm;padding:12mm 14mm;margin:0 auto;background:#fff;color:#0f172a;box-sizing:border-box;box-shadow:0 16px 40px rgba(0,0,0,.15);position:relative;display:flex;flex-direction:column;justify-content:space-between;border-radius:2px;overflow:hidden;flex-shrink:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.bulletin-page{
+  width:210mm;
+  height:296mm;
+  min-height:296mm;
+  max-height:296mm;
+  padding:12mm 14mm;
+  margin:0 auto;
+  background:#fff;
+  color:#0f172a;
+  box-sizing:border-box;
+  box-shadow:0 12px 35px rgba(0,0,0,.12);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  border-radius:2px;
+  overflow:hidden;
+  flex-shrink:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
 #printZone{display:none}
 @media print{html,body{background:#fff!important;margin:0!important;padding:0!important}body>*:not(#printZone){display:none!important}#printZone{display:block!important}.bulletin-page{margin:0!important;box-shadow:none!important;border-radius:0!important;width:100%!important;height:296mm!important;page-break-after:always;break-after:page;padding:11mm 13mm!important}@page{size:A4 portrait;margin:0}}
 
-/* ===== OPTIMISATION MOBILE EXCLUSIVE (< 768px) ===== */
+/* ===== Optimisation Mobile propre (< 768px) ===== */
 @media(max-width:768px){
+  body{padding-bottom:90px}
   header{padding:18px 14px 6px;gap:12px}
   main{padding:8px 12px}
   .bento{gap:12px}
@@ -264,14 +307,14 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
   .tool .chips:first-child{display:flex;flex-direction:column}
   #selE{width:100%!important}
   .tool .btn{width:100%;padding:11px 12px;font-size:12.5px}
-  .side{display:none} /* Sur mobile, la sélection se fait via le sélecteur haut */
-  .zone{padding:10px;border-radius:18px}
-  .bulletin-page{transform-origin:top center;transform:scale(0.85);margin-bottom:-45mm}
+  .side{display:none}
+  .zone{padding:8px;border-radius:18px;overflow-x:auto}
+  .bulletin-page{zoom:0.82;margin:0 auto 10px}
   .dock{padding:6px 10px;gap:16px;border-radius:24px}
   .dock-item{width:46px}
   .dock-item button{width:46px;height:46px;border-radius:14px}
   .dock-item button svg{width:21px;height:21px}
-  .dock .tip{display:none} /* Évite l'infobulle fantôme au touch */
+  .dock .tip{display:none}
   .tiles{grid-template-columns:1fr;gap:8px}
 }
 </style>
@@ -387,7 +430,7 @@ const avgC=(p,m)=>av(notesC(p,m));
 const cnt=(p,m)=>D(p).evals.filter(x=>!m||x.matiere===m).length;
 const prevP=()=>{for(let q=+P-1;q>=1;q--)if(D(q).evals.length)return q;return null};
 
-/* ---------- effets modernes ---------- */
+/* ---------- effets visuels ---------- */
 let enterT=null;const done=new Set();
 function enter(){try{document.body.dataset.enter=1;document.querySelectorAll(".bento>*,.grid>*").forEach((e,i)=>e.style.setProperty("--i",Math.min(i,14)));clearTimeout(enterT);enterT=setTimeout(()=>{delete document.body.dataset.enter},1500)}catch(e){console.error(e)}}
 const ACC={"Océan":["#7aa8ff","#d7a4ff","#8be9c8"],"Sunset":["#ff9a6b","#ff6fa8","#ffd36b"],"Forêt":["#6be0a0","#6bc3e0","#e0e06b"],"Nuit":["#5b6cff","#9b5bff","#5bd0ff"]};
@@ -445,7 +488,7 @@ function pills(){const sg=$("seg");sg.innerHTML='<span class="pill"></span>'+[1,
   requestAnimationFrame(()=>{const on=sg.querySelector(".on"),pl=sg.querySelector(".pill");if(on){pl.style.left=on.offsetLeft+"px";pl.style.width=on.offsetWidth+"px"}})}
 function chgP(p){userP=true;P=String(p);F="TOUS";$("rp").textContent=P;closeS();pills();R();enter()}
 
-/* Moteur physique macOS Dock (uniquement sur écrans de bureau avec souris) */
+/* Moteur physique macOS Dock */
 document.querySelectorAll("#dock .dock-item").forEach(item=>{
   item.querySelector("button").onclick=()=>setV(item.dataset.v);
 });
@@ -500,7 +543,7 @@ dockEl.addEventListener("mousemove", e=>{
 dockEl.addEventListener("mouseleave", resetDock);
 addEventListener("resize", ()=>{ pills(); if(window.innerWidth<=768) resetDock(); });
 
-/* ---------- courbe d'évolution (P1 à P5) ---------- */
+/* ---------- courbe d'évolution ---------- */
 function evoChart(per,n){
   const W=600,H=190,L=50,Rt=50,top=46,bot=H-40,cw=(W-L-Rt)/4,X=i=>L+i*cw;
   const vs=per.filter(x=>x.a!=null).map(x=>x.a);let lo=0,hi=20;
