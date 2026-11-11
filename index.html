@@ -42,9 +42,12 @@ h1{font-size:clamp(24px,5vw,42px);letter-spacing:-.035em;font-weight:700;line-he
 .ib{width:42px;height:42px;border-radius:50%;cursor:pointer;font-weight:700;display:grid;place-items:center;border:1px solid var(--line);transition:transform .25s cubic-bezier(.16,1,.3,1)}
 .ib:hover{transform:scale(1.08) rotate(-4deg)}
 .ib.on{background:var(--ink);color:var(--bg)}
-.menu{position:absolute;right:0;top:52px;width:240px;padding:8px;border-radius:22px;z-index:40;animation:pop .3s cubic-bezier(.16,1,.3,1)}
-.menu button,.menu label{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;width:100%;padding:10px 12px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer}
+.menu{position:absolute;right:0;top:52px;width:250px;padding:8px;border-radius:22px;z-index:40;animation:pop .3s cubic-bezier(.16,1,.3,1);box-shadow:0 18px 45px -10px rgba(0,0,0,.3)}
+.menu button,.menu label{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;width:100%;padding:9px 12px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
 .menu button:hover,.menu label:hover{background:var(--track)}.menu .red{color:#ff453a}.menu hr{border:0;border-top:1px solid var(--track);margin:5px 0}
+.menu-head{font-size:11px;font-weight:700;color:var(--mut);padding:6px 12px 3px;text-transform:uppercase;letter-spacing:0.5px}
+.thm-dot{width:14px;height:14px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1px var(--line)}
+
 main{max-width:1200px;margin:0 auto;padding:12px 20px}
 .bento{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
 .c{padding:26px;overflow:hidden}
@@ -106,7 +109,7 @@ main{max-width:1200px;margin:0 auto;padding:12px 20px}
 .hero::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;background:conic-gradient(from var(--ang),transparent 0 68%,var(--a1),var(--a2),var(--a3),transparent);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 7s linear infinite}
 body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i,0)*55ms)}
 
-/* ===== Dock macOS épuré (sans point résiduel) ===== */
+/* ===== Dock macOS épuré ===== */
 .dock-wrap{
   position:fixed;
   left:0;
@@ -336,6 +339,9 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
     <button class="ib glass" id="kbtn" title="Recherche rapide (Ctrl/⌘ K)" aria-label="Recherche rapide" onclick="openK()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
     <div style="position:relative"><button class="ib glass" id="mbtn" aria-label="Options">•••</button>
     <div id="menu" class="glass menu hide">
+      <div class="menu-head">Ambiance visuelle</div>
+      <div id="themeList"></div>
+      <hr>
       <label><span id="txtSig">Importer signature</span><small style="color:var(--mut)">PNG</small><input type="file" accept="image/*" class="hide" onchange="importSig(event)"></label>
       <button id="btnSig" class="red hide" onclick="delSig()">Retirer la signature</button><hr>
       <button onclick="exportJSON()">Sauvegarder les notes <small style="color:var(--mut)">JSON</small></button>
@@ -393,7 +399,7 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
   <div class="ft"><span>Raccourcis : <b>NE</b>, <b>ABS</b> · décimales avec . ou ,</span><button class="btn" onclick="closeSai()">Valider et fermer</button></div></div></div>
 
 <div id="kp" class="ov hide"><div class="glass box">
-  <input id="kq" placeholder="Rechercher un élève, une vue, une action…" autocomplete="off">
+  <input id="kq" placeholder="Rechercher un élève, une vue, un thème…" autocomplete="off">
   <div id="kl"></div>
 </div></div>
 </div>
@@ -430,12 +436,49 @@ const avgC=(p,m)=>av(notesC(p,m));
 const cnt=(p,m)=>D(p).evals.filter(x=>!m||x.matiere===m).length;
 const prevP=()=>{for(let q=+P-1;q>=1;q--)if(D(q).evals.length)return q;return null};
 
-/* ---------- effets visuels ---------- */
+/* ---------- palette des thèmes visuels (étendus) ---------- */
+const ACC={
+  "Océan":["#7aa8ff","#d7a4ff","#8be9c8"],
+  "Sunset":["#ff9a6b","#ff6fa8","#ffd36b"],
+  "Forêt":["#6be0a0","#6bc3e0","#e0e06b"],
+  "Nuit":["#5b6cff","#9b5bff","#5bd0ff"],
+  "Bourgogne":["#c02662","#f472b6","#fbbf24"],
+  "Aurore Boréale":["#10b981","#06b6d4","#8b5cf6"],
+  "Lavande":["#a78bfa","#f472b6","#c4b5fd"]
+};
+let curTheme="Océan";
+
+function setAcc(n){
+  try{
+    const themeName=ACC[n]?n:"Océan";
+    curTheme=themeName;
+    const a=ACC[themeName];
+    a.forEach((c,i)=>document.documentElement.style.setProperty("--a"+(i+1),c));
+    localStorage.setItem("acc",themeName);
+    renderThemeMenu();
+  }catch(e){}
+}
+
+function renderThemeMenu(){
+  const box=$("themeList");
+  if(!box)return;
+  box.innerHTML=Object.entries(ACC).map(([nom,colors])=>{
+    const on=nom===curTheme;
+    const grad=`linear-gradient(135deg, ${colors[0]}, ${colors[1]})`;
+    return `<button onclick="setAcc('${nom}')">
+      <span style="display:flex;align-items:center;gap:10px">
+        <i class="thm-dot" style="background:${grad}"></i>
+        <span>${nom}</span>
+      </span>
+      <span style="color:#0a84ff;font-weight:700">${on?"✓":""}</span>
+    </button>`;
+  }).join("");
+}
+
+try{setAcc(localStorage.getItem("acc")||"Océan")}catch(e){}
+
 let enterT=null;const done=new Set();
 function enter(){try{document.body.dataset.enter=1;document.querySelectorAll(".bento>*,.grid>*").forEach((e,i)=>e.style.setProperty("--i",Math.min(i,14)));clearTimeout(enterT);enterT=setTimeout(()=>{delete document.body.dataset.enter},1500)}catch(e){console.error(e)}}
-const ACC={"Océan":["#7aa8ff","#d7a4ff","#8be9c8"],"Sunset":["#ff9a6b","#ff6fa8","#ffd36b"],"Forêt":["#6be0a0","#6bc3e0","#e0e06b"],"Nuit":["#5b6cff","#9b5bff","#5bd0ff"]};
-function setAcc(n){try{const a=ACC[n];if(!a)return;a.forEach((c,i)=>document.documentElement.style.setProperty("--a"+(i+1),c));localStorage.setItem("acc",n)}catch(e){}}
-try{setAcc(localStorage.getItem("acc"))}catch(e){}
 function burst(){try{const c=$("cf"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;const cols=["#0a84ff","#bf5af2","#30d158","#ff9f0a","#ff375f","#64d2ff"];
   const ps=Array.from({length:110},()=>({x:innerWidth/2,y:innerHeight*.7,vx:(Math.random()-.5)*16,vy:-Math.random()*17-5,s:4+Math.random()*6,r:Math.random()*6,c:cols[Math.random()*6|0]}));
   const t0=performance.now();(function k(t){const dt=t-t0;x.clearRect(0,0,c.width,c.height);ps.forEach(p=>{p.vy+=.45;p.x+=p.vx;p.y+=p.vy;p.r+=.2;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.globalAlpha=Math.max(0,1-dt/1900);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});if(dt<1900)requestAnimationFrame(k);else x.clearRect(0,0,c.width,c.height)})(t0)}catch(e){}}
@@ -448,7 +491,7 @@ try{addEventListener("pointermove",e=>{const r0=document.documentElement;r0.styl
 const nz=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 let ki=0,kitems=[];
 function kItems(){const it=[["📊","Tableau de bord","Vue",()=>setV("dash")],["📝","Évaluations","Vue",()=>setV("evals")],["📄","Bulletins A4","Vue",()=>setV("bul")],["➕","Nouvelle évaluation","Action",()=>{setV("evals");openCre()}],["🖨","Imprimer tous les bulletins","Action",()=>{setV("bul");imprimer()}]];
-  [1,2,3,4,5].forEach(p=>it.push(["🗓","Période "+p,"Touche "+p,()=>chgP(p)]));Object.keys(ACC).forEach(n=>it.push(["🎨","Thème "+n,"Couleurs",()=>setAcc(n)]));E.forEach(e=>it.push(["🎓",e,"Fiche élève",()=>openS(e)]));return it}
+  [1,2,3,4,5].forEach(p=>it.push(["🗓","Période "+p,"Touche "+p,()=>chgP(p)]));Object.keys(ACC).forEach(n=>it.push(["🎨","Thème "+n,"Ambiance",()=>setAcc(n)]));E.forEach(e=>it.push(["🎓",e,"Fiche élève",()=>openS(e)]));return it}
 function renderK(){const q=nz($("kq").value.trim());kitems=kItems().filter(x=>!q||nz(x[1]).includes(q)).slice(0,40);ki=Math.min(ki,Math.max(0,kitems.length-1));
   $("kl").innerHTML=kitems.map((x,i)=>`<div class="si ${i===ki?"on":""}" data-i="${i}"><span>${x[0]}&nbsp; ${esc(x[1])}</span><small>${x[2]}</small></div>`).join("")||'<p class="lbl" style="padding:14px">Aucun résultat</p>';
   const a=$("kl").querySelector(".on");if(a)a.scrollIntoView({block:"nearest"})}
@@ -746,7 +789,7 @@ function delSig(){if(!confirm("Retirer la signature actuelle ?"))return;sig=null
 function exportJSON(){const a=document.createElement("a");a.href="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify({baseDonnees:DB,eleves:E},null,2));a.download=`bulletins_cm2_sauvegarde_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove()}
 function importJSON(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const raw=JSON.parse(e.target.result);const d=normDB(raw.baseDonnees||raw);if(!d)throw 0;if(confirm("Remplacer les données actuelles par cette sauvegarde ?")){DB=d;if(Array.isArray(raw.eleves)&&raw.eleves.length)E=raw.eleves;save(true);R();alert("Restauration terminée avec succès !")}}catch(x){alert("Erreur de fichier JSON.")}};r.readAsText(file);ev.target.value=""}
 function resetP(){if(!confirm(`Supprimer toutes les notes de la Période ${P} ?`))return;DB[P]={evals:[],notes:{}};save(true);R()}
-$("mbtn").onclick=e=>{e.stopPropagation();$("menu").classList.toggle("hide")};
+$("mbtn").onclick=e=>{e.stopPropagation();$("menu").classList.toggle("hide");renderThemeMenu()};
 document.addEventListener("click",e=>{if(!e.target.closest("#menu")&&!e.target.closest("#mbtn"))$("menu").classList.add("hide")});
 
 /* ---------- accès sécurisé (Firebase Auth) ---------- */
@@ -758,7 +801,7 @@ function login(e){e.preventDefault();const b=$("lbtn"),er=$("aerr");b.disabled=t
 function resetPw(){auth.sendPasswordResetEmail(EMAIL_COMPTE).then(()=>alert("Si ce compte existe, un e-mail de réinitialisation vient d'être envoyé.")).catch(()=>alert("Impossible d'envoyer l'e-mail pour le moment."))}
 function logout(){flush();auth.signOut()}
 auth.onAuthStateChanged(u=>{
-  if(u){$("auth").classList.add("hide");$("app").classList.remove("hide");$("loader").classList.remove("hide");$("loader").textContent="Chargement des notes…";ecouter();idle()}
+  if(u){$("auth").classList.add("hide");$("app").classList.remove("hide");$("loader").classList.remove("hide");$("loader").textContent="Chargement des notes…";renderThemeMenu();ecouter();idle()}
   else{if(unsub){unsub();unsub=null}clearTimeout(saveT);dirty=false;DB=normDB({});E=[];sig=null;loaded=false;userP=false;P="1";F="TOUS";cur="";V="dash";setLive("En direct");
    ["v-dash","evGrid","zone","side","sheet","printZone"].forEach(i=>$(i).innerHTML="");$("sheet").classList.remove("open");$("mSai").classList.add("hide");$("mCre").classList.add("hide");closeK();
    setV("dash");$("app").classList.add("hide");$("auth").classList.remove("hide")}});
