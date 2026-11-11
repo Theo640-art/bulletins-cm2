@@ -89,23 +89,128 @@ main{max-width:1200px;margin:0 auto;padding:12px 20px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .x{all:unset;cursor:pointer;width:32px;height:32px;border-radius:50%;background:var(--track);display:grid;place-items:center;font-size:14px}
 
-/* ===== Effets modernes : halo curseur, bordure animée, entrée en cascade ===== */
+/* ===== Effets modernes ===== */
 .c,.ev,.tool{position:relative}
 .c::before,.ev::before,.tool::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(300px circle at var(--mx,50%) var(--my,50%),rgba(140,170,255,.07),transparent 65%)}
 .c:hover::before,.ev:hover::before,.tool:hover::before{opacity:1}
 .hero::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;background:conic-gradient(from var(--ang),transparent 0 68%,var(--a1),var(--a2),var(--a3),transparent);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 7s linear infinite}
 body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i,0)*55ms)}
 
-/* ===== Dock affiné : icônes vectorielles, actif en plein ===== */
-.dock{gap:8px;padding:8px 10px;border-radius:28px}
-.dock button{color:var(--mut);border-radius:17px;background:transparent;border-color:transparent;box-shadow:none}
-.dock button svg{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
-.dock button:hover{background:var(--track);border-color:transparent;color:var(--ink)}
-.dock button:hover svg{transform:translateY(-2px) scale(1.06)}
-.dock-item.on button{background:var(--ink);color:var(--bg);box-shadow:0 8px 20px -8px rgba(0,0,0,.5)}
-.dock-item.on button:hover{background:var(--ink);color:var(--bg)}
-.dock-item.on::after{display:none}
-.dock .tip{top:-40px;border-radius:10px;backdrop-filter:blur(12px)}
+/* ===== Magic Bar façon macOS Dock ===== */
+.dock-wrap{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:max(16px, env(safe-area-inset-bottom));
+  z-index:35;
+  display:flex;
+  justify-content:center;
+  pointer-events:none;
+}
+.dock{
+  pointer-events:auto;
+  display:flex;
+  align-items:flex-end;
+  gap:12px;
+  padding:10px 14px 10px;
+  border-radius:30px;
+  background:rgba(255,255,255,.68);
+  backdrop-filter:blur(36px) saturate(190%);
+  -webkit-backdrop-filter:blur(36px) saturate(190%);
+  border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset, 0 20px 48px -12px rgba(10,20,50,.32);
+}
+@media(prefers-color-scheme:dark){
+  .dock{
+    background:rgba(22,24,34,.62);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 22px 55px -12px rgba(0,0,0,.75);
+  }
+}
+.dock-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  position:relative;
+  width:50px;
+  flex-shrink:0;
+  will-change:width;
+}
+.dock-item button{
+  all:unset;
+  box-sizing:border-box;
+  cursor:pointer;
+  width:50px;
+  height:50px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--mut);
+  background:var(--track);
+  border:1px solid var(--line);
+  box-shadow:0 4px 14px rgba(0,0,0,.06);
+  will-change:width, height;
+}
+.dock-item button svg{
+  width:23px;
+  height:23px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  pointer-events:none;
+}
+.dock-item button:hover{
+  background:var(--field);
+  color:var(--ink);
+}
+.dock-item button:active{
+  filter:brightness(.9);
+}
+.dock-item.on button{
+  background:var(--ink);
+  color:var(--bg);
+  box-shadow:0 8px 22px -6px rgba(0,0,0,.45);
+}
+.dock-item.on button:hover{
+  background:var(--ink);
+  color:var(--bg);
+}
+.dock-item.on::after{
+  content:"";
+  position:absolute;
+  bottom:-6px;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--ink);
+}
+.dock .tip{
+  position:absolute;
+  bottom:calc(100% + 10px);
+  left:50%;
+  transform:translateX(-50%) translateY(4px);
+  font-size:11px;
+  font-weight:700;
+  color:var(--ink);
+  background:var(--paper);
+  border:1px solid var(--line);
+  padding:5px 11px;
+  border-radius:10px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .15s, transform .15s;
+  white-space:nowrap;
+  box-shadow:0 6px 18px rgba(0,0,0,.16);
+  backdrop-filter:blur(12px);
+  z-index:40;
+}
+.dock-item:hover .tip{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
 
 /* ===== Courbe d'évolution annuelle ===== */
 @keyframes draw{from{stroke-dashoffset:1}}
@@ -129,102 +234,6 @@ body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bez
 #kl{max-height:50vh;overflow-y:auto;padding:8px}
 #kl .si small{color:var(--mut);font-weight:700}#kl .si.on small{color:inherit;opacity:.7}
 #cf{position:fixed;inset:0;z-index:90;pointer-events:none}
-
-/* ========================================================
-   MAGIC BAR FAÇON APPLE (macOS Dock avec grossissement sans chevauchement)
-   ======================================================== */
-.dock-wrap{
-  position:fixed;
-  left:50%;
-  bottom:max(16px, env(safe-area-inset-bottom));
-  transform:translateX(-50%);
-  z-index:30;
-  display:flex;
-  justify-content:center;
-  pointer-events:none;
-}
-.dock{
-  pointer-events:auto;
-  display:flex;
-  align-items:flex-end;
-  gap:10px;
-  padding:8px 12px 10px;
-  border-radius:26px;
-  background:rgba(255,255,255,.58);
-  backdrop-filter:blur(32px) saturate(190%);
-  -webkit-backdrop-filter:blur(32px) saturate(190%);
-  border:1px solid rgba(255,255,255,.85);
-  box-shadow:0 1px 0 rgba(255,255,255,.95) inset, 0 16px 38px -10px rgba(0,0,0,.35);
-  transition:padding .25s cubic-bezier(.16,1,.3,1);
-}
-@media(prefers-color-scheme:dark){
-  .dock{
-    background:rgba(26,28,38,.55);
-    border:1px solid rgba(255,255,255,.14);
-    box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 20px 50px -10px rgba(0,0,0,.75);
-  }
-}
-.dock-item{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  position:relative;
-  width:50px;
-  transition:width .12s cubic-bezier(.16,1,.3,1);
-}
-.dock button{
-  all:unset;
-  box-sizing:border-box;
-  cursor:pointer;
-  width:50px;
-  height:50px;
-  border-radius:15px;
-  display:grid;
-  place-items:center;
-  font-size:24px;
-  transform-origin:bottom center;
-  background:var(--track);
-  border:1px solid var(--line);
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-  transition:width .12s cubic-bezier(.16,1,.3,1), height .12s cubic-bezier(.16,1,.3,1), font-size .12s cubic-bezier(.16,1,.3,1), background .2s, border-color .2s;
-}
-.dock button:hover{
-  background:var(--field);
-  border-color:rgba(10,132,255,.4);
-}
-.dock button:active{
-  transform:scale(.92);
-}
-.dock-item.on::after{
-  content:"";
-  width:4.5px;
-  height:4.5px;
-  border-radius:50%;
-  background:var(--ink);
-  margin-top:5px;
-  box-shadow:0 0 6px rgba(0,0,0,.25);
-}
-.dock .tip{
-  position:absolute;
-  top:-38px;
-  font-size:11px;
-  font-weight:700;
-  color:var(--ink);
-  background:var(--paper);
-  border:1px solid var(--line);
-  padding:4px 10px;
-  border-radius:9px;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .15s, transform .15s;
-  transform:translateY(4px);
-  white-space:nowrap;
-  box-shadow:0 6px 16px rgba(0,0,0,.15);
-}
-.dock-item:hover .tip{
-  opacity:1;
-  transform:translateY(0);
-}
 
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
 .ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.32);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:14px}
@@ -300,7 +309,7 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
   <div id="loader" class="lbl" style="text-align:center;padding:80px">Chargement des notes…</div>
 </main>
 
-<!-- Magic Bar (Apple Dock) -->
+<!-- Magic Bar (macOS Dock) -->
 <div class="dock-wrap">
   <nav class="dock" id="dock">
     <div class="dock-item on" data-v="dash">
@@ -347,13 +356,18 @@ const auth=firebase.auth();
 const EMAIL_COMPTE="theochirat@gmail.com";
 const docRef=firebase.firestore().collection("bulletins_scolaires").doc("cm2_data");
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const E=["BONIN Nathan","COSTE Stanislas","CRESPO Gabriel","GIANNINI Lison","HADDAD Sofia","HEITZMANN Gauthier","HERODET Mathias","KHELIFI Camil","LEJEUNE Lila","LIMA Inès","MERMET William","MONTALBAN Agathe","PAIS Amalia","PIERRE Louca","TALAGHZI Safiyah","TALAGHZI Younes","ZUBER Léon"];
+
+/* Liste de secours initiale pour la migration automatique vers Firestore */
+const ELEVES_DEFAUT=["BONIN Nathan","COSTE Stanislas","CRESPO Gabriel","GIANNINI Lison","HADDAD Sofia","HEITZMANN Gauthier","HERODET Mathias","KHELIFI Camil","LEJEUNE Lila","LIMA Inès","MERMET William","MONTALBAN Agathe","PAIS Amalia","PIERRE Louca","TALAGHZI Safiyah","TALAGHZI Younes","ZUBER Léon"];
+
+/* E est désormais vide tant que l'utilisateur n'est pas connecté et que Firestore n'a pas répondu */
+let E=[];
 const MAT=["Français","Maths","Histoire","Géographie","EMC","Sciences","Anglais"];
 const COL={"Français":"#0a84ff","Maths":"#bf5af2","Histoire":"#ff9f0a","Géographie":"#ff6b35","EMC":"#5e5ce6","Sciences":"#30d158","Anglais":"#ff375f"};
 const SUB={"Français":["Grammaire","Conjugaison","Orthographe","Lexique","Lecture","Poésie"],"Maths":["Numération","Calcul","Grandeur et Mesure","Géométrie","Résolution de problèmes"]};
 const STAT=["NE","ABS","DISP"];
 let DB={1:{evals:[],notes:{}},2:{evals:[],notes:{}},3:{evals:[],notes:{}},4:{evals:[],notes:{}},5:{evals:[],notes:{}}};
-let P="1",V="dash",F="TOUS",cur=E[0],sig=null,evId=null,loaded=false,userP=false,unsub=null,opt={moyClasse:false,histo:true};
+let P="1",V="dash",F="TOUS",cur="",sig=null,evId=null,loaded=false,userP=false,unsub=null,opt={moyClasse:false,histo:true};
 
 /* ---------- calculs ---------- */
 const ok=v=>v!==undefined&&v!==null&&v!==""&&!isNaN(parseFloat(v));
@@ -369,7 +383,7 @@ const avgC=(p,m)=>av(notesC(p,m));
 const cnt=(p,m)=>D(p).evals.filter(x=>!m||x.matiere===m).length;
 const prevP=()=>{for(let q=+P-1;q>=1;q--)if(D(q).evals.length)return q;return null};
 
-/* ---------- effets modernes (chaque fonction est protégée : une erreur ici ne bloque jamais le site) ---------- */
+/* ---------- effets modernes ---------- */
 let enterT=null;const done=new Set();
 function enter(){try{document.body.dataset.enter=1;document.querySelectorAll(".bento>*,.grid>*").forEach((e,i)=>e.style.setProperty("--i",Math.min(i,14)));clearTimeout(enterT);enterT=setTimeout(()=>{delete document.body.dataset.enter},1500)}catch(e){console.error(e)}}
 const ACC={"Océan":["#7aa8ff","#d7a4ff","#8be9c8"],"Sunset":["#ff9a6b","#ff6fa8","#ffd36b"],"Forêt":["#6be0a0","#6bc3e0","#e0e06b"],"Nuit":["#5b6cff","#9b5bff","#5bd0ff"]};
@@ -378,7 +392,7 @@ try{setAcc(localStorage.getItem("acc"))}catch(e){}
 function burst(){try{const c=$("cf"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;const cols=["#0a84ff","#bf5af2","#30d158","#ff9f0a","#ff375f","#64d2ff"];
   const ps=Array.from({length:110},()=>({x:innerWidth/2,y:innerHeight*.7,vx:(Math.random()-.5)*16,vy:-Math.random()*17-5,s:4+Math.random()*6,r:Math.random()*6,c:cols[Math.random()*6|0]}));
   const t0=performance.now();(function k(t){const dt=t-t0;x.clearRect(0,0,c.width,c.height);ps.forEach(p=>{p.vy+=.45;p.x+=p.vx;p.y+=p.vy;p.r+=.2;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.globalAlpha=Math.max(0,1-dt/1900);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});if(dt<1900)requestAnimationFrame(k);else x.clearRect(0,0,c.width,c.height)})(t0)}catch(e){}}
-function celebrate(id){try{if(!id||!DB[P])return;const no=DB[P].notes[id]||{};if(!done.has(id)&&DB[P].evals.some(v=>v.id===id)&&E.every(e=>no[e]!==undefined&&no[e]!==""&&no[e]!==null)){done.add(id);burst()}}catch(e){}}
+function celebrate(id){try{if(!id||!DB[P]||!E.length)return;const no=DB[P].notes[id]||{};if(!done.has(id)&&DB[P].evals.some(v=>v.id===id)&&E.every(e=>no[e]!==undefined&&no[e]!==""&&no[e]!==null)){done.add(id);burst()}}catch(e){}}
 try{addEventListener("pointermove",e=>{const r0=document.documentElement;r0.style.setProperty("--px",(e.clientX/innerWidth-.5)*2);r0.style.setProperty("--py",(e.clientY/innerHeight-.5)*2);
   const c=e.target&&e.target.closest?e.target.closest(".c,.ev,.tool"):null;if(!c)return;const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
   c.style.setProperty("--mx",x+"px");c.style.setProperty("--my",y+"px");if(c.classList.contains("ev")){c.style.setProperty("--ry",((x/r.width-.5)*6)+"deg");c.style.setProperty("--rx",((.5-y/r.height)*6)+"deg")}},{passive:true})}catch(e){}
@@ -403,7 +417,7 @@ addEventListener("keydown",e=>{
   if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.ctrlKey||e.metaKey||e.altKey)return;
   if($("app").classList.contains("hide")||!$("kp").classList.contains("hide")||!$("mSai").classList.contains("hide")||!$("mCre").classList.contains("hide"))return;
   if(e.key==="/"){e.preventDefault();openK()}else if(/^[1-5]$/.test(e.key))chgP(e.key);
-  else if(V==="bul"&&(e.key==="ArrowRight"||e.key==="ArrowLeft")){e.preventDefault();const i=E.indexOf(cur);cur=E[(i+(e.key==="ArrowRight"?1:-1)+E.length)%E.length];bul()}});
+  else if(V==="bul"&&E.length&&(e.key==="ArrowRight"||e.key==="ArrowLeft")){e.preventDefault();const i=E.indexOf(cur);cur=E[(i+(e.key==="ArrowRight"?1:-1)+E.length)%E.length];bul()}});
 
 /* ---------- visuels ---------- */
 function ring(vals,size,w){const c=size/2;let o=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="transform:rotate(-90deg)">`;
@@ -414,26 +428,6 @@ function play(root){requestAnimationFrame(()=>requestAnimationFrame(()=>{
   root.querySelectorAll("[data-h]").forEach(e=>e.style.height=e.dataset.h);
   root.querySelectorAll("[data-count]").forEach(e=>{const to=+e.dataset.count,t0=performance.now();(function k(t){const q=Math.min(1,(t-t0)/1100);e.textContent=f(to*(1-Math.pow(1-q,4)));if(q<1)requestAnimationFrame(k)})(t0)});
   root.querySelectorAll("[data-int]").forEach(e=>{const to=+e.dataset.int,t0=performance.now(),sf=e.dataset.suf||"";(function k(t){const q=Math.min(1,(t-t0)/900);e.textContent=Math.round(to*(1-Math.pow(1-q,4)))+sf;if(q<1)requestAnimationFrame(k)})(t0)})}))}
-
-/* Ligne d'historique P1 à P5 fine et discrète */
-function spark(){
-  const all=[1,2,3,4,5].map(p=>({p, val:avgC(p)}));
-  return `<div class="spark-box">
-    <div class="spark-track">
-      <div style="position:absolute;top:28px;left:10%;right:10%;height:1px;background:var(--track);z-index:1"></div>
-      ${all.map(item=>{
-        const isCur=(item.p===+P), hasVal=(item.val!=null);
-        const valStr=hasVal?item.val.toFixed(2).replace(".",","):"—";
-        const opac=isCur?"1":(hasVal?".65":".25");
-        return `<div class="spark-step ${isCur?'active':''}" style="opacity:${opac}" onclick="chgP('${item.p}')" title="Période ${item.p}">
-          <div class="spark-val" style="color:${isCur?'#0a84ff':(hasVal?'var(--ink)':'var(--mut)')}">${valStr}</div>
-          <div class="spark-dot"></div>
-          <div class="spark-lbl">P${item.p}</div>
-        </div>`;
-      }).join("")}
-    </div>
-  </div>`;
-}
 
 /* ---------- navigation ---------- */
 function R(){if(!loaded)return;({dash,evals,bul})[V]()}
@@ -447,51 +441,58 @@ function pills(){const sg=$("seg");sg.innerHTML='<span class="pill"></span>'+[1,
   requestAnimationFrame(()=>{const on=sg.querySelector(".on"),pl=sg.querySelector(".pill");if(on){pl.style.left=on.offsetLeft+"px";pl.style.width=on.offsetWidth+"px"}})}
 function chgP(p){userP=true;P=String(p);F="TOUS";$("rp").textContent=P;closeS();pills();R();enter()}
 
-/* Gestion des clics et animation parabolique de la Magic Bar */
+/* Moteur physique macOS Dock (sans aucun chevauchement) */
 document.querySelectorAll("#dock .dock-item").forEach(item=>{
   item.querySelector("button").onclick=()=>setV(item.dataset.v);
 });
 
 const dockEl=$("dock");
 const dockItems=[...dockEl.querySelectorAll(".dock-item")];
-const BASE_SIZE=50, MAX_SCALE=1.28, RANGE=100;
+const DOCK_BASE=50, DOCK_MAX=72, DOCK_RANGE=130;
 
-dockEl.onmousemove=e=>{
+function resetDock(){
   dockItems.forEach(item=>{
     const btn=item.querySelector("button");
-    const rect=item.getBoundingClientRect();
-    const itemCenter=rect.left + rect.width / 2;
-    const dist=Math.abs(e.clientX - itemCenter);
-    
-    if(dist < RANGE){
-      // Courbe cosinus fluide façon macOS
-      const norm=dist / RANGE;
-      const scale=1 + (MAX_SCALE - 1) * Math.cos(norm * (Math.PI / 2));
-      const size=Math.round(BASE_SIZE * scale);
-      item.style.width=size + "px";
-      btn.style.width=size + "px";
-      btn.style.height=size + "px";
-      btn.style.fontSize=Math.round(24 * (scale * 0.95)) + "px";
+    const svg=btn.querySelector("svg");
+    item.style.width=DOCK_BASE+"px";
+    btn.style.width=DOCK_BASE+"px";
+    btn.style.height=DOCK_BASE+"px";
+    svg.style.width="23px";
+    svg.style.height="23px";
+  });
+}
+
+dockEl.addEventListener("mousemove", e=>{
+  const mouseX=e.clientX;
+  dockItems.forEach(item=>{
+    const btn=item.querySelector("button");
+    const svg=btn.querySelector("svg");
+    const itemRect=item.getBoundingClientRect();
+    const itemCenter=itemRect.left + itemRect.width/2;
+    const dist=Math.abs(mouseX - itemCenter);
+
+    if(dist < DOCK_RANGE){
+      const progress=dist / DOCK_RANGE;
+      const factor=Math.cos(progress * (Math.PI/2));
+      const curSize=Math.round(DOCK_BASE + (DOCK_MAX - DOCK_BASE) * factor);
+      const iconSize=Math.round(23 + 9 * factor);
+      item.style.width=curSize+"px";
+      btn.style.width=curSize+"px";
+      btn.style.height=curSize+"px";
+      svg.style.width=iconSize+"px";
+      svg.style.height=iconSize+"px";
     } else {
-      item.style.width=BASE_SIZE + "px";
-      btn.style.width=BASE_SIZE + "px";
-      btn.style.height=BASE_SIZE + "px";
-      btn.style.fontSize="24px";
+      item.style.width=DOCK_BASE+"px";
+      btn.style.width=DOCK_BASE+"px";
+      btn.style.height=DOCK_BASE+"px";
+      svg.style.width="23px";
+      svg.style.height="23px";
     }
   });
-};
+});
 
-dockEl.onmouseleave=()=>{
-  dockItems.forEach(item=>{
-    const btn=item.querySelector("button");
-    item.style.width=BASE_SIZE + "px";
-    btn.style.width=BASE_SIZE + "px";
-    btn.style.height=BASE_SIZE + "px";
-    btn.style.fontSize="24px";
-  });
-};
-
-addEventListener("resize",pills);
+dockEl.addEventListener("mouseleave", resetDock);
+addEventListener("resize", pills);
 
 /* ---------- courbe d'évolution (P1 à P5) ---------- */
 function evoChart(per,n){
@@ -523,7 +524,7 @@ function dash(){
   const el=$("v-dash"),cu=D(P),n=+P,pp=prevP(),mp=avgC(P),mpr=pp?avgC(pp):null,d=mp!=null&&mpr!=null?mp-mpr:null;
   const per=[1,2,3,4,5].map(p=>({p,a:avgC(p),n:cnt(p)})),ann=av(per.filter(x=>x.a!=null).map(x=>x.a)),tot=per.reduce((s,x)=>s+x.n,0);
   const pe=E.map(e=>[e,avgE(P,e)]).filter(x=>x[1]!=null).sort((a,b)=>b[1]-a[1]),hasN=pe.length>0;
-  let got=0;const exp=cu.evals.length*E.length;
+  let got=0;const exp=cu.evals.length*(E.length||17);
   cu.evals.forEach(x=>{const no=cu.notes[x.id]||{};E.forEach(e=>{if(no[e]!==undefined&&no[e]!==""&&no[e]!==null)got++})});
   const pct=exp?Math.round(got/exp*100):0;
 
@@ -545,7 +546,7 @@ function dash(){
   const rows=E.map(e=>{const ms=[],tds=[1,2,3,4,5].map(p=>{const a=D(p).evals.length?calculerMoyenne(notesE(p,e)):"-";if(a!=="-")ms.push(parseFloat(a));return`<td ${p===n?'style="font-weight:700;color:#0a84ff;background:rgba(10,132,255,.08)"':""}>${a}</td>`}).join("");
     const a=avgE(P,e),b=pp?avgE(pp,e):null,dv=a!=null&&b!=null?a-b:null;
     return`<tr><td onclick="openS('${e}')" style="cursor:pointer">${e}</td>${tds}<td style="font-weight:700;color:${dv==null?"var(--mut)":dv>=0?"#1f9d46":"#c77700"}">${fd(dv)}</td><td style="font-weight:800;text-align:right">${ms.length?(ms.reduce((a,b)=>a+b,0)/ms.length).toFixed(2)+" / 20":"-"}</td></tr>`}).join("");
-  const cmp=`<div class="c glass s12" style="overflow-x:auto"><h3>Comparatif des 17 élèves sur les 5 périodes</h3><p class="lbl" style="margin-bottom:10px">Moyennes de chaque période, évolution vs période précédente et moyenne annuelle · cliquez un élève pour ouvrir sa fiche.</p><table class="cmp"><thead><tr><th>Élève</th><th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>Évol. P${n}</th><th style="text-align:right">Moy. annuelle</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  const cmp=`<div class="c glass s12" style="overflow-x:auto"><h3>Comparatif des ${E.length} élèves sur les 5 périodes</h3><p class="lbl" style="margin-bottom:10px">Moyennes de chaque période, évolution vs période précédente et moyenne annuelle · cliquez un élève pour ouvrir sa fiche.</p><table class="cmp"><thead><tr><th>Élève</th><th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>Évol. P${n}</th><th style="text-align:right">Moy. annuelle</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 
   if(!cu.evals.length){el.innerHTML=hero+cntCard+`<div class="c glass s12" style="text-align:center;padding:50px"><h3>Aucune évaluation pour la période ${P}</h3><p class="lbl" style="margin:8px 0 18px">Ajoutez un premier devoir pour voir apparaître les statistiques de cette période.</p><button class="btn b" onclick="setV('evals');openCre()">+ Nouvelle évaluation</button></div>`+cmp;play(el);return}
 
@@ -567,7 +568,7 @@ function dash(){
 
   const bw=(l,x,c)=>`<div class="c glass s6" ${x?`onclick="openS('${x[0]}')" style="cursor:pointer"`:""}><div class="lbl" style="color:${c}">${l}</div><div class="big" style="font-size:56px;color:${c};margin:10px 0 6px">${x?f(x[1]):"-"}<small>/20</small></div><div style="font-weight:700">${x?x[0]:"-"}</div></div>`;
   const det=cu.evals.map((x,i)=>{const t=Object.values(cu.notes[x.id]||{}).map(parseFloat).filter(v=>!isNaN(v)),c=COL[x.matiere]||"#0a84ff";
-    return`<div class="glass" style="padding:18px;border-radius:22px"><div class="row lbl"><b style="color:${c}">#${i+1} ${esc(x.matiere)}</b><span>${t.length}/17 notés</span></div><div style="font-weight:700;margin:4px 0 10px">${esc(x.titre)}</div><div class="row" style="text-align:center;border-top:1px solid var(--track);padding-top:10px;font-size:12px"><div><div class="lbl">Moyenne</div><b>${calculerMoyenne(t)}</b></div><div><div class="lbl">Plus haute</div><b style="color:#1f9d46">${t.length?Math.max(...t).toFixed(2):"-"}</b></div><div><div class="lbl">Plus basse</div><b style="color:#c77700">${t.length?Math.min(...t).toFixed(2):"-"}</b></div></div></div>`}).join("");
+    return`<div class="glass" style="padding:18px;border-radius:22px"><div class="row lbl"><b style="color:${c}">#${i+1} ${esc(x.matiere)}</b><span>${t.length}/${E.length} notés</span></div><div style="font-weight:700;margin:4px 0 10px">${esc(x.titre)}</div><div class="row" style="text-align:center;border-top:1px solid var(--track);padding-top:10px;font-size:12px"><div><div class="lbl">Moyenne</div><b>${calculerMoyenne(t)}</b></div><div><div class="lbl">Plus haute</div><b style="color:#1f9d46">${t.length?Math.max(...t).toFixed(2):"-"}</b></div><div><div class="lbl">Plus basse</div><b style="color:#c77700">${t.length?Math.min(...t).toFixed(2):"-"}</b></div></div></div>`}).join("");
   el.innerHTML=hero+cntCard+att+distCard+(hasN?bw("Meilleure moyenne",pe[0],"#1f9d46")+bw("Moins bonne moyenne",pe[pe.length-1],"#c77700"):"")+cmp+
     `<div class="c glass s12"><h3>Détails par évaluation (Période ${P})</h3><p class="lbl" style="margin-bottom:14px">Moyenne, plus haute et plus basse note pour chaque devoir.</p><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">${det}</div></div>`;
   play(el)}
@@ -592,7 +593,7 @@ function evals(){const cu=D(P),ev=cu.evals||[],cn={TOUS:ev.length};ev.forEach(x=
   g.innerHTML=list.map(x=>{const i=ev.findIndex(y=>y.id===x.id),no=cu.notes[x.id]||{},nb=Object.values(no).filter(v=>v!==""&&v!=null).length,m=calculerMoyenne(Object.values(no)),c=COL[x.matiere]||"#0a84ff",full=nb===E.length;
     return`<div class="ev glass" data-id="${esc(x.id)}" onclick="if(!event.target.closest('button'))openSai(this.dataset.id)"><div class="row"><span class="badge" style="background:${c}22;color:${c}">#${i+1} ${esc(x.matiere)}</span><button class="x" title="Supprimer" aria-label="Supprimer" onclick="delEv(this.closest('.ev').dataset.id)">🗑</button></div>
     <div><h3>${esc(x.titre)}</h3><p>${esc(x.theme||"")}</p></div>
-    <div><div class="row lbl"><span>Statut</span><b style="color:${full?"#1f9d46":"#c77700"}">${full?"✓":"!"} ${nb} / 17</b></div><div class="bar"><i style="width:${nb/E.length*100}%;background:${full?"#30d158":c}"></i></div></div>
+    <div><div class="row lbl"><span>Statut</span><b style="color:${full?"#1f9d46":"#c77700"}">${full?"✓":"!"} ${nb} / ${E.length}</b></div><div class="bar"><i style="width:${(E.length?nb/E.length:0)*100}%;background:${full?"#30d158":c}"></i></div></div>
     <div class="row"><b>${m!=="-"?m+"/20":"-"}</b><button class="btn s" onclick="openSai(this.closest('.ev').dataset.id)">Saisir</button></div></div>`}).join("")}
 function delEv(id){if(!confirm("Supprimer définitivement cette évaluation et ses notes ?"))return;DB[P].evals=DB[P].evals.filter(e=>e.id!==id);delete DB[P].notes[id];save(true);R()}
 function subs(){const m=$("cMat").value,s=$("cThe");s.innerHTML='<option value="">Aucun (général)</option>'+(SUB[m]||[]).map(t=>`<option>${t}</option>`).join("")}
@@ -606,7 +607,7 @@ function openSai(id){evId=id;const cu=D(P),i=cu.evals.findIndex(e=>e.id===id);if
 const inp=k=>document.querySelector(`[data-i="${k}"]`);
 function rn(k,v){setNote(k,v,inp(k));const n=inp(k+1);if(n){n.focus();n.select()}}
 function setNote(k,val,el){
-  if(!evId||!DB[P])return;
+  if(!evId||!DB[P]||!E[k])return;
   const r=String(val).trim().toUpperCase().replace(",","."),prev=(DB[P].notes[evId]||{})[E[k]]||"";
   let show=r,o=null;
   if(r===""||r==="-"){o="";show=""}
@@ -620,7 +621,14 @@ function closeSai(){const id=evId;$("mSai").classList.add("hide");evId=null;flus
 
 /* ---------- bulletins ---------- */
 function tog(k){opt[k]=!opt[k];$(k==="moyClasse"?"oMoy":"oHis").classList.toggle("on",opt[k]);bul()}
-function bul(){$("selE").innerHTML=E.map(e=>`<option ${e===cur?"selected":""}>${e}</option>`).join("");$("oMoy").classList.toggle("on",opt.moyClasse);side();$("zone").innerHTML=construireHTMLBulletinSobre(cur)}
+function bul(){
+  if(!E.length){$("zone").innerHTML='<p class="lbl" style="padding:40px;text-align:center">Chargement des élèves…</p>';return}
+  if(!cur||!E.includes(cur))cur=E[0];
+  $("selE").innerHTML=E.map(e=>`<option ${e===cur?"selected":""}>${e}</option>`).join("");
+  $("oMoy").classList.toggle("on",opt.moyClasse);
+  side();
+  $("zone").innerHTML=construireHTMLBulletinSobre(cur);
+}
 function side(){const q=($("fs")?.value||"").toLowerCase();$("side").innerHTML=E.filter(e=>e.toLowerCase().includes(q)).map(e=>{const a=avgE(P,e),c=a==null?"var(--mut)":a>=15?"#30d158":a>=12?"#0a84ff":"#ff9f0a";
   return`<div class="si ${e===cur?"on":""}" onclick="cur='${e}';bul()"><span><i class="dot" style="background:${c}"></i>${e}</span><span style="opacity:.6">${a!=null?a.toFixed(2):"-"}</span></div>`}).join("")}
 function moyEval(){const m={};D(P).evals.forEach(ev=>m[ev.id]=calculerMoyenne(Object.values(D(P).notes[ev.id]||{})));return m}
@@ -669,22 +677,40 @@ let saveT=null,dirty=false,liveT=null;
 function setLive(t,cls){const l=$("live");l.textContent="● "+t;l.className="live"+(cls?" "+cls:"")}
 function save(now){dirty=true;clearTimeout(saveT);setLive("Modifications…","warn");if(now)flush();else saveT=setTimeout(flush,600)}
 function flush(){clearTimeout(saveT);saveT=null;if(!dirty||!auth.currentUser)return;dirty=false;
-  docRef.set({baseDonnees:DB,signature:sig||null,derniereMaj:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{if(dirty)return;setLive("Enregistré ✓");clearTimeout(liveT);liveT=setTimeout(()=>{if(!dirty)setLive("En direct")},2000)}).catch(er=>{console.error(er);dirty=true;setLive("Échec de l'enregistrement","err")})}
+  docRef.set({baseDonnees:DB,eleves:E,signature:sig||null,derniereMaj:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{if(dirty)return;setLive("Enregistré ✓");clearTimeout(liveT);liveT=setTimeout(()=>{if(!dirty)setLive("En direct")},2000)}).catch(er=>{console.error(er);dirty=true;setLive("Échec de l'enregistrement","err")})}
 addEventListener("pagehide",flush);document.addEventListener("visibilitychange",()=>{if(document.hidden)flush()});
 addEventListener("online",()=>{if(dirty)flush()});
 function normDB(d){if(!d||typeof d!=="object")return null;const o={};for(let p=1;p<=5;p++){const x=d[p]||{evals:[],notes:{}};if(!Array.isArray(x.evals)||!x.notes||typeof x.notes!=="object"||!x.evals.every(e=>e&&typeof e.id==="string"&&typeof e.titre==="string"&&typeof e.matiere==="string"))return null;o[p]=x}return o}
 function lastP(){for(let p=5;p>=1;p--)if(D(p).evals.length)return String(p);return"1"}
 function ecouter(){if(unsub)unsub();unsub=docRef.onSnapshot(d=>{
   if(!dirty){
-   if(d.exists){const x=d.data(),n=normDB(x.baseDonnees);if(n)DB=n;sig=typeof x.signature==="string"&&x.signature.startsWith("data:image/")?x.signature:null;majSig()}else save(true)}
+    if(d.exists){
+      const x=d.data(),n=normDB(x.baseDonnees);
+      if(n)DB=n;
+      // Lecture sécurisée des élèves depuis Firestore, avec migration automatique si absent
+      if(Array.isArray(x.eleves)&&x.eleves.length>0){
+        E=x.eleves;
+      } else {
+        E=[...ELEVES_DEFAUT];
+        save(true);
+      }
+      if(!cur||!E.includes(cur))cur=E[0]||"";
+      sig=typeof x.signature==="string"&&x.signature.startsWith("data:image/")?x.signature:null;
+      majSig();
+    } else {
+      E=[...ELEVES_DEFAUT];
+      cur=E[0]||"";
+      save(true);
+    }
+  }
   const was=loaded;let ch=false;if(!userP){const l=lastP();if(l!==P){P=l;F="TOUS";ch=true}}
   loaded=true;$("loader").classList.add("hide");$("rp").textContent=P;if(!was||ch)pills();R();if(!was)enter()},
   err=>{console.error(err);$("loader").classList.remove("hide");$("loader").textContent="Accès refusé : ce compte n'est pas autorisé à lire les notes."})}
 function majSig(){$("txtSig").textContent=sig?"Signature active ✓":"Importer signature";$("btnSig").classList.toggle("hide",!sig)}
 function importSig(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");c.width=300;c.height=Math.max(1,Math.round(img.height*300/img.width));c.getContext("2d").drawImage(img,0,0,c.width,c.height);sig=c.toDataURL("image/png");majSig();save(true);R()};img.onerror=()=>alert("Image illisible.");img.src=e.target.result};r.readAsDataURL(file);ev.target.value=""}
 function delSig(){if(!confirm("Retirer la signature actuelle ?"))return;sig=null;majSig();save(true);R()}
-function exportJSON(){const a=document.createElement("a");a.href="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(DB,null,2));a.download=`bulletins_cm2_sauvegarde_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove()}
-function importJSON(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const d=normDB(JSON.parse(e.target.result));if(!d)throw 0;if(confirm("Remplacer les données actuelles par cette sauvegarde ?")){DB=d;save(true);R();alert("Restauration terminée avec succès !")}}catch(x){alert("Erreur de fichier JSON.")}};r.readAsText(file);ev.target.value=""}
+function exportJSON(){const a=document.createElement("a");a.href="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify({baseDonnees:DB,eleves:E},null,2));a.download=`bulletins_cm2_sauvegarde_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove()}
+function importJSON(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const raw=JSON.parse(e.target.result);const d=normDB(raw.baseDonnees||raw);if(!d)throw 0;if(confirm("Remplacer les données actuelles par cette sauvegarde ?")){DB=d;if(Array.isArray(raw.eleves)&&raw.eleves.length)E=raw.eleves;save(true);R();alert("Restauration terminée avec succès !")}}catch(x){alert("Erreur de fichier JSON.")}};r.readAsText(file);ev.target.value=""}
 function resetP(){if(!confirm(`Supprimer toutes les notes de la Période ${P} ?`))return;DB[P]={evals:[],notes:{}};save(true);R()}
 $("mbtn").onclick=e=>{e.stopPropagation();$("menu").classList.toggle("hide")};
 document.addEventListener("click",e=>{if(!e.target.closest("#menu")&&!e.target.closest("#mbtn"))$("menu").classList.add("hide")});
@@ -693,13 +719,13 @@ document.addEventListener("click",e=>{if(!e.target.closest("#menu")&&!e.target.c
 let idleT;
 function idle(){clearTimeout(idleT);if(auth.currentUser)idleT=setTimeout(()=>{flush();auth.signOut()},30*60*1000)}
 ["click","keydown","mousemove","touchstart"].forEach(t=>addEventListener(t,idle,{passive:true}));
-function login(e){e.preventDefault();const b=$("lbtn"),er=$("aerr");b.disabled=true;er.classList.add("hide");
+function login(e){e.preventDefault();const b=$("lbtn"),er=$("aerr");b.disabled=true;er.classList.remove("hide");er.textContent="";
   auth.signInWithEmailAndPassword(EMAIL_COMPTE,$("pass").value).catch(x=>{er.textContent=x.code==="auth/too-many-requests"?"Trop de tentatives. Réessayez dans quelques minutes.":"E-mail ou mot de passe incorrect.";er.classList.remove("hide");const c=$("authCard");c.style.animation="shake .4s";setTimeout(()=>c.style.animation="",450)}).finally(()=>{b.disabled=false;$("pass").value=""})}
 function resetPw(){auth.sendPasswordResetEmail(EMAIL_COMPTE).then(()=>alert("Si ce compte existe, un e-mail de réinitialisation vient d'être envoyé.")).catch(()=>alert("Impossible d'envoyer l'e-mail pour le moment."))}
 function logout(){flush();auth.signOut()}
 auth.onAuthStateChanged(u=>{
   if(u){$("auth").classList.add("hide");$("app").classList.remove("hide");$("loader").classList.remove("hide");$("loader").textContent="Chargement des notes…";ecouter();idle()}
-  else{if(unsub){unsub();unsub=null}clearTimeout(saveT);dirty=false;DB=normDB({});sig=null;loaded=false;userP=false;P="1";F="TOUS";cur=E[0];V="dash";setLive("En direct");
+  else{if(unsub){unsub();unsub=null}clearTimeout(saveT);dirty=false;DB=normDB({});E=[];sig=null;loaded=false;userP=false;P="1";F="TOUS";cur="";V="dash";setLive("En direct");
    ["v-dash","evGrid","zone","side","sheet","printZone"].forEach(i=>$(i).innerHTML="");$("sheet").classList.remove("open");$("mSai").classList.add("hide");$("mCre").classList.add("hide");closeK();
    setV("dash");$("app").classList.add("hide");$("auth").classList.remove("hide")}});
 </script>
