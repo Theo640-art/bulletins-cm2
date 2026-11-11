@@ -1,1752 +1,361 @@
+Claude
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bulletins v3 · HTML
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-[#f6f7fa]">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bulletins CM2 — Jean des Vignes Rouges</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Moteur PDF Client -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <!-- SDK Firebase Compat -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-    :root {
-      --system-font: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-      --spring: cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    body {
-      font-family: var(--system-font);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      background-color: #f6f7fa;
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(0, 113, 227, 0.05) 0px, transparent 40%),
-        radial-gradient(at 100% 0%, rgba(147, 51, 234, 0.04) 0px, transparent 40%),
-        radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
-      background-attachment: fixed;
-    }
-
-    .ios-glass {
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(35px) saturate(190%);
-      -webkit-backdrop-filter: blur(35px) saturate(190%);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 
-        0 4px 6px -1px rgba(0, 0, 0, 0.015),
-        0 10px 25px -5px rgba(0, 0, 0, 0.035),
-        inset 0 1px 0 rgba(255, 255, 255, 0.95);
-    }
-
-    .ios-card {
-      backdrop-filter: blur(25px) saturate(180%);
-      -webkit-backdrop-filter: blur(25px) saturate(180%);
-      transition: all 0.3s var(--spring);
-    }
-
-    .ios-card:hover {
-      transform: translateY(-2.5px);
-    }
-
-    .ios-btn {
-      transition: all 0.18s var(--spring);
-    }
-    .ios-btn:active {
-      transform: scale(0.96);
-    }
-
-    @keyframes springEnter {
-      0% { opacity: 0; transform: scale(0.95) translateY(8px); }
-      100% { opacity: 1; transform: scale(1) translateY(0); }
-    }
-    .animate-spring {
-      animation: springEnter 0.35s var(--spring) forwards;
-    }
-
-    @keyframes appleShake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-10px); }
-      40%, 80% { transform: translateX(10px); }
-    }
-    .shake { animation: appleShake 0.4s var(--spring) both; }
-
-    /* Page format A4 sobre et officiel : 1 page stricte */
-    .bulletin-page {
-      width: 210mm;
-      height: 296mm;
-      max-height: 296mm;
-      padding: 12mm 14mm;
-      margin: 0 auto 30px auto;
-      background: #ffffff;
-      box-sizing: border-box;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      border-radius: 2px;
-      overflow: hidden !important;
-      page-break-inside: avoid !important;
-      break-inside: avoid !important;
-    }
-
-    @media print {
-      html, body {
-        background: #ffffff !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        height: 100% !important;
-      }
-      .no-print { display: none !important; }
-      #tabApercu { display: block !important; padding: 0 !important; background: transparent !important; }
-      #tabGrille, #tabStats, #authOverlay, #modalSaisie, #modalCreation, #studioSidebar, #studioTopActions, #menuActionsPopover { display: none !important; }
-      #apercuBulletins { background: transparent !important; padding: 0 !important; }
-      
-      .bulletin-page {
-        margin: 0 !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        width: 100% !important;
-        height: 296mm !important;
-        max-height: 296mm !important;
-        page-break-after: always !important;
-        break-after: page !important;
-        padding: 11mm 13mm !important;
-        overflow: hidden !important;
-      }
-      @page {
-        size: A4 portrait;
-        margin: 0;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bulletins CM2 — Jean des Vignes Rouges</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<style>
+:root{--bg:#eef0f6;--ink:#1d1d1f;--mut:#6e6e73;--glass:rgba(255,255,255,.62);--line:rgba(255,255,255,.75);--sh:0 1px 0 rgba(255,255,255,.9) inset,0 20px 50px -20px rgba(30,40,90,.25);--a1:#7aa8ff;--a2:#d7a4ff;--a3:#8be9c8;--track:rgba(0,0,0,.07);--paper:#fff;--field:rgba(255,255,255,.8)}
+@media(prefers-color-scheme:dark){:root{--bg:#07080d;--ink:#f5f5f7;--mut:#9a9aa3;--glass:rgba(34,36,48,.55);--line:rgba(255,255,255,.1);--sh:0 1px 0 rgba(255,255,255,.08) inset,0 24px 60px -20px rgba(0,0,0,.7);--a1:#2b52c9;--a2:#7a2fc0;--a3:#0f8a6a;--track:rgba(255,255,255,.09);--paper:#1b1c26;--field:rgba(255,255,255,.08)}}
+*{box-sizing:border-box;margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:120px;min-height:100vh}
+button,input,select{font-family:inherit;color:inherit}
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.aurora i{position:absolute;width:55vmax;height:55vmax;border-radius:50%;filter:blur(90px);opacity:.55;animation:drift 22s ease-in-out infinite alternate}
+.aurora i:nth-child(1){background:var(--a1);top:-20%;left:-10%}.aurora i:nth-child(2){background:var(--a2);top:10%;right:-20%;animation-delay:-7s}.aurora i:nth-child(3){background:var(--a3);bottom:-25%;left:25%;animation-delay:-13s}
+@keyframes drift{to{transform:translate(8vmax,-6vmax) scale(1.15)}}
+@keyframes pop{from{opacity:0;transform:scale(.95) translateY(8px)}}
+@keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.glass{background:var(--glass);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid var(--line);box-shadow:var(--sh);border-radius:30px}
+.hide{display:none!important}
+header{max-width:1200px;margin:0 auto;padding:26px 20px 8px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+h1{font-size:clamp(26px,5vw,42px);letter-spacing:-.035em;font-weight:700;line-height:1.05}
+.sub{color:var(--mut);font-size:13px;margin-bottom:6px;display:flex;gap:10px;align-items:center}
+.live{font-size:11px;font-weight:600;color:#1f9d46;background:rgba(48,209,88,.15);padding:2px 9px;border-radius:99px}
+.hr{display:flex;gap:10px;align-items:center}
+.seg{display:flex;padding:4px;border-radius:999px;position:relative}
+.seg button{all:unset;cursor:pointer;padding:8px 15px;font-size:13px;font-weight:600;border-radius:999px;position:relative;z-index:1;color:var(--mut);transition:color .3s}
+.seg button.on{color:var(--ink)}
+.pill{position:absolute;top:4px;bottom:4px;border-radius:999px;background:var(--paper);box-shadow:0 2px 10px rgba(0,0,0,.12);transition:all .45s cubic-bezier(.16,1,.3,1)}
+.ib{width:42px;height:42px;border-radius:50%;cursor:pointer;font-weight:700;display:grid;place-items:center;border:1px solid var(--line)}
+.menu{position:absolute;right:0;top:52px;width:240px;padding:8px;border-radius:22px;z-index:40;animation:pop .3s cubic-bezier(.16,1,.3,1)}
+.menu button,.menu label{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;width:100%;padding:10px 12px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer}
+.menu button:hover,.menu label:hover{background:var(--track)}.menu .red{color:#ff453a}.menu hr{border:0;border-top:1px solid var(--track);margin:5px 0}
+main{max-width:1200px;margin:0 auto;padding:12px 20px}
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.c{padding:26px;overflow:hidden}
+.hero{grid-column:span 7;min-height:300px;display:flex;flex-direction:column;justify-content:space-between}.rings{grid-column:span 5;display:flex;flex-direction:column;align-items:center;gap:14px}.ins{grid-column:span 5}.heat{grid-column:span 7;overflow-x:auto}
+@media(max-width:860px){.hero,.rings,.ins,.heat{grid-column:span 12}}
+.s6{grid-column:span 6}.s12{grid-column:span 12}@media(max-width:860px){.s6{grid-column:span 12}}
+.lbl{font-size:13px;color:var(--mut);font-weight:600}
+.big{font-size:clamp(64px,11vw,120px);font-weight:800;letter-spacing:-.06em;line-height:.9;font-variant-numeric:tabular-nums}.big small{font-size:.28em;font-weight:600;color:var(--mut);letter-spacing:0;margin-left:6px}
+.delta{display:inline-flex;gap:6px;font-size:13px;font-weight:700;padding:5px 12px;border-radius:999px;background:rgba(48,209,88,.16);color:#1f9d46}.delta.neg{background:rgba(255,159,10,.16);color:#c77700}
+.leg{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;font-size:12px;width:100%}.leg div{display:flex;justify-content:space-between}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px}
+.insrow{display:flex;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--track);cursor:pointer}.insrow:last-child{border:0}
+.ico{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:20px;flex:none}.insrow p{font-size:13px;color:var(--mut)}.insrow strong{font-size:15px;display:block}
+table.h{border-collapse:separate;border-spacing:3px;width:100%;font-size:12px}table.h th{font-weight:600;color:var(--mut);font-size:11px}
+td.n{font-weight:600;white-space:nowrap;padding-right:10px;cursor:pointer}td.v{text-align:center;border-radius:9px;padding:7px 0;font-weight:700;min-width:38px;transition:transform .25s cubic-bezier(.16,1,.3,1)}td.v:hover{transform:scale(1.25)}
+.bar{height:8px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;border-radius:99px;width:0;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.tool{padding:14px 18px;border-radius:24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{all:unset;cursor:pointer;padding:7px 14px;border-radius:99px;font-size:12px;font-weight:600;background:var(--track);color:var(--mut)}.chip.on{background:var(--ink);color:var(--bg)}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;padding:10px 18px;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;font-size:13px;text-align:center;transition:transform .15s}.btn:active{transform:scale(.96)}
+.btn.s{background:var(--field);color:var(--ink);border:1px solid var(--line)}.btn.g{background:#1f9d46;color:#fff}.btn.b{background:#0a84ff;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.ev{padding:20px;border-radius:26px;cursor:pointer;display:flex;flex-direction:column;gap:12px;transition:transform .25s cubic-bezier(.16,1,.3,1)}.ev:hover{transform:translateY(-4px)}
+.badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px}
+.ev h3{font-size:15px}.ev p{font-size:12px;color:var(--mut);font-style:italic;min-height:15px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.x{all:unset;cursor:pointer;width:32px;height:32px;border-radius:50%;background:var(--track);display:grid;place-items:center;font-size:14px}
+.dock{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:flex-end;gap:10px;padding:10px 14px;border-radius:30px;z-index:20}
+.dock button{all:unset;cursor:pointer;width:52px;height:52px;border-radius:17px;display:grid;place-items:center;font-size:23px;transform-origin:bottom;transition:transform .12s linear;background:var(--track);position:relative}
+.dock button.on::after{content:"";position:absolute;bottom:-8px;width:5px;height:5px;border-radius:50%;background:var(--ink)}
+.dock .tip{position:absolute;top:-34px;font-size:11px;font-weight:600;background:var(--paper);padding:4px 9px;border-radius:9px;opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.15)}.dock button:hover .tip{opacity:1}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
+.ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.32);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:14px}
+.ov>div{animation:pop .35s cubic-bezier(.16,1,.3,1)}
+.fld{width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--field);font-size:14px;font-weight:600;outline:none;margin-bottom:12px}.fld:focus{border-color:#0a84ff}
+.mod{width:min(440px,100%);padding:26px}.mod label{font-size:12px;font-weight:600;color:var(--mut);display:block;margin-bottom:5px}
+.pw{width:min(360px,100%);padding:36px;text-align:center}
+.dots{display:flex;gap:12px;justify-content:center;margin:20px 0}.dots i{width:12px;height:12px;border-radius:50%;border:1px solid var(--mut);transition:all .2s}.dots i.on{background:#0a84ff;border-color:#0a84ff;transform:scale(1.15)}
+.logo{width:64px;height:64px;border-radius:22px;background:linear-gradient(135deg,#0a84ff,#64d2ff);color:#fff;font-weight:900;display:grid;place-items:center;margin:0 auto 14px}
+.sai{width:min(620px,100%);max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.sai>.hd,.sai>.ft{padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:10px}.sai>.ft{font-size:12px;color:var(--mut)}
+.sai .ls{overflow-y:auto;padding:4px 18px;flex:1}
+.nr{display:flex;justify-content:space-between;align-items:center;padding:7px 8px;border-radius:14px;gap:8px}.nr:hover{background:var(--track)}
+.nr b{font-size:13px}.nr small{color:var(--mut);width:22px;display:inline-block;text-align:right;margin-right:6px}
+.q{all:unset;cursor:pointer;font-size:10px;font-weight:700;padding:5px 8px;border-radius:9px;background:var(--track)}.q:hover{background:var(--ink);color:var(--bg)}
+.ni{display:flex;align-items:center;gap:4px;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:5px 10px}.ni input{all:unset;width:42px;text-align:center;font-weight:700;font-size:13px}.ni span{font-size:10px;color:var(--mut);font-weight:700}
+.sheet{position:fixed;top:12px;right:12px;bottom:12px;width:min(440px,calc(100vw - 24px));z-index:30;padding:28px;overflow-y:auto;transform:translateX(calc(100% + 24px));transition:transform .55s cubic-bezier(.16,1,.3,1)}.sheet.open{transform:none}
+.pal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.32);backdrop-filter:blur(8px);display:flex;justify-content:center;padding-top:14vh}.pal>div{width:min(560px,92vw);padding:12px;height:fit-content;animation:pop .3s cubic-bezier(.16,1,.3,1)}
+.pal input{all:unset;width:100%;padding:14px 16px;font-size:18px;box-sizing:border-box}.pal li{list-style:none;padding:11px 16px;border-radius:14px;cursor:pointer;display:flex;justify-content:space-between;font-size:14px;font-weight:600}.pal li.on{background:var(--track)}
+.bt{display:flex;gap:14px;align-items:flex-start;flex-direction:column}@media(min-width:1024px){.bt{flex-direction:row}}
+.side{width:100%;padding:14px;flex-shrink:0}@media(min-width:1024px){.side{width:280px}}
+.side .lst{max-height:70vh;overflow-y:auto;margin-top:8px}
+.si{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:12px;cursor:pointer;font-size:12px;font-weight:600}.si:hover{background:var(--track)}.si.on{background:var(--ink);color:var(--bg)}
+.zone{flex:1;width:100%;overflow-x:auto;padding:24px;border-radius:30px;background:var(--track);display:flex;justify-content:center}
+.stat{padding:22px}.stat .t{font-size:30px;font-weight:800;letter-spacing:-.03em;margin-top:6px}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:16px}
+table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(--mut);padding:10px 8px;text-align:center}.cmp td{padding:9px 8px;text-align:center;border-top:1px solid var(--track)}.cmp td:first-child,.cmp th:first-child{text-align:left;font-weight:600}
+.bulletin-page{width:210mm;height:296mm;max-height:296mm;padding:12mm 14mm;margin:0 auto;background:#fff;color:#0f172a;box-sizing:border-box;box-shadow:0 16px 40px rgba(0,0,0,.15);position:relative;display:flex;flex-direction:column;justify-content:space-between;border-radius:2px;overflow:hidden;flex-shrink:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+#printZone{display:none}
+@media print{html,body{background:#fff!important;margin:0!important;padding:0!important}body>*:not(#printZone){display:none!important}#printZone{display:block!important}.bulletin-page{margin:0!important;box-shadow:none!important;border-radius:0!important;width:100%!important;height:296mm!important;page-break-after:always;break-after:page;padding:11mm 13mm!important}@page{size:A4 portrait;margin:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
-<body class="h-full text-[#1d1d1f] flex flex-col antialiased">
-
-  <!-- ================= PORTAIL D'ENTRÉE VERROUILLÉ ================= -->
-  <div id="authOverlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-3xl transition-opacity duration-300">
-    <div id="authCard" class="ios-glass rounded-[32px] p-8 sm:p-10 max-w-sm w-full text-center border border-white/70 shadow-2xl animate-spring">
-      <div class="w-16 h-16 rounded-[22px] bg-gradient-to-tr from-[#0071e3] to-[#42a5f5] flex items-center justify-center mx-auto mb-4 text-white font-black text-xl shadow-lg shadow-[#0071e3]/25 tracking-wider">
-        CM2
-      </div>
-
-      <h2 class="text-lg font-bold text-slate-900 tracking-tight">Jean des Vignes Rouges</h2>
-      <p class="text-xs text-slate-500 mt-0.5 mb-6 font-medium">Session sécurisée &bull; Bulletins scolaires</p>
-
-      <div class="flex items-center justify-center gap-3 mb-6">
-        <div class="w-3 h-3 rounded-full border border-black/20 transition-all duration-200" id="dot-0"></div>
-        <div class="w-3 h-3 rounded-full border border-black/20 transition-all duration-200" id="dot-1"></div>
-        <div class="w-3 h-3 rounded-full border border-black/20 transition-all duration-200" id="dot-2"></div>
-        <div class="w-3 h-3 rounded-full border border-black/20 transition-all duration-200" id="dot-3"></div>
-        <div class="w-3 h-3 rounded-full border border-black/20 transition-all duration-200" id="dot-4"></div>
-      </div>
-
-      <form onsubmit="verifierMotDePasse(event)" class="space-y-3">
-        <input type="password" id="inputPass" placeholder="Mot de passe" autofocus required
-               class="w-full text-center px-4 py-3 bg-white/75 hover:bg-white focus:bg-white rounded-2xl text-sm font-semibold outline-none border border-black/10 focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/15 transition shadow-inner">
-        <p id="authError" class="text-xs text-red-600 font-semibold hidden">Mot de passe incorrect</p>
-        <button type="submit" class="ios-btn w-full bg-[#1d1d1f] hover:bg-black text-white font-medium py-3 rounded-2xl text-xs uppercase tracking-wider shadow-lg shadow-black/10">
-          Déverrouiller
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ================= APPLICATION PRINCIPALE ================= -->
-  <div id="mainApp" class="hidden min-h-screen flex flex-col">
-
-    <header class="ios-glass sticky top-0 z-30 no-print border-b border-black/5">
-      <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2.5">
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-xs sm:text-sm font-bold tracking-tight text-slate-900">École Jean des Vignes Rouges</h1>
-              <span class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-700 rounded-full border border-emerald-500/20">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>En direct</span>
-              </span>
-            </div>
-            <p class="text-[11px] text-slate-400 font-medium">CM2 &bull; Année scolaire 2026/2027</p>
-          </div>
-        </div>
-
-        <div class="flex items-center bg-black/[0.04] p-1 rounded-2xl text-xs font-semibold border border-black/5">
-          <button id="btnTabGrille" onclick="basculerVue('grille')" class="ios-btn px-3 sm:px-4 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs">
-            Évaluations
-          </button>
-          <button id="btnTabApercu" onclick="basculerVue('apercu')" class="ios-btn px-3 sm:px-4 py-1.5 rounded-xl text-slate-500 hover:text-slate-900">
-            Bulletins A4
-          </button>
-          <button id="btnTabStats" onclick="basculerVue('stats')" class="ios-btn px-3 sm:px-4 py-1.5 rounded-xl text-slate-500 hover:text-slate-900">
-            Statistiques
-          </button>
-        </div>
-
-        <div class="flex items-center gap-2 relative">
-          <div class="flex items-center bg-black/[0.04] hover:bg-black/[0.07] transition rounded-xl px-2.5 py-1.5 text-xs border border-black/5">
-            <span class="text-slate-400 font-semibold mr-1">Période</span>
-            <select id="selectPeriode" onchange="changerPeriode(this.value)" class="bg-transparent font-bold text-slate-900 outline-none cursor-pointer">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
-          </div>
-
-          <button onclick="basculerMenuActions(event)" class="ios-btn w-8 h-8 rounded-xl bg-black/[0.04] hover:bg-black/[0.08] flex items-center justify-center text-slate-700 font-bold border border-black/5" title="Options et données">
-            •••
-          </button>
-
-          <div id="menuActionsPopover" class="hidden absolute right-0 top-11 w-56 ios-glass rounded-2xl p-2 shadow-xl border border-white/80 space-y-1 z-40 text-xs font-semibold animate-spring">
-            <label class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-black/5 cursor-pointer text-slate-700">
-              <span id="txtSignature">Importer signature</span>
-              <span class="text-[10px] text-slate-400">PNG</span>
-              <input type="file" id="inputSignature" accept="image/*" onchange="importerEtCompresserSignature(event)" class="hidden">
-            </label>
-
-            <button id="btnSupprSig" onclick="supprimerSignature()" class="hidden w-full text-left px-3 py-2 rounded-xl hover:bg-red-50 text-red-600">
-              Retirer la signature
-            </button>
-
-            <div class="border-t border-black/5 my-1"></div>
-
-            <button onclick="exporterSauvegardeJSON()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-black/5 text-slate-700">
-              <span>Sauvegarder les notes</span>
-              <span class="text-[10px] text-slate-400">JSON</span>
-            </button>
-
-            <label class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-black/5 cursor-pointer text-slate-700">
-              <span>Restaurer des notes</span>
-              <span class="text-[10px] text-slate-400">JSON</span>
-              <input type="file" accept=".json" onchange="importerSauvegardeJSON(event)" class="hidden">
-            </label>
-
-            <div class="border-t border-black/5 my-1"></div>
-
-            <button onclick="confirmerReset('periode')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-red-50 text-red-600">
-              Vider la Période <span id="lblResetPeriode">1</span>
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6 flex-1">
-
-      <!-- ================= VUE 1 : ÉVALUATIONS ================= -->
-      <section id="tabGrille" class="space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 ios-glass p-4 sm:p-5 rounded-[24px]">
-          <div class="flex flex-wrap items-center gap-1.5" id="conteneurFiltresMatieres"></div>
-
-          <button onclick="ouvrirModalCreation()" class="ios-btn bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold py-2 px-4 rounded-xl text-xs shadow-md shadow-[#0071e3]/20 flex items-center gap-1.5 self-start sm:self-auto">
-            <span>+</span><span>Nouvelle évaluation</span>
-          </button>
-        </div>
-
-        <div id="listeEvalsCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
-      </section>
-
-      <!-- ================= VUE 2 : BULLETINS A4 AVEC OPTIONS & MENU DÉROULANT ================= -->
-      <section id="tabApercu" class="hidden space-y-4">
-        
-        <!-- Barre supérieure avec menu déroulant et options à cocher -->
-        <div id="studioTopActions" class="no-print ios-glass p-3.5 sm:p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3">
-          
-          <div class="flex flex-wrap items-center gap-3 text-xs">
-            <div class="flex items-center bg-black/[0.04] hover:bg-black/[0.07] border border-black/10 rounded-xl px-2.5 py-1.5 shadow-xs">
-              <span class="text-slate-500 font-semibold mr-1.5">Élève :</span>
-              <select id="selectEleveStudio" onchange="changerEleveActif(this.value)" class="bg-transparent font-bold text-slate-900 outline-none cursor-pointer pr-1">
-              </select>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <button id="toggleOptMoyClasse" onclick="inverserOptionBulletin('moyClasse')" class="ios-btn px-3 py-1.5 rounded-xl border border-black/10 bg-white font-medium text-slate-700 shadow-xs flex items-center gap-1.5">
-                <span id="dotOptMoyClasse" class="w-2 h-2 rounded-full bg-slate-300"></span>
-                <span>Moyenne de classe</span>
-              </button>
-
-              <button id="toggleOptHisto" onclick="inverserOptionBulletin('histo')" class="ios-btn px-3 py-1.5 rounded-xl border border-black/10 bg-white font-medium text-slate-700 shadow-xs flex items-center gap-1.5">
-                <span id="dotOptHisto" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>Historique P1-P5</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button onclick="telechargerBulletinEleveActifPDF()" class="ios-btn bg-white hover:bg-slate-50 border border-black/10 text-slate-800 text-xs font-semibold py-2 px-3.5 rounded-xl shadow-xs">
-              PDF de cet élève
-            </button>
-            <button id="btnTelechargerPDF" onclick="telechargerTousLesBulletinsPDF()" class="ios-btn bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-4 rounded-xl shadow-md shadow-emerald-600/20">
-              <span id="txtBtnTelecharger">Télécharger tout (17 PDF)</span>
-            </button>
-            <button onclick="lancerImpressionNavigateur()" class="ios-btn bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold py-2 px-3.5 rounded-xl shadow-md">
-              Imprimer
-            </button>
-          </div>
-
-        </div>
-
-        <!-- Volet Latéral + Prévisualisation sobre -->
-        <div class="flex flex-col lg:flex-row gap-5 items-start">
-          
-          <div id="studioSidebar" class="no-print w-full lg:w-72 ios-glass p-3 rounded-[24px] flex flex-col shrink-0">
-            <div class="px-2 pt-1 pb-2">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Élèves (17)</div>
-              <input type="text" id="filtreRechercheEleve" placeholder="Rechercher un élève..." oninput="filtrerListeElevesSidebar(this.value)"
-                     class="w-full bg-black/[0.04] border border-black/5 rounded-xl px-3 py-1.5 text-xs outline-none focus:border-[#0071e3] transition">
-            </div>
-
-            <div id="listeElevesSidebar" class="space-y-1 mt-1 max-h-[72vh] overflow-y-auto pr-1"></div>
-          </div>
-
-          <div class="flex-1 w-full flex flex-col items-center overflow-x-auto bg-slate-200/60 p-4 sm:p-8 rounded-[30px] border border-black/5">
-            <div id="zoneApercuInteractif" class="w-full flex justify-center"></div>
-          </div>
-
-        </div>
-
-        <div id="exportCacheGlobal" class="hidden"></div>
-
-      </section>
-
-      <!-- ================= VUE 3 : STATISTIQUES & GRAPHIQUES ================= -->
-      <section id="tabStats" class="hidden space-y-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="ios-glass rounded-[24px] p-5">
-            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Moyenne de la période</div>
-            <div id="statMoyennePeriode" class="text-3xl font-extrabold tracking-tight text-slate-900 mt-1.5">-</div>
-            <div class="text-[11px] text-slate-400 mt-1 font-medium">Période <span id="statNumPeriode1">1</span></div>
-          </div>
-
-          <div class="ios-glass rounded-[24px] p-5">
-            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Période précédente</div>
-            <div id="statMoyennePrec" class="text-3xl font-extrabold tracking-tight text-slate-900 mt-1.5">-</div>
-            <div id="statEcartPrec" class="text-[11px] text-slate-400 mt-1 font-medium">Comparatif d'évolution</div>
-          </div>
-
-          <div class="ios-glass rounded-[24px] p-5">
-            <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">Meilleure moyenne</div>
-            <div id="statMeilleureNote" class="text-3xl font-extrabold tracking-tight text-emerald-600 mt-1.5">-</div>
-            <div id="statMeilleurEleve" class="text-xs font-bold text-slate-800 mt-1 truncate">Élève : -</div>
-          </div>
-
-          <div class="ios-glass rounded-[24px] p-5">
-            <div class="text-[11px] font-bold text-amber-600 uppercase tracking-wider">Pire moyenne</div>
-            <div id="statPireNote" class="text-3xl font-extrabold tracking-tight text-amber-600 mt-1.5">-</div>
-            <div id="statPireEleve" class="text-xs font-bold text-slate-800 mt-1 truncate">Élève : -</div>
-          </div>
-        </div>
-
-        <div class="ios-glass rounded-[26px] p-6">
-          <div class="mb-4">
-            <h3 class="text-sm font-bold text-slate-900">Moyenne de classe par matière &bull; Graphique comparatif</h3>
-            <p class="text-xs text-slate-500">Visualisez les résultats par matière pour la période <span id="statNumPeriodeGraphe">1</span>.</p>
-          </div>
-          <div id="graphiqueMatieresConteneur" class="space-y-3 pt-2"></div>
-        </div>
-
-        <div class="ios-glass rounded-[26px] p-6 overflow-hidden">
-          <div class="mb-4">
-            <h3 class="text-sm font-bold text-slate-900">Comparatif des 17 élèves sur les 5 périodes</h3>
-            <p class="text-xs text-slate-500">Moyennes de chaque période (P1 à P5) et moyenne générale annuelle.</p>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-xs text-left border-collapse">
-              <thead>
-                <tr class="border-b border-black/5 bg-slate-50/50 text-slate-500 font-bold">
-                  <th class="py-3 px-3">Élève</th>
-                  <th class="py-3 px-2 text-center">Période 1</th>
-                  <th class="py-3 px-2 text-center">Période 2</th>
-                  <th class="py-3 px-2 text-center">Période 3</th>
-                  <th class="py-3 px-2 text-center">Période 4</th>
-                  <th class="py-3 px-2 text-center">Période 5</th>
-                  <th class="py-3 px-3 text-right">Moyenne Annuelle</th>
-                </tr>
-              </thead>
-              <tbody id="tbodyComparatifEleves" class="divide-y divide-black/5"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="ios-glass rounded-[26px] p-6">
-          <div class="mb-4">
-            <h3 class="text-sm font-bold text-slate-900">Détails par évaluation faite (Période <span id="statNumPeriode2">1</span>)</h3>
-            <p class="text-xs text-slate-500">Moyenne, plus haute et plus basse note obtenues pour chaque devoir.</p>
-          </div>
-          <div id="statGrilleEvalsDetails" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
-        </div>
-      </section>
-
-    </main>
-
-  </div>
-
-  <!-- ================= FEUILLE MODALE : NOUVELLE ÉVALUATION ================= -->
-  <div id="modalCreation" class="fixed inset-0 bg-slate-900/30 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="ios-glass rounded-[28px] max-w-md w-full p-6 border border-white/80 animate-spring">
-      <div class="flex items-center justify-between pb-3.5 border-b border-black/5">
-        <h3 class="text-sm font-bold text-slate-900">Nouvelle évaluation</h3>
-        <button onclick="fermerModalCreation()" class="ios-btn text-xs font-semibold text-slate-500 hover:text-slate-900 px-3 py-1 bg-black/5 rounded-xl">Fermer</button>
-      </div>
-
-      <div class="space-y-4 py-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Matière</label>
-          <select id="modalCreateMatiere" onchange="actualiserSousDomainesCreation()" class="w-full bg-white/90 border border-black/10 rounded-xl p-2.5 text-xs font-semibold outline-none focus:border-[#0071e3] transition shadow-xs">
-            <option value="Français">Français</option>
-            <option value="Maths">Maths</option>
-            <option value="Histoire">Histoire</option>
-            <option value="Géographie">Géographie</option>
-            <option value="EMC">EMC</option>
-            <option value="Sciences">Sciences</option>
-            <option value="Anglais">Anglais</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Sous-domaine <span class="font-normal text-slate-400">(facultatif)</span></label>
-          <select id="modalCreateTheme" class="w-full bg-white/90 border border-black/10 rounded-xl p-2.5 text-xs font-medium outline-none focus:border-[#0071e3] transition shadow-xs"></select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Titre de l'évaluation</label>
-          <input type="text" id="modalCreateTitre" placeholder="Ex: Bilan numération, Dictée n°2..." 
-                 class="w-full bg-white/90 border border-black/10 rounded-xl p-2.5 text-xs font-medium outline-none focus:border-[#0071e3] transition shadow-xs">
-        </div>
-      </div>
-
-      <div class="pt-3 border-t border-black/5 flex justify-end gap-2">
-        <button onclick="fermerModalCreation()" class="ios-btn px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900">Annuler</button>
-        <button onclick="confirmerCreationEvaluation()" class="ios-btn px-4 py-2 bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold rounded-xl shadow-md shadow-[#0071e3]/25">
-          Enregistrer le devoir
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= MODALE : SAISIE DES NOTES RAPIDE ================= -->
-  <div id="modalSaisie" class="fixed inset-0 bg-slate-900/30 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
-    <div class="ios-glass rounded-[30px] max-w-xl w-full border border-white/80 overflow-hidden flex flex-col max-h-[92vh] animate-spring">
-      <div class="p-4 border-b border-black/5 bg-white/50 flex items-center justify-between">
-        <div>
-          <div class="flex items-center gap-2">
-            <span id="modalEvalBadge" class="px-2 py-0.5 text-white text-[10px] font-bold rounded-md shadow-xs">#1</span>
-            <span id="modalEvalMatiere" class="text-xs font-bold text-slate-600 uppercase">Matière</span>
-          </div>
-          <h3 id="modalEvalTitre" class="text-sm font-bold text-slate-900 mt-0.5">Titre</h3>
-          <p id="modalEvalTheme" class="text-[11px] text-slate-500 italic"></p>
-        </div>
-        <button onclick="fermerModalSaisie()" class="ios-btn text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 bg-black/5 hover:bg-black/10 rounded-xl">
-          Fermer
-        </button>
-      </div>
-
-      <div class="p-4 overflow-y-auto space-y-2 flex-1" id="modalSaisieListeEleves"></div>
-
-      <div class="p-3.5 border-t border-black/5 bg-white/50 flex flex-col sm:flex-row gap-2 justify-between items-center text-xs text-slate-500">
-        <span>Raccourcis : <b>NE</b>, <b>NN</b>, <b>ABS</b></span>
-        <button onclick="fermerModalSaisie()" class="ios-btn bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold py-2.5 px-6 rounded-xl shadow-md">
-          Valider et fermer
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const MOT_DE_PASSE_VALIDE = "Estelle21190";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDnrlDhDo2tc6z2O7KyM3IuwGroc5tIfPA",
-      authDomain: "bulletins-jdvr.firebaseapp.com",
-      projectId: "bulletins-jdvr",
-      storageBucket: "bulletins-jdvr.firebasestorage.app",
-      messagingSenderId: "21997926025",
-      appId: "1:21997926025:web:a4a44ae594a036f1c4f858",
-      measurementId: "G-EKJFY0XLQV"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const docRef = db.collection("bulletins_scolaires").doc("cm2_data");
-
-    const ELEVES_CM2 = [
-      "BONIN Nathan", "COSTE Stanislas", "CRESPO Gabriel", "GIANNINI Lison", "HADDAD Sofia",
-      "HEITZMANN Gauthier", "HERODET Mathias", "KHELIFI Camil", "LEJEUNE Lila",
-      "LIMA Inès", "MERMET William", "MONTALBAN Agathe", "PAIS Amalia",
-      "PIERRE Louca", "TALAGHZI Safiyah", "TALAGHZI Younes", "ZUBER Léon"
-    ];
-
-    const THEME_MATIERES = {
-      "Français": { 
-        cardBg: "bg-blue-500/[0.04]", 
-        cardBorder: "border-blue-500/20",
-        badgeBg: "bg-blue-500/10", 
-        badgeText: "text-blue-700", 
-        badgeBorder: "border-blue-500/20", 
-        dot: "bg-blue-600", 
-        bar: "bg-blue-600" 
-      },
-      "Maths": { 
-        cardBg: "bg-purple-500/[0.04]", 
-        cardBorder: "border-purple-500/20",
-        badgeBg: "bg-purple-500/10", 
-        badgeText: "text-purple-700", 
-        badgeBorder: "border-purple-500/20", 
-        dot: "bg-purple-600", 
-        bar: "bg-purple-600" 
-      },
-      "Histoire": { 
-        cardBg: "bg-amber-500/[0.04]", 
-        cardBorder: "border-amber-500/20",
-        badgeBg: "bg-amber-500/10", 
-        badgeText: "text-amber-800", 
-        badgeBorder: "border-amber-500/20", 
-        dot: "bg-amber-600", 
-        bar: "bg-amber-600" 
-      },
-      "Géographie": { 
-        cardBg: "bg-orange-500/[0.04]", 
-        cardBorder: "border-orange-500/20",
-        badgeBg: "bg-orange-500/10", 
-        badgeText: "text-orange-800", 
-        badgeBorder: "border-orange-500/20", 
-        dot: "bg-orange-600", 
-        bar: "bg-orange-600" 
-      },
-      "EMC": { 
-        cardBg: "bg-indigo-500/[0.04]", 
-        cardBorder: "border-indigo-500/20",
-        badgeBg: "bg-indigo-500/10", 
-        badgeText: "text-indigo-800", 
-        badgeBorder: "border-indigo-500/20", 
-        dot: "bg-indigo-600", 
-        bar: "bg-indigo-600" 
-      },
-      "Sciences": { 
-        cardBg: "bg-emerald-500/[0.04]", 
-        cardBorder: "border-emerald-500/20",
-        badgeBg: "bg-emerald-500/10", 
-        badgeText: "text-emerald-800", 
-        badgeBorder: "border-emerald-500/20", 
-        dot: "bg-emerald-600", 
-        bar: "bg-emerald-600" 
-      },
-      "Anglais": { 
-        cardBg: "bg-pink-500/[0.04]", 
-        cardBorder: "border-pink-500/20",
-        badgeBg: "bg-pink-500/10", 
-        badgeText: "text-pink-700", 
-        badgeBorder: "border-pink-500/20", 
-        dot: "bg-pink-600", 
-        bar: "bg-pink-600" 
-      }
-    };
-
-    const MATIERES_CONFIG = {
-      "Français": ["Grammaire", "Conjugaison", "Orthographe", "Lexique", "Lecture", "Poésie"],
-      "Maths": ["Numération", "Calcul", "Grandeur et Mesure", "Géométrie", "Résolution de problèmes"],
-      "Histoire": [],
-      "Géographie": [],
-      "EMC": [],
-      "Sciences": [],
-      "Anglais": []
-    };
-
-    let baseDonnees = { "1": { evals: [], notes: {} }, "2": { evals: [], notes: {} }, "3": { evals: [], notes: {} }, "4": { evals: [], notes: {} }, "5": { evals: [], notes: {} } };
-    let periodeActive = "1";
-    let matiereFiltreeActive = "TOUS";
-    let eleveStudioActif = "BONIN Nathan";
-    let signatureDirectriceBase64 = null;
-    let evalEnCoursId = null;
-    let premierChargementEffectue = false;
-
-    // Options du Bulletin A4
-    let optionsBulletin = {
-      moyClasse: false,
-      histo: true
-    };
-
-    document.addEventListener('click', (e) => {
-      const popover = document.getElementById("menuActionsPopover");
-      if (!e.target.closest('#menuActionsPopover') && !e.target.closest('button[onclick*="basculerMenuActions"]')) {
-        if (popover) popover.classList.add("hidden");
-      }
-    });
-
-    function basculerMenuActions(e) {
-      if (e) e.stopPropagation();
-      document.getElementById("menuActionsPopover").classList.toggle("hidden");
-    }
-
-    const inputPassEl = document.getElementById("inputPass");
-    inputPassEl.addEventListener('input', (e) => {
-      const len = Math.min(e.target.value.length, 5);
-      for (let i = 0; i < 5; i++) {
-        const d = document.getElementById(`dot-${i}`);
-        if (i < len) d.classList.add("bg-[#0071e3]", "scale-110");
-        else d.classList.remove("bg-[#0071e3]", "scale-110");
-      }
-    });
-
-    function verifierMotDePasse(e) {
-      if (e) e.preventDefault();
-      const saisie = document.getElementById("inputPass").value;
-      if (saisie === MOT_DE_PASSE_VALIDE) {
-        localStorage.setItem("cm2_auth", MOT_DE_PASSE_VALIDE);
-        deverrouillerApplication();
-      } else {
-        const card = document.getElementById("authCard");
-        card.classList.add("shake");
-        document.getElementById("authError").classList.remove("hidden");
-        setTimeout(() => card.classList.remove("shake"), 450);
-      }
-    }
-
-    function deverrouillerApplication() {
-      document.getElementById("authOverlay").classList.add("hidden");
-      document.getElementById("mainApp").classList.remove("hidden");
-      actualiserSousDomainesCreation();
-      ecouterDonneesCloud();
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem("cm2_auth") === MOT_DE_PASSE_VALIDE) {
-        deverrouillerApplication();
-      }
-    });
-
-    function basculerVue(vue) {
-      document.getElementById("tabGrille").classList.add("hidden");
-      document.getElementById("tabApercu").classList.add("hidden");
-      document.getElementById("tabStats").classList.add("hidden");
-
-      const bGrille = document.getElementById("btnTabGrille");
-      const bApercu = document.getElementById("btnTabApercu");
-      const bStats = document.getElementById("btnTabStats");
-
-      [bGrille, bApercu, bStats].forEach(b => {
-        b.className = "ios-btn px-3 sm:px-4 py-1.5 rounded-xl text-slate-500 hover:text-slate-900";
-      });
-
-      if (vue === 'grille') {
-        document.getElementById("tabGrille").classList.remove("hidden");
-        bGrille.className = "ios-btn px-3 sm:px-4 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs";
-      } else if (vue === 'apercu') {
-        document.getElementById("tabApercu").classList.remove("hidden");
-        bApercu.className = "ios-btn px-3 sm:px-4 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs";
-        actualiserStudioBulletins();
-      } else if (vue === 'stats') {
-        document.getElementById("tabStats").classList.remove("hidden");
-        bStats.className = "ios-btn px-3 sm:px-4 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs";
-        calculerEtAfficherStats();
-      }
-    }
-
-    function changerPeriode(val) {
-      periodeActive = String(val);
-      matiereFiltreeActive = "TOUS";
-      
-      const selectP = document.getElementById("selectPeriode");
-      if (selectP && selectP.value !== periodeActive) selectP.value = periodeActive;
-
-      document.getElementById("lblResetPeriode").textContent = periodeActive;
-      document.getElementById("lblApercuPeriode").textContent = periodeActive;
-      document.getElementById("statNumPeriode1").textContent = periodeActive;
-      document.getElementById("statNumPeriode2").textContent = periodeActive;
-      document.getElementById("statNumPeriodeGraphe").textContent = periodeActive;
-      rafraichirCartesEvals();
-      actualiserStudioBulletins();
-      calculerEtAfficherStats();
-    }
-
-    function ouvrirModalCreation() {
-      document.getElementById("modalCreateTitre").value = "";
-      actualiserSousDomainesCreation();
-      document.getElementById("modalCreation").classList.remove("hidden");
-      setTimeout(() => document.getElementById("modalCreateTitre").focus(), 100);
-    }
-
-    function fermerModalCreation() {
-      document.getElementById("modalCreation").classList.add("hidden");
-    }
-
-    function actualiserSousDomainesCreation() {
-      const mat = document.getElementById("modalCreateMatiere").value;
-      const select = document.getElementById("modalCreateTheme");
-      select.innerHTML = '<option value="">Aucun (général)</option>';
-      (MATIERES_CONFIG[mat] || []).forEach(th => {
-        const opt = document.createElement("option");
-        opt.value = th;
-        opt.textContent = th;
-        select.appendChild(opt);
-      });
-    }
-
-    function confirmerCreationEvaluation() {
-      const mat = document.getElementById("modalCreateMatiere").value;
-      const theme = document.getElementById("modalCreateTheme").value.trim();
-      const titre = document.getElementById("modalCreateTitre").value.trim();
-
-      if (!titre) {
-        document.getElementById("modalCreateTitre").focus();
-        return;
-      }
-
-      if (!baseDonnees[periodeActive]) {
-        baseDonnees[periodeActive] = { evals: [], notes: {} };
-      }
-
-      const evalId = "ev_" + Date.now();
-      baseDonnees[periodeActive].evals.push({ id: evalId, matiere: mat, theme: theme, titre: titre });
-      baseDonnees[periodeActive].notes[evalId] = {};
-
-      sauvegarderCloud();
-      fermerModalCreation();
-      rafraichirCartesEvals();
-      actualiserStudioBulletins();
-      calculerEtAfficherStats();
-      ouvrirModalSaisie(evalId);
-    }
-
-    // ÉCOUTE CLOUD AVEC DÉTECTION AUTOMATIQUE DE LA DERNIÈRE PÉRIODE
-    function ecouterDonneesCloud() {
-      docRef.onSnapshot((doc) => {
-        if (doc.exists) {
-          const data = doc.data();
-          if (data.baseDonnees) baseDonnees = data.baseDonnees;
-          if (data.signature) {
-            signatureDirectriceBase64 = data.signature;
-            majAffichageBoutonSignature();
-          }
-
-          // DÉTECTION AUTOMATIQUE DE LA DERNIÈRE PÉRIODE AU PREMIER CHARGEMENT
-          if (!premierChargementEffectue) {
-            let dernierePeriodeRemplie = "1";
-            for (let p = 5; p >= 1; p--) {
-              const strP = String(p);
-              if (baseDonnees[strP] && baseDonnees[strP].evals && baseDonnees[strP].evals.length > 0) {
-                dernierePeriodeRemplie = strP;
-                break;
-              }
-            }
-            periodeActive = dernierePeriodeRemplie;
-            premierChargementEffectue = true;
-          }
-
-          changerPeriode(periodeActive);
-        } else {
-          sauvegarderCloud();
-        }
-      });
-    }
-
-    function sauvegarderCloud() {
-      docRef.set({
-        baseDonnees: baseDonnees,
-        signature: signatureDirectriceBase64 || null,
-        derniereMaj: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-    }
-
-    // Cartes d'évaluation avec légères teintes Apple
-    function rafraichirCartesEvals() {
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const conteneur = document.getElementById("listeEvalsCards");
-      const conteneurFiltres = document.getElementById("conteneurFiltresMatieres");
-      conteneur.innerHTML = "";
-      conteneurFiltres.innerHTML = "";
-
-      const totalEleves = ELEVES_CM2.length;
-      const evals = current.evals || [];
-
-      const countsParMatiere = { "TOUS": evals.length };
-      evals.forEach(ev => {
-        countsParMatiere[ev.matiere] = (countsParMatiere[ev.matiere] || 0) + 1;
-      });
-
-      Object.entries(countsParMatiere).forEach(([mat, count]) => {
-        const estActif = matiereFiltreeActive === mat;
-        const btn = document.createElement("button");
-        btn.className = `ios-btn px-3 py-1 rounded-xl text-xs font-semibold transition ${estActif ? 'bg-slate-900 text-white shadow-xs' : 'bg-black/[0.04] text-slate-600 hover:bg-black/[0.08]'}`;
-        btn.textContent = mat === "TOUS" ? `Tous (${count})` : `${mat} (${count})`;
-        btn.onclick = () => {
-          matiereFiltreeActive = mat;
-          rafraichirCartesEvals();
-        };
-        conteneurFiltres.appendChild(btn);
-      });
-
-      const evalsFiltrees = evals.filter(ev => matiereFiltreeActive === "TOUS" || ev.matiere === matiereFiltreeActive);
-
-      if (evalsFiltrees.length === 0) {
-        conteneur.innerHTML = `
-          <div class="col-span-full py-16 text-center ios-glass rounded-[26px]">
-            <h3 class="text-sm font-bold text-slate-800">Aucune évaluation affichée</h3>
-            <p class="text-xs text-slate-500 mt-1 font-medium">Changez de filtre ou ajoutez un nouveau devoir.</p>
-          </div>
-        `;
-        return;
-      }
-
-      evalsFiltrees.forEach((ev) => {
-        const indexReel = evals.findIndex(e => e.id === ev.id);
-        const notesObj = current.notes[ev.id] || {};
-        const nbRemplies = Object.values(notesObj).filter(v => v !== "" && v !== null && v !== undefined).length;
-        const notesNumeriques = Object.values(notesObj).map(v => parseFloat(v)).filter(v => !isNaN(v));
-        const moyDevoir = calculerMoyenne(notesNumeriques);
-
-        const themeMat = THEME_MATIERES[ev.matiere] || { 
-          cardBg: "bg-blue-500/[0.04]", 
-          cardBorder: "border-blue-500/20",
-          badgeBg: "bg-blue-500/10", 
-          badgeText: "text-blue-700", 
-          badgeBorder: "border-blue-500/20", 
-          dot: "bg-blue-600", 
-          bar: "bg-blue-600" 
-        };
-        const estComplet = nbRemplies === totalEleves;
-
-        let badgeScoreColor = "text-slate-800 bg-white/70 border border-black/5";
-        if (moyDevoir !== "-") {
-          const m = parseFloat(moyDevoir);
-          if (m >= 16) badgeScoreColor = "text-emerald-700 bg-emerald-500/10 border border-emerald-500/20";
-          else if (m < 12) badgeScoreColor = "text-amber-700 bg-amber-500/10 border border-amber-500/20";
-        }
-
-        const card = document.createElement("div");
-        card.className = `ios-card rounded-[24px] p-5 flex flex-col justify-between cursor-pointer border shadow-sm ${themeMat.cardBg} ${themeMat.cardBorder}`;
-        card.style.background = "rgba(255, 255, 255, 0.88)";
-        card.onclick = (e) => {
-          if (!e.target.closest('button')) ouvrirModalSaisie(ev.id);
-        };
-
-        card.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider ${themeMat.badgeBg} ${themeMat.badgeText} border ${themeMat.badgeBorder}">
-                <span class="w-1.5 h-1.5 rounded-full ${themeMat.dot}"></span>
-                #${indexReel + 1} ${ev.matiere}
-              </span>
-              <button onclick="supprimerColonneEvaluation('${ev.id}')" title="Supprimer" class="ios-btn text-slate-400 hover:text-red-600 text-xs font-semibold px-2 py-0.5 rounded-lg hover:bg-red-50">
-                Supprimer
-              </button>
-            </div>
-
-            <h3 class="text-sm font-bold text-slate-900 truncate mt-1" title="${ev.titre}">${ev.titre}</h3>
-            ${ev.theme ? `<p class="text-xs text-slate-500 italic truncate">${ev.theme}</p>` : '<p class="text-xs text-transparent select-none">-</p>'}
-          </div>
-
-          <div class="mt-4 pt-3 border-t border-black/5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Statut</span>
-              ${estComplet 
-                ? `<span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-500/10 px-2 py-0.5 rounded-md"><span>✓</span> 17 / 17</span>`
-                : `<span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-500/10 px-2 py-0.5 rounded-md animate-pulse"><span>!</span> ${nbRemplies} / 17</span>`
-              }
-            </div>
-
-            <div class="w-full h-1.5 bg-black/[0.06] rounded-full overflow-hidden mb-3">
-              <div class="h-full ${estComplet ? 'bg-emerald-500' : themeMat.bar} rounded-full transition-all duration-500" style="width: ${(nbRemplies / totalEleves) * 100}%"></div>
-            </div>
-
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold px-2.5 py-1 rounded-lg shadow-xs ${badgeScoreColor}">${moyDevoir !== '-' ? moyDevoir + '/20' : '-'}</span>
-              <button onclick="ouvrirModalSaisie('${ev.id}')" class="ios-btn px-3.5 py-1.5 bg-white/80 hover:bg-slate-900 hover:text-white border border-black/5 rounded-xl text-[11px] font-bold text-slate-800 shadow-xs">
-                Saisir
-              </button>
-            </div>
-          </div>
-        `;
-        conteneur.appendChild(card);
-      });
-    }
-
-    function supprimerColonneEvaluation(evalId) {
-      if (!confirm("Supprimer définitivement cette évaluation et ses notes ?")) return;
-      baseDonnees[periodeActive].evals = baseDonnees[periodeActive].evals.filter(e => e.id !== evalId);
-      delete baseDonnees[periodeActive].notes[evalId];
-      sauvegarderCloud();
-      rafraichirCartesEvals();
-      actualiserStudioBulletins();
-      calculerEtAfficherStats();
-    }
-
-    function ouvrirModalSaisie(evalId) {
-      evalEnCoursId = evalId;
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const evIndex = current.evals.findIndex(e => e.id === evalId);
-      if (evIndex === -1) return;
-      const ev = current.evals[evIndex];
-
-      const themeMat = THEME_MATIERES[ev.matiere] || { dot: "bg-[#0071e3]" };
-
-      const badgeEl = document.getElementById("modalEvalBadge");
-      badgeEl.textContent = `#${evIndex + 1}`;
-      badgeEl.className = `px-2 py-0.5 text-white text-[10px] font-bold rounded-md shadow-xs ${themeMat.dot}`;
-
-      document.getElementById("modalEvalMatiere").textContent = ev.matiere;
-      document.getElementById("modalEvalTitre").textContent = ev.titre;
-      document.getElementById("modalEvalTheme").textContent = ev.theme ? `Sous-domaine : ${ev.theme}` : "";
-
-      const listeConteneur = document.getElementById("modalSaisieListeEleves");
-      listeConteneur.innerHTML = "";
-
-      ELEVES_CM2.forEach((eleve, idx) => {
-        const valNote = (current.notes[ev.id] || {})[eleve] || "";
-        const div = document.createElement("div");
-        div.className = "flex items-center justify-between p-2 rounded-xl hover:bg-white/70 transition border border-black/5";
-        div.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="w-5 text-xs font-bold text-slate-400 text-right">${idx + 1}.</span>
-            <span class="text-xs font-bold text-slate-800">${eleve}</span>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <div class="flex items-center gap-1">
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', '20', ${idx})" class="ios-btn px-2 py-1 text-[10px] font-bold bg-black/5 hover:bg-emerald-100 hover:text-emerald-800 rounded-lg text-slate-600">20</button>
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', '10', ${idx})" class="ios-btn px-2 py-1 text-[10px] font-bold bg-black/5 hover:bg-blue-100 hover:text-blue-800 rounded-lg text-slate-600">10</button>
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'NE', ${idx})" class="ios-btn px-2 py-1 text-[10px] font-bold bg-black/5 hover:bg-purple-100 hover:text-purple-800 rounded-lg text-slate-600">NE</button>
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'NN', ${idx})" class="ios-btn px-2 py-1 text-[10px] font-bold bg-black/5 hover:bg-slate-200 rounded-lg text-slate-600">NN</button>
-              <button type="button" onclick="raccourciNote('${ev.id}', '${eleve}', 'ABS', ${idx})" class="ios-btn px-2 py-1 text-[10px] font-bold bg-black/5 hover:bg-amber-100 hover:text-amber-800 rounded-lg text-slate-600">ABS</button>
-            </div>
-
-            <div class="flex items-center gap-1 bg-white border border-black/10 rounded-xl px-2.5 py-1 focus-within:border-[#0071e3] transition shadow-xs">
-              <input type="text"
-                     value="${valNote}"
-                     placeholder="-"
-                     data-modalidx="${idx}"
-                     class="w-12 text-center font-bold text-xs outline-none bg-transparent"
-                     oninput="modifierNoteModal('${ev.id}', '${eleve}', this.value, this)"
-                     onkeydown="naviguerModal(event, ${idx})">
-              <span class="text-[10px] font-bold text-slate-400">/20</span>
-            </div>
-          </div>
-        `;
-        listeConteneur.appendChild(div);
-      });
-
-      document.getElementById("modalSaisie").classList.remove("hidden");
-
-      setTimeout(() => {
-        const first = document.querySelector(`input[data-modalidx="0"]`);
-        if (first) { first.focus(); first.select(); }
-      }, 50);
-    }
-
-    function raccourciNote(evalId, eleveNom, val, idx) {
-      const input = document.querySelector(`input[data-modalidx="${idx}"]`);
-      modifierNoteModal(evalId, eleveNom, val, input);
-      const next = document.querySelector(`input[data-modalidx="${idx + 1}"]`);
-      if (next) { next.focus(); next.select(); }
-    }
-
-    function modifierNoteModal(evalId, eleveNom, val, inputEl) {
-      let rawVal = val.trim().toUpperCase().replace(",", ".");
-      let finalVal = "";
-
-      if (rawVal === "" || rawVal === "-") finalVal = "";
-      else if (["NE", "NN", "ABS", "DISP"].includes(rawVal)) finalVal = rawVal;
-      else {
-        const num = parseFloat(rawVal);
-        if (!isNaN(num) && num >= 0 && num <= 20) finalVal = String(num);
-        else if (rawVal.length > 2) finalVal = "";
-        else finalVal = rawVal;
-      }
-
-      if (inputEl) inputEl.value = finalVal;
-
-      if (!baseDonnees[periodeActive].notes[evalId]) baseDonnees[periodeActive].notes[evalId] = {};
-      baseDonnees[periodeActive].notes[evalId][eleveNom] = finalVal;
-      sauvegarderCloud();
-    }
-
-    function naviguerModal(event, currentIdx) {
-      if (event.key === "Enter" || event.key === "ArrowDown") {
-        event.preventDefault();
-        const next = document.querySelector(`input[data-modalidx="${currentIdx + 1}"]`);
-        if (next) { next.focus(); next.select(); }
-      } else if (event.key === "ArrowUp") {
-        event.preventDefault();
-        const prev = document.querySelector(`input[data-modalidx="${currentIdx - 1}"]`);
-        if (prev) { prev.focus(); prev.select(); }
-      }
-    }
-
-    function fermerModalSaisie() {
-      document.getElementById("modalSaisie").classList.add("hidden");
-      evalEnCoursId = null;
-      rafraichirCartesEvals();
-      actualiserStudioBulletins();
-      calculerEtAfficherStats();
-    }
-
-    function importerEtCompresserSignature(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement("canvas");
-          const MAX_WIDTH = 300;
-          const scaleSize = MAX_WIDTH / img.width;
-          canvas.width = MAX_WIDTH;
-          canvas.height = img.height * scaleSize;
-
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          signatureDirectriceBase64 = canvas.toDataURL("image/png");
-
-          majAffichageBoutonSignature();
-          sauvegarderCloud();
-          actualiserStudioBulletins();
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function supprimerSignature() {
-      if (!confirm("Retirer la signature actuelle ?")) return;
-      signatureDirectriceBase64 = null;
-      majAffichageBoutonSignature();
-      sauvegarderCloud();
-      actualiserStudioBulletins();
-    }
-
-    function majAffichageBoutonSignature() {
-      const btnSuppr = document.getElementById("btnSupprSig");
-      const txt = document.getElementById("txtSignature");
-      if (signatureDirectriceBase64) {
-        txt.textContent = "Signature active ✓";
-        btnSuppr.classList.remove("hidden");
-      } else {
-        txt.textContent = "Importer signature";
-        btnSuppr.classList.add("hidden");
-      }
-    }
-
-    function exporterSauvegardeJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(baseDonnees, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `bulletins_cm2_sauvegarde_${new Date().toISOString().slice(0,10)}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    }
-
-    function importerSauvegardeJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const importData = JSON.parse(e.target.result);
-          if (confirm("Remplacer les données actuelles par cette sauvegarde ?")) {
-            baseDonnees = importData;
-            sauvegarderCloud();
-            rafraichirCartesEvals();
-            actualiserStudioBulletins();
-            calculerEtAfficherStats();
-            alert("Restauration terminée avec succès !");
-          }
-        } catch (err) {
-          alert("Erreur de fichier JSON.");
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function confirmerReset(mode) {
-      if (mode === 'periode') {
-        if (!confirm(`Supprimer toutes les notes de la Période ${periodeActive} ?`)) return;
-        baseDonnees[periodeActive] = { evals: [], notes: {} };
-      }
-      sauvegarderCloud();
-      rafraichirCartesEvals();
-      actualiserStudioBulletins();
-      calculerEtAfficherStats();
-    }
-
-    function calculerMoyenne(tab) {
-      const v = tab.map(n => parseFloat(n)).filter(n => !isNaN(n));
-      if (v.length === 0) return "-";
-      return (v.reduce((a, b) => a + b, 0) / v.length).toFixed(2);
-    }
-
-    // =========================================================================
-    // OPTIONS & RENDU BULLETINS
-    // =========================================================================
-
-    function inverserOptionBulletin(optKey) {
-      optionsBulletin[optKey] = !optionsBulletin[optKey];
-      
-      const dotId = "dotOpt" + optKey.charAt(0).toUpperCase() + optKey.slice(1);
-      const dot = document.getElementById(dotId);
-      if (dot) {
-        dot.className = `w-2 h-2 rounded-full ${optionsBulletin[optKey] ? 'bg-emerald-500' : 'bg-slate-300'}`;
-      }
-      
-      actualiserStudioBulletins();
-    }
-
-    function changerEleveActif(nomEleve) {
-      eleveStudioActif = nomEleve;
-      genererSidebarEleves();
-      genererBulletinApercuInteractif();
-    }
-
-    function actualiserStudioBulletins() {
-      actualiserSelectEleveStudio();
-      genererSidebarEleves();
-      genererBulletinApercuInteractif();
-    }
-
-    function actualiserSelectEleveStudio() {
-      const select = document.getElementById("selectEleveStudio");
-      if (!select) return;
-      select.innerHTML = "";
-      ELEVES_CM2.forEach(eleve => {
-        const opt = document.createElement("option");
-        opt.value = eleve;
-        opt.textContent = eleve;
-        if (eleve === eleveStudioActif) opt.selected = true;
-        select.appendChild(opt);
-      });
-    }
-
-    function genererSidebarEleves() {
-      const conteneur = document.getElementById("listeElevesSidebar");
-      const recherche = (document.getElementById("filtreRechercheEleve")?.value || "").toLowerCase();
-      conteneur.innerHTML = "";
-
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-
-      ELEVES_CM2.forEach((eleve) => {
-        if (recherche && !eleve.toLowerCase().includes(recherche)) return;
-
-        const allNotes = [];
-        (current.evals || []).forEach(ev => {
-          const val = (current.notes[ev.id] || {})[eleve];
-          if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) {
-            allNotes.push(parseFloat(val));
-          }
-        });
-        const moy = calculerMoyenne(allNotes);
-        const estActif = eleve === eleveStudioActif;
-
-        let dotColor = "bg-slate-300";
-        if (moy !== "-") {
-          const m = parseFloat(moy);
-          if (m >= 15) dotColor = "bg-emerald-500";
-          else if (m >= 12) dotColor = "bg-blue-500";
-          else dotColor = "bg-amber-500";
-        }
-
-        const div = document.createElement("div");
-        div.className = `flex items-center justify-between p-2 rounded-xl cursor-pointer transition ${estActif ? 'bg-slate-900 text-white shadow-xs' : 'hover:bg-black/[0.04] text-slate-800'}`;
-        div.onclick = () => {
-          eleveStudioActif = eleve;
-          actualiserSelectEleveStudio();
-          genererSidebarEleves();
-          genererBulletinApercuInteractif();
-        };
-
-        div.innerHTML = `
-          <div class="flex items-center gap-2 truncate pr-1">
-            <span class="w-2 h-2 rounded-full ${dotColor} shrink-0"></span>
-            <span class="text-xs font-semibold truncate">${eleve}</span>
-          </div>
-          <span class="text-[11px] font-bold ${estActif ? 'text-slate-300' : 'text-slate-500'} shrink-0">${moy !== '-' ? moy : '-'}</span>
-        `;
-        conteneur.appendChild(div);
-      });
-    }
-
-    function filtrerListeElevesSidebar(val) {
-      genererSidebarEleves();
-    }
-
-    function genererBulletinApercuInteractif() {
-      const conteneur = document.getElementById("zoneApercuInteractif");
-      conteneur.innerHTML = "";
-      conteneur.innerHTML = construireHTMLBulletinSobre(eleveStudioActif);
-    }
-
-    function getMoyennesClasseParEval() {
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const mapMoy = {};
-      (current.evals || []).forEach(ev => {
-        const notesObj = current.notes[ev.id] || {};
-        const nums = Object.values(notesObj).map(v => parseFloat(v)).filter(v => !isNaN(v));
-        mapMoy[ev.id] = calculerMoyenne(nums);
-      });
-      return mapMoy;
-    }
-
-    // Calculateur des moyennes de classe par matière
-    function getMoyennesClasseParMatiere() {
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const notesParMat = {};
-      (current.evals || []).forEach(ev => {
-        if (!notesParMat[ev.matiere]) notesParMat[ev.matiere] = [];
-        const notesObj = current.notes[ev.id] || {};
-        Object.values(notesObj).forEach(val => {
-          if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) {
-            notesParMat[ev.matiere].push(parseFloat(val));
-          }
-        });
-      });
-
-      const mapMoyMat = {};
-      Object.keys(notesParMat).forEach(mat => {
-        mapMoyMat[mat] = calculerMoyenne(notesParMat[mat]);
-      });
-      return mapMoyMat;
-    }
-
-    function construireHTMLBulletinSobre(eleveNom) {
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const dateStr = new Date().toLocaleDateString("fr-FR");
-      const moyClasseMap = getMoyennesClasseParEval();
-      const moyClasseParMatiereMap = getMoyennesClasseParMatiere();
-
-      const matieresMap = {};
-      const allNotesEleve = [];
-
-      (current.evals || []).forEach(ev => {
-        const val = (current.notes[ev.id] || {})[eleveNom] || "";
-        const thKey = ev.theme || "";
-        if (!matieresMap[ev.matiere]) matieresMap[ev.matiere] = {};
-        if (!matieresMap[ev.matiere][thKey]) matieresMap[ev.matiere][thKey] = [];
-
-        matieresMap[ev.matiere][thKey].push({ 
-          titre: ev.titre, 
-          note: val, 
-          moyClasse: moyClasseMap[ev.id] || "-" 
-        });
-        if (val !== "" && !isNaN(parseFloat(val))) allNotesEleve.push(parseFloat(val));
-      });
-
-      const nbEvalsTotal = current.evals ? current.evals.length : 0;
-      
-      let cellPad = "3.5px 6px";
-      let fontSize = "8.5pt";
-      let headerPad = "4px 6px";
-      let sigHeight = "68px";
-
-      if (nbEvalsTotal > 8) {
-        cellPad = "2px 5px";
-        fontSize = "8pt";
-        headerPad = "3px 5px";
-        sigHeight = "60px";
-      }
-      if (nbEvalsTotal > 12) {
-        cellPad = "1.5px 4px";
-        fontSize = "7.5pt";
-        headerPad = "2px 4px";
-        sigHeight = "54px";
-      }
-
-      let corpsTableauHTML = "";
-
-      for (const [matiere, themes] of Object.entries(matieresMap)) {
-        let notesMatiere = [];
-        let sousLignesHTML = "";
-
-        for (const [theme, devoirs] of Object.entries(themes)) {
-          if (theme && theme.trim() !== "") {
-            sousLignesHTML += `
-              <tr style="background-color: #fafafa;">
-                <td colspan="${optionsBulletin.moyClasse ? 3 : 2}" style="padding: 1.5px 5px; font-size: 7.2pt; font-style: italic; color: #475569; border: 1px solid #cbd5e1; line-height: 1.15;">
-                  ${theme}
-                </td>
-              </tr>
-            `;
-          }
-
-          devoirs.forEach(dev => {
-            const numVal = dev.note !== "" && !isNaN(parseFloat(dev.note)) ? parseFloat(dev.note) : null;
-            if (numVal !== null) notesMatiere.push(numVal);
-
-            const estStatutTexte = ["NE", "NN", "ABS", "DISP"].includes(dev.note);
-            const affichageNote = dev.note !== "" 
-              ? (estStatutTexte ? `<span style="color:#64748b; font-weight:700;">${dev.note}</span>` : `${dev.note}`) 
-              : "-";
-
-            sousLignesHTML += `
-              <tr>
-                <td style="padding: ${cellPad}; font-size: ${fontSize}; color: #0f172a; border: 1px solid #cbd5e1; line-height: 1.2;">
-                  ${dev.titre}
-                </td>
-                <td style="padding: ${cellPad}; font-size: ${fontSize}; font-weight: 700; text-align: center; border: 1px solid #cbd5e1; width: 70px;">
-                  ${affichageNote}
-                </td>
-                ${optionsBulletin.moyClasse ? `
-                  <td style="padding: ${cellPad}; font-size: ${fontSize}; color: #64748b; text-align: center; border: 1px solid #cbd5e1; width: 65px;">
-                    ${dev.moyClasse !== '-' ? dev.moyClasse : '-'}
-                  </td>
-                ` : ''}
-              </tr>
-            `;
-          });
-        }
-
-        const moyMat = calculerMoyenne(notesMatiere);
-        const moyClasseMat = moyClasseParMatiereMap[matiere] || "-";
-
-        corpsTableauHTML += `
-          <tr style="background-color: #f1f5f9; font-weight: 700;">
-            <td style="padding: ${headerPad}; font-size: ${fontSize}; color: #0f172a; border: 1px solid #94a3b8; text-transform: uppercase; letter-spacing: 0.3px;">
-              ${matiere}
-            </td>
-            <td style="padding: ${headerPad}; font-size: ${fontSize}; text-align: center; border: 1px solid #94a3b8; color: #0f172a;">
-              ${moyMat !== '-' ? moyMat : '-'}
-            </td>
-            ${optionsBulletin.moyClasse ? `
-              <td style="padding: ${headerPad}; font-size: ${fontSize}; text-align: center; border: 1px solid #94a3b8; color: #0f172a; font-weight: 700;">
-                ${moyClasseMat !== '-' ? moyClasseMat : '-'}
-              </td>
-            ` : ''}
-          </tr>
-          ${sousLignesHTML}
-        `;
-      }
-
-      const moyGen = calculerMoyenne(allNotesEleve);
-      
-      let moyGenClasse = "-";
-      if (optionsBulletin.moyClasse) {
-        const toutesNotesClasse = [];
-        (current.evals || []).forEach(ev => {
-          const notesObj = current.notes[ev.id] || {};
-          Object.values(notesObj).forEach(val => {
-            if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) {
-              toutesNotesClasse.push(parseFloat(val));
-            }
-          });
-        });
-        moyGenClasse = calculerMoyenne(toutesNotesClasse);
-      }
-
-      const histoStr = calculerHistorique(eleveNom);
-
-      return `
-        <div class="bulletin-page" id="bulletin-${eleveNom.replace(/\s+/g, '-')}">
-          <div>
-            <div style="border-bottom: 2px solid #0f172a; padding-bottom: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end;">
-              <div>
-                <div style="font-size: 11pt; font-weight: 700; color: #0f172a; font-family: 'Libre Baskerville', serif;">École élémentaire Jean des Vignes Rouges</div>
-                <div style="font-size: 8pt; color: #475569;">21200 Bligny-lès-Beaune</div>
-              </div>
-              <div style="text-align: right;">
-                <div style="font-size: 10pt; font-weight: 800; color: #0f172a;">BULLETIN SCOLAIRE</div>
-                <div style="font-size: 8pt; color: #334155;">Année scolaire 2026/2027 &bull; <b>Période ${periodeActive}</b></div>
-              </div>
-            </div>
-
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; border: 1px solid #0f172a;">
-              <tr style="background-color: #f8fafc;">
-                <td style="padding: 4px 8px; width: 65%; border-right: 1px solid #0f172a;">
-                  <span style="font-size: 7pt; text-transform: uppercase; color: #64748b; font-weight: 700;">Élève :</span>
-                  <div style="font-size: 10.5pt; font-weight: 800; color: #0f172a;">${eleveNom}</div>
-                </td>
-                <td style="padding: 4px 8px;">
-                  <span style="font-size: 7pt; text-transform: uppercase; color: #64748b; font-weight: 700;">Classe :</span>
-                  <div style="font-size: 10.5pt; font-weight: 800; color: #0f172a;">CM2</div>
-                </td>
-              </tr>
-            </table>
-
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 4px;">
-              <thead>
-                <tr style="background-color: #e2e8f0; border: 1px solid #94a3b8;">
-                  <th style="padding: 4px 6px; text-align: left; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.4px; color: #0f172a;">
-                    Domaines d'enseignement & Évaluations
-                  </th>
-                  <th style="padding: 4px 6px; text-align: center; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.4px; width: 70px; color: #0f172a;">
-                    Note / 20
-                  </th>
-                  ${optionsBulletin.moyClasse ? `
-                    <th style="padding: 4px 6px; text-align: center; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.4px; width: 65px; color: #475569;">
-                      Moy. Classe
-                    </th>
-                  ` : ''}
-                </tr>
-              </thead>
-              <tbody>
-                ${corpsTableauHTML || `<tr><td colspan="${optionsBulletin.moyClasse ? 3 : 2}" style="padding: 14px; text-align: center; color: #94a3b8; font-style: italic; border: 1px solid #cbd5e1;">Aucune évaluation enregistrée pour cette période.</td></tr>`}
-                
-                <tr style="background-color: #e2e8f0; border-top: 2px solid #0f172a; font-weight: 800;">
-                  <td style="padding: 4px 6px; font-size: 8.5pt; text-align: right; text-transform: uppercase; letter-spacing: 0.5px; color: #0f172a; border: 1px solid #94a3b8;">
-                    Moyenne générale de la période :
-                  </td>
-                  <td style="padding: 4px 6px; font-size: 9pt; text-align: center; color: #0f172a; border: 1px solid #94a3b8;">
-                    ${moyGen} / 20
-                  </td>
-                  ${optionsBulletin.moyClasse ? `
-                    <td style="padding: 4px 6px; font-size: 9pt; text-align: center; color: #0f172a; border: 1px solid #94a3b8;">
-                      ${moyGenClasse} / 20
-                    </td>
-                  ` : ''}
-                </tr>
-              </tbody>
-            </table>
-
-            ${optionsBulletin.histo ? `
-              <div style="font-size: 7.2pt; color: #475569; text-align: right; margin-bottom: 4px;">
-                Historique des périodes précédentes : <span>${histoStr}</span>
-              </div>
-            ` : ''}
-          </div>
-
-          <div>
-            <div style="font-size: 7.5pt; color: #334155; margin-bottom: 4px;">
-              Fait à Bligny-lès-Beaune, le ${dateStr}
-            </div>
-
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="width: 48%; vertical-align: top; border: 1px solid #94a3b8; padding: 4px 6px; height: ${sigHeight};">
-                  <div style="font-size: 7.5pt; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.4px;">
-                    Signature des parents :
-                  </div>
-                </td>
-                <td style="width: 4%;"></td>
-                <td style="width: 48%; vertical-align: top; border: 1.5px solid #0f172a; background-color: #ffffff; padding: 4px 6px; height: ${sigHeight}; position: relative;">
-                  <div style="font-size: 7.5pt; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.4px;">
-                    La Directrice d'école :
-                  </div>
-                  
-                  <div style="position: absolute; top: 6px; right: 10px; bottom: 14px; left: 20px; display: flex; align-items: center; justify-content: flex-end;">
-                    ${signatureDirectriceBase64 ? `
-                      <img src="${signatureDirectriceBase64}" alt="Signature" style="max-height: 40px; max-width: 120px; object-fit: contain;">
-                    ` : ''}
-                  </div>
-
-                  <div style="position: absolute; bottom: 3px; right: 6px; font-size: 7.5pt; font-weight: 700; color: #0f172a;">
-                    Mme Estelle CHIRAT
-                  </div>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      `;
-    }
-
-    function telechargerBulletinEleveActifPDF() {
-      const el = document.querySelector("#zoneApercuInteractif .bulletin-page");
-      if (!el) return;
-
-      const opt = {
-        margin: 0,
-        filename: `bulletin_${eleveStudioActif.replace(/\s+/g, '_')}_P${periodeActive}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(el).save();
-    }
-
-    function telechargerTousLesBulletinsPDF() {
-      const btn = document.getElementById("btnTelechargerPDF");
-      const txt = document.getElementById("txtBtnTelecharger");
-
-      txt.textContent = "Création du livret...";
-      btn.disabled = true;
-
-      const exportZone = document.createElement("div");
-      exportZone.style.width = "210mm";
-      exportZone.style.margin = "0";
-      exportZone.style.padding = "0";
-      exportZone.style.background = "#ffffff";
-
-      ELEVES_CM2.forEach((eleve) => {
-        const pageWrapper = document.createElement("div");
-        pageWrapper.innerHTML = construireHTMLBulletinSobre(eleve);
-        const p = pageWrapper.firstElementChild;
-        p.style.margin = "0";
-        p.style.boxShadow = "none";
-        p.style.borderRadius = "0";
-        p.style.pageBreakAfter = "always";
-        p.style.breakAfter = "page";
-        exportZone.appendChild(p);
-      });
-
-      document.body.appendChild(exportZone);
-
-      const opt = {
-        margin: 0,
-        filename: `bulletins_CM2_periode_${periodeActive}_complet.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(exportZone).save().then(() => {
-        document.body.removeChild(exportZone);
-        txt.textContent = "Télécharger tout (17 PDF)";
-        btn.disabled = false;
-      }).catch(err => {
-        console.error(err);
-        if (exportZone.parentNode) document.body.removeChild(exportZone);
-        alert("Erreur lors de la génération. Utilisez le bouton 'Imprimer'.");
-        txt.textContent = "Télécharger tout (17 PDF)";
-        btn.disabled = false;
-      });
-    }
-
-    function lancerImpressionNavigateur() {
-      const cache = document.getElementById("exportCacheGlobal");
-      cache.innerHTML = "";
-      
-      ELEVES_CM2.forEach(eleve => {
-        const w = document.createElement("div");
-        w.innerHTML = construireHTMLBulletinSobre(eleve);
-        const p = w.firstElementChild;
-        p.style.margin = "0";
-        p.style.boxShadow = "none";
-        p.style.borderRadius = "0";
-        cache.appendChild(p);
-      });
-
-      cache.classList.remove("hidden");
-      document.getElementById("zoneApercuInteractif").classList.add("hidden");
-
-      setTimeout(() => {
-        window.print();
-        cache.classList.add("hidden");
-        cache.innerHTML = "";
-        document.getElementById("zoneApercuInteractif").classList.remove("hidden");
-      }, 350);
-    }
-
-    function calculerHistorique(eleve) {
-      const histo = [];
-      const numPeriode = parseInt(periodeActive);
-
-      for (let p = 1; p < numPeriode; p++) {
-        const dataP = baseDonnees[String(p)];
-        if (!dataP || !dataP.evals || dataP.evals.length === 0) continue;
-        const notesP = [];
-        dataP.evals.forEach(ev => {
-          const val = (dataP.notes[ev.id] || {})[eleve];
-          if (val !== undefined && val !== "" && !isNaN(parseFloat(val))) notesP.push(parseFloat(val));
-        });
-        if (notesP.length > 0) histo.push(`P${p} : <b>${calculerMoyenne(notesP)}/20</b>`);
-      }
-
-      if (histo.length === 0) return numPeriode === 1 ? "Première période de l'année scolaire" : "Aucune note antérieure";
-      return histo.join("&nbsp;&nbsp;&bull;&nbsp;&nbsp;");
-    }
-
-    function calculerEtAfficherStats() {
-      const current = baseDonnees[periodeActive] || { evals: [], notes: {} };
-      const numP = parseInt(periodeActive);
-
-      const toutesLesNotesP = [];
-      const moyennesParEleve = [];
-      const notesParMatiere = {};
-
-      ELEVES_CM2.forEach(eleve => {
-        const notesEleve = [];
-        current.evals.forEach(ev => {
-          const v = (current.notes[ev.id] || {})[eleve];
-          if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) {
-            const num = parseFloat(v);
-            notesEleve.push(num);
-            toutesLesNotesP.push(num);
-
-            if (!notesParMatiere[ev.matiere]) notesParMatiere[ev.matiere] = [];
-            notesParMatiere[ev.matiere].push(num);
-          }
-        });
-        if (notesEleve.length > 0) {
-          const m = parseFloat(calculerMoyenne(notesEleve));
-          moyennesParEleve.push({ eleve: eleve, moyenne: m });
-        }
-      });
-
-      const moyPeriodeVal = toutesLesNotesP.length > 0 ? (toutesLesNotesP.reduce((a,b)=>a+b,0) / toutesLesNotesP.length).toFixed(2) : "-";
-      document.getElementById("statMoyennePeriode").textContent = moyPeriodeVal !== "-" ? `${moyPeriodeVal} / 20` : "-";
-
-      if (numP > 1) {
-        const dataPrec = baseDonnees[String(numP - 1)] || { evals: [], notes: {} };
-        const notesPrec = [];
-        ELEVES_CM2.forEach(eleve => {
-          dataPrec.evals.forEach(ev => {
-            const v = (dataPrec.notes[ev.id] || {})[eleve];
-            if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) notesPrec.push(parseFloat(v));
-          });
-        });
-        const moyPrecVal = notesPrec.length > 0 ? (notesPrec.reduce((a,b)=>a+b,0) / notesPrec.length).toFixed(2) : "-";
-        document.getElementById("statMoyennePrec").textContent = moyPrecVal !== "-" ? `${moyPrecVal} / 20` : "-";
-
-        if (moyPeriodeVal !== "-" && moyPrecVal !== "-") {
-          const diff = (parseFloat(moyPeriodeVal) - parseFloat(moyPrecVal)).toFixed(2);
-          const signe = diff >= 0 ? `+${diff}` : `${diff}`;
-          document.getElementById("statEcartPrec").textContent = `Évolution : ${signe} pts vs P${numP - 1}`;
-        } else {
-          document.getElementById("statEcartPrec").textContent = `Période ${numP - 1}`;
-        }
-      } else {
-        document.getElementById("statMoyennePrec").textContent = "N/A";
-        document.getElementById("statEcartPrec").textContent = "Première période de l'année";
-      }
-
-      if (moyennesParEleve.length > 0) {
-        moyennesParEleve.sort((a, b) => b.moyenne - a.moyenne);
-        const meilleure = moyennesParEleve[0];
-        const pire = moyennesParEleve[moyennesParEleve.length - 1];
-
-        document.getElementById("statMeilleureNote").textContent = `${meilleure.moyenne.toFixed(2)} / 20`;
-        document.getElementById("statMeilleurEleve").textContent = `Élève : ${meilleure.eleve}`;
-
-        document.getElementById("statPireNote").textContent = `${pire.moyenne.toFixed(2)} / 20`;
-        document.getElementById("statPireEleve").textContent = `Élève : ${pire.eleve}`;
-      } else {
-        document.getElementById("statMeilleureNote").textContent = "-";
-        document.getElementById("statMeilleurEleve").textContent = "Élève : -";
-        document.getElementById("statPireNote").textContent = "-";
-        document.getElementById("statPireEleve").textContent = "Élève : -";
-      }
-
-      const grapheConteneur = document.getElementById("graphiqueMatieresConteneur");
-      grapheConteneur.innerHTML = "";
-
-      const listeMatieresPresentes = Object.keys(notesParMatiere);
-      if (listeMatieresPresentes.length === 0) {
-        grapheConteneur.innerHTML = `<div class="text-xs text-slate-500 italic py-4 text-center">Aucune note enregistrée pour tracer le graphique de la période.</div>`;
-      } else {
-        listeMatieresPresentes.forEach((mat, idx) => {
-          const tab = notesParMatiere[mat];
-          const moyMat = parseFloat(calculerMoyenne(tab));
-          const pct = Math.min(Math.max((moyMat / 20) * 100, 0), 100);
-          
-          const themeMat = THEME_MATIERES[mat] || { bar: "bg-[#0071e3]" };
-
-          const ligne = document.createElement("div");
-          ligne.className = "space-y-1";
-          ligne.innerHTML = `
-            <div class="flex justify-between items-center text-xs font-semibold">
-              <span class="text-slate-800">${mat}</span>
-              <span class="text-slate-900 font-bold">${moyMat.toFixed(2)} / 20</span>
-            </div>
-            <div class="w-full h-2.5 bg-black/5 rounded-full overflow-hidden">
-              <div class="h-full ${themeMat.bar} rounded-full transition-all duration-700 ease-out" style="width: 0%; transition-delay: ${idx * 60}ms" data-targetwidth="${pct}%"></div>
-            </div>
-          `;
-          grapheConteneur.appendChild(ligne);
-        });
-
-        setTimeout(() => {
-          document.querySelectorAll('#graphiqueMatieresConteneur [data-targetwidth]').forEach(el => {
-            el.style.width = el.getAttribute('data-targetwidth');
-          });
-        }, 50);
-      }
-
-      const tbodyComp = document.getElementById("tbodyComparatifEleves");
-      tbodyComp.innerHTML = "";
-
-      ELEVES_CM2.forEach((eleve) => {
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-black/5 transition";
-
-        let htmlLigne = `<td class="py-2.5 px-3 font-semibold text-slate-800">${eleve}</td>`;
-        let moysCumulees = [];
-
-        for (let p = 1; p <= 5; p++) {
-          const dataP = baseDonnees[String(p)] || { evals: [], notes: {} };
-          const notesEleveP = [];
-          dataP.evals.forEach(ev => {
-            const v = (dataP.notes[ev.id] || {})[eleve];
-            if (v !== undefined && v !== "" && !isNaN(parseFloat(v))) {
-              notesEleveP.push(parseFloat(v));
-            }
-          });
-
-          const moyP = calculerMoyenne(notesEleveP);
-          if (moyP !== "-") moysCumulees.push(parseFloat(moyP));
-
-          const estPeriodeEnCours = p === numP;
-          htmlLigne += `
-            <td class="py-2.5 px-2 text-center font-medium ${estPeriodeEnCours ? 'font-bold text-[#0071e3] bg-[#0071e3]/5' : 'text-slate-600'}">
-              ${moyP !== '-' ? moyP : '-'}
-            </td>
-          `;
-        }
-
-        const moyAnnuelle = moysCumulees.length > 0 ? (moysCumulees.reduce((a, b) => a + b, 0) / moysCumulees.length).toFixed(2) : "-";
-        htmlLigne += `
-          <td class="py-2.5 px-3 text-right font-black text-slate-900">
-            ${moyAnnuelle !== '-' ? moyAnnuelle + ' / 20' : '-'}
-          </td>
-        `;
-
-        tr.innerHTML = htmlLigne;
-        tbodyComp.appendChild(tr);
-      });
-
-      const grilleEvals = document.getElementById("statGrilleEvalsDetails");
-      grilleEvals.innerHTML = "";
-
-      if (current.evals.length === 0) {
-        grilleEvals.innerHTML = `<div class="col-span-full text-xs text-slate-500 italic">Aucune évaluation enregistrée pour cette période.</div>`;
-      } else {
-        const total = ELEVES_CM2.length;
-        current.evals.forEach((ev, idx) => {
-          const notesObj = current.notes[ev.id] || {};
-          const notesTab = Object.values(notesObj).map(v => parseFloat(v)).filter(v => !isNaN(v));
-          const moy = calculerMoyenne(notesTab);
-          const max = notesTab.length > 0 ? Math.max(...notesTab).toFixed(2) : "-";
-          const min = notesTab.length > 0 ? Math.min(...notesTab).toFixed(2) : "-";
-          const count = notesTab.length;
-
-          const themeMat = THEME_MATIERES[ev.matiere] || { text: "text-[#0071e3]" };
-
-          const d = document.createElement("div");
-          d.className = "ios-glass rounded-[22px] p-4 flex flex-col justify-between";
-          d.innerHTML = `
-            <div>
-              <div class="flex justify-between items-center mb-1">
-                <span class="text-[10px] font-bold uppercase ${themeMat.text}">#${idx + 1} ${ev.matiere}</span>
-                <span class="text-[11px] font-bold text-slate-500">${count}/${total} notés</span>
-              </div>
-              <div class="text-xs font-bold text-slate-900 truncate" title="${ev.titre}">${ev.titre}</div>
-            </div>
-
-            <div class="mt-3 pt-2.5 border-t border-black/5 grid grid-cols-3 text-center text-xs">
-              <div>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Moyenne</span>
-                <div class="font-bold text-slate-900 mt-0.5">${moy}</div>
-              </div>
-              <div>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Plus haute</span>
-                <div class="font-bold text-emerald-700 mt-0.5">${max}</div>
-              </div>
-              <div>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Plus basse</span>
-                <div class="font-bold text-amber-700 mt-0.5">${min}</div>
-              </div>
-            </div>
-          `;
-          grilleEvals.appendChild(d);
-        });
-      }
-    }
-  </script>
+<body>
+<div class="aurora"><i></i><i></i><i></i></div>
+ 
+<div id="auth" class="ov hide"><div id="authCard" class="glass pw">
+  <div class="logo">CM2</div><h2 style="font-size:18px">Jean des Vignes Rouges</h2><p class="lbl" style="margin:4px 0 18px">Connexion sécurisée · Bulletins scolaires</p>
+  <form onsubmit="login(event)"><input type="password" id="pass" class="fld" placeholder="Mot de passe" autocomplete="current-password" required autofocus>
+  <p id="aerr" class="hide" style="color:#ff453a;font-size:12px;font-weight:600;margin-bottom:10px"></p>
+  <button class="btn" id="lbtn" style="width:100%">Se connecter</button></form>
+  <button class="chip" style="margin-top:12px" onclick="resetPw()">Mot de passe oublié ?</button></div></div>
+ 
+<div id="app" class="hide">
+<header>
+  <div><div class="sub">CM2 · Année scolaire 2026/2027 <span class="live">● En direct</span></div><h1>École Jean des Vignes Rouges</h1></div>
+  <div class="hr"><div class="seg glass" id="seg"></div>
+    <div style="position:relative"><button class="ib glass" id="mbtn" aria-label="Options">•••</button>
+    <div id="menu" class="glass menu hide">
+      <label><span id="txtSig">Importer signature</span><small style="color:var(--mut)">PNG</small><input type="file" accept="image/*" class="hide" onchange="importSig(event)"></label>
+      <button id="btnSig" class="red hide" onclick="delSig()">Retirer la signature</button><hr>
+      <button onclick="exportJSON()">Sauvegarder les notes <small style="color:var(--mut)">JSON</small></button>
+      <label>Restaurer des notes <small style="color:var(--mut)">JSON</small><input type="file" accept=".json" class="hide" onchange="importJSON(event)"></label><hr>
+      <button class="red" onclick="resetP()">Vider la Période <span id="rp">1</span></button><hr><button onclick="logout()">Se déconnecter</button></div></div></div>
+</header>
+<main>
+  <section id="v-dash" class="bento"></section>
+  <section id="v-evals" class="hide"><div class="tool glass"><div class="chips" id="chips"></div><button class="btn b" onclick="openCre()">+ Nouvelle évaluation</button></div><div class="grid" id="evGrid"></div></section>
+  <section id="v-bul" class="hide">
+    <div class="tool glass"><div class="chips" style="align-items:center">
+      <select id="selE" class="fld" style="width:auto;margin:0" onchange="cur=this.value;bul()"></select>
+      <button class="chip" id="oMoy" onclick="tog('moyClasse')">Moyenne de classe</button><button class="chip on" id="oHis" onclick="tog('histo')">Historique P1-P5</button></div>
+      <div class="chips"><button class="btn s" onclick="pdfOne()">PDF de cet élève</button><button class="btn g" id="bAll" onclick="pdfAll()">Télécharger tout (17 PDF)</button><button class="btn" onclick="imprimer()">Imprimer</button></div></div>
+    <div class="bt"><div class="side glass"><div class="lbl">Élèves (17)</div><input class="fld" style="margin:8px 0 0" placeholder="Rechercher un élève…" oninput="side()" id="fs"><div class="lst" id="side"></div></div><div class="zone" id="zone"></div></div>
+  </section>
+  <div id="loader" class="lbl" style="text-align:center;padding:80px">Chargement des notes…</div>
+</main>
+<nav class="dock glass" id="dock">
+  <button data-v="dash" class="on" aria-label="Tableau de bord">📊<span class="tip">Tableau de bord</span></button>
+  <button data-v="evals" aria-label="Évaluations">📝<span class="tip">Évaluations</span></button>
+  <button data-v="bul" aria-label="Bulletins">📄<span class="tip">Bulletins A4</span></button>
+</nav>
+<aside class="sheet glass" id="sheet"></aside>
+ 
+<div id="mCre" class="ov hide"><div class="glass mod">
+  <div class="row" style="margin-bottom:16px"><h3>Nouvelle évaluation</h3><button class="x" onclick="$('mCre').classList.add('hide')">✕</button></div>
+  <label>Matière</label><select id="cMat" class="fld" onchange="subs()"></select>
+  <label>Sous-domaine (facultatif)</label><select id="cThe" class="fld"></select>
+  <label>Titre de l'évaluation</label><input id="cTit" class="fld" placeholder="Ex : Bilan numération, Dictée n°2…" onkeydown="if(event.key==='Enter')creer()">
+  <div class="row" style="justify-content:flex-end"><button class="btn s" onclick="$('mCre').classList.add('hide')">Annuler</button><button class="btn b" onclick="creer()">Enregistrer le devoir</button></div></div></div>
+ 
+<div id="mSai" class="ov hide"><div class="glass sai">
+  <div class="hd"><div><span id="sBadge" class="badge"></span><h3 id="sTit" style="margin-top:6px"></h3><p id="sThe" class="lbl" style="font-style:italic"></p></div><button class="btn s" onclick="closeSai()">Fermer</button></div>
+  <div class="ls" id="sList"></div>
+  <div class="ft"><span>Raccourcis : <b>NE</b>, <b>NN</b>, <b>ABS</b></span><button class="btn" onclick="closeSai()">Valider et fermer</button></div></div></div>
+</div>
+<div id="printZone"></div>
+ 
+<script>
+const $=i=>document.getElementById(i);
+firebase.initializeApp({apiKey:"AIzaSyDnrlDhDo2tc6z2O7KyM3IuwGroc5tIfPA",authDomain:"bulletins-jdvr.firebaseapp.com",projectId:"bulletins-jdvr",storageBucket:"bulletins-jdvr.firebasestorage.app",messagingSenderId:"21997926025",appId:"1:21997926025:web:a4a44ae594a036f1c4f858",measurementId:"G-EKJFY0XLQV"});
+const auth=firebase.auth();
+const EMAIL_COMPTE="theochirat@gmail.com"; // ← à remplacer par l'e-mail du compte créé dans Firebase (pas un secret)
+const docRef=firebase.firestore().collection("bulletins_scolaires").doc("cm2_data");
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const E=["BONIN Nathan","COSTE Stanislas","CRESPO Gabriel","GIANNINI Lison","HADDAD Sofia","HEITZMANN Gauthier","HERODET Mathias","KHELIFI Camil","LEJEUNE Lila","LIMA Inès","MERMET William","MONTALBAN Agathe","PAIS Amalia","PIERRE Louca","TALAGHZI Safiyah","TALAGHZI Younes","ZUBER Léon"];
+const MAT=["Français","Maths","Histoire","Géographie","EMC","Sciences","Anglais"];
+const COL={"Français":"#0a84ff","Maths":"#bf5af2","Histoire":"#ff9f0a","Géographie":"#ff6b35","EMC":"#5e5ce6","Sciences":"#30d158","Anglais":"#ff375f"};
+const SUB={"Français":["Grammaire","Conjugaison","Orthographe","Lexique","Lecture","Poésie"],"Maths":["Numération","Calcul","Grandeur et Mesure","Géométrie","Résolution de problèmes"]};
+let DB={1:{evals:[],notes:{}},2:{evals:[],notes:{}},3:{evals:[],notes:{}},4:{evals:[],notes:{}},5:{evals:[],notes:{}}};
+let P="1",V="dash",F="TOUS",cur=E[0],sig=null,evId=null,loaded=false,userP=false,unsub=null,opt={moyClasse:false,histo:true};
+ 
+/* ---------- calculs ---------- */
+const ok=v=>v!==undefined&&v!==null&&v!==""&&!isNaN(parseFloat(v));
+const av=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+const f=n=>n==null?"-":n.toFixed(2).replace(".",",");
+const calculerMoyenne=t=>{const v=t.map(n=>parseFloat(n)).filter(n=>!isNaN(n));return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(2):"-"};
+const D=p=>DB[p]||{evals:[],notes:{}};
+const notesE=(p,e,m)=>D(p).evals.filter(x=>!m||x.matiere===m).map(x=>(D(p).notes[x.id]||{})[e]).filter(ok).map(parseFloat);
+const avgE=(p,e,m)=>av(notesE(p,e,m));
+const notesC=(p,m)=>E.flatMap(e=>notesE(p,e,m));
+const avgC=(p,m)=>av(notesC(p,m));
+const prevP=()=>{for(let q=+P-1;q>=1;q--)if(D(q).evals.length)return q;return null};
+const heat=v=>{if(v==null)return"var(--track)";const t=Math.max(0,Math.min(1,(v-8)/11));return`hsl(${Math.round(25+t*120)} 85% ${58-t*8}% / .${Math.round(35+t*30)})`};
+ 
+/* ---------- visuels ---------- */
+function ring(vals,size,w){const c=size/2;let o=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="transform:rotate(-90deg)">`;
+ vals.forEach((v,i)=>{const R=c-w/2-i*(w+3),L=2*Math.PI*R;if(R<4)return;o+=`<circle cx="${c}" cy="${c}" r="${R}" fill="none" stroke="${COL[MAT[i]]}" stroke-opacity=".16" stroke-width="${w}"/><circle class="rg" cx="${c}" cy="${c}" r="${R}" fill="none" stroke="${COL[MAT[i]]}" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${L}" data-to="${L*(1-(v||0)/20)}" style="transition:stroke-dashoffset 1.3s cubic-bezier(.16,1,.3,1) ${i*90}ms"/>`});return o+"</svg>"}
+function play(root){requestAnimationFrame(()=>requestAnimationFrame(()=>{root.querySelectorAll(".rg").forEach(e=>e.style.strokeDashoffset=e.dataset.to);root.querySelectorAll("[data-w]").forEach(e=>e.style.width=e.dataset.w);
+ root.querySelectorAll("[data-count]").forEach(e=>{const to=+e.dataset.count,t0=performance.now();(function k(t){const q=Math.min(1,(t-t0)/1100);e.textContent=f(to*(1-Math.pow(1-q,4)));if(q<1)requestAnimationFrame(k)})(t0)})}))}
+function spark(){const pts=[1,2,3,4,5].map(p=>[p,avgC(p)]).filter(x=>x[1]!=null);if(!pts.length)return"";const vs=pts.map(x=>x[1]),mn=Math.min(...vs)-1,mx=Math.max(...vs)+1;
+ const xy=pts.map((q,i)=>[20+i*(pts.length>1?260/(pts.length-1):120),66-(q[1]-mn)/(mx-mn)*54]);
+ return`<svg viewBox="0 0 300 82" width="100%" height="82"><path d="${xy.map((q,i)=>(i?"L":"M")+q[0]+" "+q[1]).join(" ")}" fill="none" stroke="#0a84ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>${xy.map((q,i)=>`<circle cx="${q[0]}" cy="${q[1]}" r="5" fill="#0a84ff"/><text x="${q[0]}" y="80" font-size="10" text-anchor="middle" fill="currentColor" opacity=".55">P${pts[i][0]}</text>`).join("")}</svg>`}
+ 
+/* ---------- navigation ---------- */
+function R(){if(!loaded)return;({dash,evals,bul})[V]()}
+function setV(v){V=v;["dash","evals","bul"].forEach(k=>$("v-"+k).classList.toggle("hide",k!==v));document.querySelectorAll("#dock [data-v]").forEach(b=>b.classList.toggle("on",b.dataset.v===v));R()}
+function pills(){const sg=$("seg");sg.innerHTML='<span class="pill"></span>'+[1,2,3,4,5].map(p=>`<button class="${String(p)===P?"on":""}" onclick="chgP('${p}')">P${p}</button>`).join("");
+ requestAnimationFrame(()=>{const on=sg.querySelector(".on"),pl=sg.querySelector(".pill");if(on){pl.style.left=on.offsetLeft+"px";pl.style.width=on.offsetWidth+"px"}})}
+function chgP(p){userP=true;P=String(p);F="TOUS";$("rp").textContent=P;pills();R()}
+document.querySelectorAll("#dock [data-v]").forEach(b=>b.onclick=()=>setV(b.dataset.v));
+const dk=$("dock"),dbs=[...dk.querySelectorAll("button")];
+dk.onmousemove=e=>dbs.forEach(b=>{const q=b.getBoundingClientRect();b.style.transform=`scale(${1+.5*Math.max(0,1-Math.abs(e.clientX-(q.left+q.width/2))/110)})`});
+dk.onmouseleave=()=>dbs.forEach(b=>b.style.transform="");
+addEventListener("resize",pills);
+ 
+/* ---------- tableau de bord (statistiques) ---------- */
+function dash(){
+ const el=$("v-dash"),cu=D(P),n=+P,pp=prevP(),mp=avgC(P),mpr=pp?avgC(pp):null,d=mp!=null&&mpr!=null?mp-mpr:null;
+ const pe=E.map(e=>[e,avgE(P,e)]).filter(x=>x[1]!=null).sort((a,b)=>b[1]-a[1]);
+ const rows=E.map(e=>{const ms=[],tds=[1,2,3,4,5].map(p=>{const a=D(p).evals.length?calculerMoyenne(notesE(p,e)):"-";if(a!=="-")ms.push(parseFloat(a));return`<td ${p===n?'style="font-weight:700;color:#0a84ff;background:rgba(10,132,255,.08)"':""}>${a}</td>`}).join("");
+  return`<tr><td onclick="openS('${e}')" style="cursor:pointer">${e}</td>${tds}<td style="font-weight:800;text-align:right">${ms.length?(ms.reduce((a,b)=>a+b,0)/ms.length).toFixed(2)+" / 20":"-"}</td></tr>`}).join("");
+ const cmp=`<div class="c glass s12" style="overflow-x:auto"><h3>Comparatif des 17 élèves sur les 5 périodes</h3><p class="lbl" style="margin-bottom:10px">Moyennes de chaque période et moyenne annuelle · cliquez un élève pour ouvrir sa fiche.</p><table class="cmp"><thead><tr><th>Élève</th><th>Période 1</th><th>Période 2</th><th>Période 3</th><th>Période 4</th><th>Période 5</th><th style="text-align:right">Moyenne annuelle</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+ if(!cu.evals.length){el.innerHTML=`<div class="c glass s12" style="text-align:center;padding:60px"><h3>Aucune évaluation pour la période ${P}</h3><p class="lbl" style="margin:8px 0 18px">Ajoutez un premier devoir pour voir apparaître les statistiques.</p><button class="btn b" onclick="setV('evals');openCre()">+ Nouvelle évaluation</button></div>`+cmp;return}
+ const sm=MAT.map(m=>avgC(P,m));
+ const bw=(l,x,c)=>`<div class="c glass s6" ${x?`onclick="openS('${x[0]}')" style="cursor:pointer"`:""}><div class="lbl" style="color:${c}">${l}</div><div class="big" style="font-size:56px;color:${c};margin:10px 0 6px">${x?f(x[1]):"-"}<small>/20</small></div><div style="font-weight:700">${x?x[0]:"-"}</div></div>`;
+ const det=cu.evals.map((x,i)=>{const t=Object.values(cu.notes[x.id]||{}).map(parseFloat).filter(v=>!isNaN(v)),c=COL[x.matiere]||"#0a84ff";
+  return`<div class="glass" style="padding:18px;border-radius:22px"><div class="row lbl"><b style="color:${c}">#${i+1} ${esc(x.matiere)}</b><span>${t.length}/17 notés</span></div><div style="font-weight:700;margin:4px 0 10px">${esc(x.titre)}</div><div class="row" style="text-align:center;border-top:1px solid var(--track);padding-top:10px;font-size:12px"><div><div class="lbl">Moyenne</div><b>${calculerMoyenne(t)}</b></div><div><div class="lbl">Plus haute</div><b style="color:#1f9d46">${t.length?Math.max(...t).toFixed(2):"-"}</b></div><div><div class="lbl">Plus basse</div><b style="color:#c77700">${t.length?Math.min(...t).toFixed(2):"-"}</b></div></div></div>`}).join("");
+ el.innerHTML=`<div class="c glass hero"><div class="lbl">Moyenne de la classe · Période ${P}</div><div class="big"><span data-count="${mp||0}">0</span><small>/20</small></div>
+  <div class="row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap"><span class="delta ${d!=null&&d<0?"neg":""}">${d!=null?(d>=0?"▲ +":"▼ ")+f(Math.abs(d))+" pt vs P"+pp:"Première période"}</span>${mpr!=null?`<span class="lbl">Période précédente : ${f(mpr)} / 20</span>`:""}</div>${spark()}</div>
+ <div class="c glass rings"><div class="lbl" style="align-self:flex-start">Moyenne de classe par matière</div>${ring(sm,210,12)}<div style="width:100%;display:flex;flex-direction:column;gap:8px">${MAT.map((m,i)=>sm[i]==null?"":`<div><div class="row" style="font-size:12px;font-weight:600"><span><i class="dot" style="background:${COL[m]}"></i>${m}</span><b>${f(sm[i])}</b></div><div class="bar"><i data-w="${sm[i]*5}%" style="background:${COL[m]}"></i></div></div>`).join("")}</div></div>
+ ${bw("Meilleure moyenne",pe[0],"#1f9d46")}${bw("Moins bonne moyenne",pe[pe.length-1],"#c77700")}${cmp}
+ <div class="c glass s12"><h3>Détails par évaluation (Période ${P})</h3><p class="lbl" style="margin-bottom:14px">Moyenne, plus haute et plus basse note pour chaque devoir.</p><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">${det}</div></div>`;
+ play(el)}
+ 
+/* ---------- fiche élève ---------- */
+function openS(n){const sh=$("sheet"),sm=MAT.map(m=>avgE(P,n,m)),a=avgE(P,n);
+ sh.innerHTML=`<button class="x" style="position:absolute;top:18px;right:20px" onclick="closeS()" aria-label="Fermer">✕</button><div class="lbl">${n.split(" ")[0]} · Période ${P}</div><h1 style="font-size:32px;margin:2px 0 14px">${n.split(" ").slice(1).join(" ")}</h1>
+ <div style="display:flex;gap:20px;align-items:center">${ring(sm,150,11)}<div><div class="big" style="font-size:56px"><span data-count="${a||0}">0</span></div><div class="lbl">moyenne / 20<br>classe : ${f(avgC(P))}</div></div></div>
+ <div style="margin-top:18px">${MAT.map((m,i)=>sm[i]==null?"":`<div class="row" style="margin-top:10px;font-size:13px"><span><i class="dot" style="background:${COL[m]}"></i>${m}</span><b>${f(sm[i])}</b></div><div class="bar"><i data-w="${sm[i]*5}%" style="background:${COL[m]}"></i></div>`).join("")}</div>
+ <p class="lbl" style="margin-top:16px">Historique : ${[1,2,3,4,5].map(p=>avgE(p,n)!=null?`P${p} <b style="color:var(--ink)">${f(avgE(p,n))}</b>`:"").filter(Boolean).join(" · ")||"—"}</p>
+ <button class="btn" style="width:100%;margin-top:18px" onclick="cur='${n}';closeS();setV('bul')">Voir le bulletin A4</button>`;
+ sh.classList.add("open");play(sh)}
+const closeS=()=>$("sheet").classList.remove("open");
+addEventListener("keydown",e=>{if(e.key==="Escape")closeS()});
+ 
+/* ---------- évaluations ---------- */
+function evals(){const cu=D(P),ev=cu.evals||[],cnt={TOUS:ev.length};ev.forEach(x=>cnt[x.matiere]=(cnt[x.matiere]||0)+1);
+ $("chips").innerHTML=Object.entries(cnt).map(([m,c])=>`<button class="chip ${F===m?"on":""}" data-m="${esc(m)}" onclick="F=this.dataset.m;evals()">${m==="TOUS"?"Tous":esc(m)} (${c})</button>`).join("");
+ const list=ev.filter(x=>F==="TOUS"||x.matiere===F),g=$("evGrid");
+ if(!list.length){g.innerHTML=`<div class="glass" style="grid-column:1/-1;padding:60px;text-align:center"><h3>Aucune évaluation affichée</h3><p class="lbl" style="margin-top:6px">Changez de filtre ou ajoutez un nouveau devoir.</p></div>`;return}
+ g.innerHTML=list.map(x=>{const i=ev.findIndex(y=>y.id===x.id),no=cu.notes[x.id]||{},nb=Object.values(no).filter(v=>v!==""&&v!=null).length,m=calculerMoyenne(Object.values(no)),c=COL[x.matiere]||"#0a84ff",full=nb===E.length;
+  return`<div class="ev glass" data-id="${esc(x.id)}" onclick="if(!event.target.closest('button'))openSai(this.dataset.id)"><div class="row"><span class="badge" style="background:${c}22;color:${c}">#${i+1} ${esc(x.matiere)}</span><button class="x" title="Supprimer" onclick="delEv(this.closest('.ev').dataset.id)">🗑</button></div>
+  <div><h3>${esc(x.titre)}</h3><p>${esc(x.theme||"")}</p></div>
+  <div><div class="row lbl"><span>Statut</span><b style="color:${full?"#1f9d46":"#c77700"}">${full?"✓":"!"} ${nb} / 17</b></div><div class="bar"><i style="width:${nb/E.length*100}%;background:${full?"#30d158":c}"></i></div></div>
+  <div class="row"><b>${m!=="-"?m+"/20":"-"}</b><button class="btn s" onclick="openSai(this.closest('.ev').dataset.id)">Saisir</button></div></div>`}).join("")}
+function delEv(id){if(!confirm("Supprimer définitivement cette évaluation et ses notes ?"))return;DB[P].evals=DB[P].evals.filter(e=>e.id!==id);delete DB[P].notes[id];save();R()}
+function subs(){const m=$("cMat").value,s=$("cThe");s.innerHTML='<option value="">Aucun (général)</option>'+(SUB[m]||[]).map(t=>`<option>${t}</option>`).join("")}
+function openCre(){$("cMat").innerHTML=MAT.map(m=>`<option>${m}</option>`).join("");$("cTit").value="";subs();$("mCre").classList.remove("hide");setTimeout(()=>$("cTit").focus(),100)}
+function creer(){const titre=$("cTit").value.trim();if(!titre){$("cTit").focus();return}
+ if(!DB[P])DB[P]={evals:[],notes:{}};const id="ev_"+Date.now();DB[P].evals.push({id,matiere:$("cMat").value,theme:$("cThe").value,titre});DB[P].notes[id]={};save();$("mCre").classList.add("hide");R();openSai(id)}
+function openSai(id){evId=id;const cu=D(P),i=cu.evals.findIndex(e=>e.id===id);if(i<0)return;const x=cu.evals[i],c=COL[x.matiere]||"#0a84ff";
+ $("sBadge").textContent=`#${i+1} ${x.matiere}`;$("sBadge").style.cssText=`background:${c}22;color:${c}`;$("sTit").textContent=x.titre;$("sThe").textContent=x.theme?"Sous-domaine : "+x.theme:"";
+ $("sList").innerHTML=E.map((e,k)=>`<div class="nr"><span><small>${k+1}.</small><b>${e}</b></span><span class="row">${["20","10","NE","NN","ABS"].map(v=>`<button class="q" onclick="rn(${k},'${v}')">${v}</button>`).join("")}<span class="ni"><input type="text" value="${esc((cu.notes[id]||{})[e]||"")}" placeholder="-" data-i="${k}" oninput="setNote(${k},this.value,this)" onkeydown="nav(event,${k})"><span>/20</span></span></span></div>`).join("");
+ $("mSai").classList.remove("hide");setTimeout(()=>{const a=document.querySelector('[data-i="0"]');if(a){a.focus();a.select()}},50)}
+const inp=k=>document.querySelector(`[data-i="${k}"]`);
+function rn(k,v){setNote(k,v,inp(k));const n=inp(k+1);if(n){n.focus();n.select()}}
+function setNote(k,val,el){let r=val.trim().toUpperCase().replace(",","."),o="";
+ if(r===""||r==="-")o="";else if(["NE","NN","ABS","DISP"].includes(r))o=r;else{const n=parseFloat(r);if(!isNaN(n)&&n>=0&&n<=20)o=String(n);else if(r.length>2)o="";else o=r}
+ if(el)el.value=o;if(!DB[P].notes[evId])DB[P].notes[evId]={};DB[P].notes[evId][E[k]]=o;save()}
+function nav(e,k){if(e.key==="Enter"||e.key==="ArrowDown"){e.preventDefault();const n=inp(k+1);if(n){n.focus();n.select()}}else if(e.key==="ArrowUp"){e.preventDefault();const n=inp(k-1);if(n){n.focus();n.select()}}}
+function closeSai(){$("mSai").classList.add("hide");evId=null;R()}
+ 
+/* ---------- bulletins ---------- */
+function tog(k){opt[k]=!opt[k];$(k==="moyClasse"?"oMoy":"oHis").classList.toggle("on",opt[k]);bul()}
+function bul(){$("selE").innerHTML=E.map(e=>`<option ${e===cur?"selected":""}>${e}</option>`).join("");side();$("zone").innerHTML=construireHTMLBulletinSobre(cur)}
+function side(){const q=($("fs")?.value||"").toLowerCase();$("side").innerHTML=E.filter(e=>e.toLowerCase().includes(q)).map(e=>{const a=avgE(P,e),c=a==null?"var(--mut)":a>=15?"#30d158":a>=12?"#0a84ff":"#ff9f0a";
+ return`<div class="si ${e===cur?"on":""}" onclick="cur='${e}';bul()"><span><i class="dot" style="background:${c}"></i>${e}</span><span style="opacity:.6">${a!=null?a.toFixed(2):"-"}</span></div>`}).join("")}
+function moyEval(){const m={};D(P).evals.forEach(ev=>m[ev.id]=calculerMoyenne(Object.values(D(P).notes[ev.id]||{})));return m}
+function moyMatC(){const m={};MAT.forEach(x=>{const n=notesC(P,x);if(n.length)m[x]=calculerMoyenne(n)});return m}
+function calculerHistorique(eleve){const h=[],n=parseInt(P);for(let p=1;p<n;p++){if(!D(p).evals.length)continue;const t=notesE(p,eleve);if(t.length)h.push(`P${p} : <b>${calculerMoyenne(t)}/20</b>`)}
+ if(!h.length)return n===1?"Première période de l'année scolaire":"Aucune note antérieure";return h.join("&nbsp;&nbsp;&bull;&nbsp;&nbsp;")}
+function construireHTMLBulletinSobre(eleveNom){
+ const current=D(P),dateStr=new Date().toLocaleDateString("fr-FR"),moyClasseMap=moyEval(),moyClasseParMatiereMap=moyMatC(),matieresMap={},allNotesEleve=[];
+ (current.evals||[]).forEach(ev=>{const val=(current.notes[ev.id]||{})[eleveNom]||"",th=ev.theme||"";if(!matieresMap[ev.matiere])matieresMap[ev.matiere]={};if(!matieresMap[ev.matiere][th])matieresMap[ev.matiere][th]=[];
+  matieresMap[ev.matiere][th].push({titre:ev.titre,note:val,moyClasse:moyClasseMap[ev.id]||"-"});if(ok(val))allNotesEleve.push(parseFloat(val))});
+ const nb=current.evals?current.evals.length:0;let cellPad="3.5px 6px",fontSize="8.5pt",headerPad="4px 6px",sigHeight="68px";
+ if(nb>8){cellPad="2px 5px";fontSize="8pt";headerPad="3px 5px";sigHeight="60px"}if(nb>12){cellPad="1.5px 4px";fontSize="7.5pt";headerPad="2px 4px";sigHeight="54px"}
+ let corps="";
+ for(const[matiere,themes]of Object.entries(matieresMap)){let nm=[],sl="";
+  for(const[theme,devoirs]of Object.entries(themes)){
+   if(theme&&theme.trim()!=="")sl+=`<tr style="background-color:#fafafa;"><td colspan="${opt.moyClasse?3:2}" style="padding:1.5px 5px;font-size:7.2pt;font-style:italic;color:#475569;border:1px solid #cbd5e1;line-height:1.15;">${esc(theme)}</td></tr>`;
+   devoirs.forEach(dev=>{if(ok(dev.note))nm.push(parseFloat(dev.note));const st=["NE","NN","ABS","DISP"].includes(dev.note),an=dev.note!==""?(st?`<span style="color:#64748b;font-weight:700;">${esc(dev.note)}</span>`:`${esc(dev.note)}`):"-";
+    sl+=`<tr><td style="padding:${cellPad};font-size:${fontSize};color:#0f172a;border:1px solid #cbd5e1;line-height:1.2;">${esc(dev.titre)}</td><td style="padding:${cellPad};font-size:${fontSize};font-weight:700;text-align:center;border:1px solid #cbd5e1;width:70px;">${an}</td>${opt.moyClasse?`<td style="padding:${cellPad};font-size:${fontSize};color:#64748b;text-align:center;border:1px solid #cbd5e1;width:65px;">${dev.moyClasse!=="-"?dev.moyClasse:"-"}</td>`:""}</tr>`})}
+  const mm=calculerMoyenne(nm),mc=moyClasseParMatiereMap[matiere]||"-";
+  corps+=`<tr style="background-color:#f1f5f9;font-weight:700;"><td style="padding:${headerPad};font-size:${fontSize};color:#0f172a;border:1px solid #94a3b8;text-transform:uppercase;letter-spacing:0.3px;">${esc(matiere)}</td><td style="padding:${headerPad};font-size:${fontSize};text-align:center;border:1px solid #94a3b8;color:#0f172a;">${mm!=="-"?mm:"-"}</td>${opt.moyClasse?`<td style="padding:${headerPad};font-size:${fontSize};text-align:center;border:1px solid #94a3b8;color:#0f172a;font-weight:700;">${mc!=="-"?mc:"-"}</td>`:""}</tr>${sl}`}
+ const moyGen=calculerMoyenne(allNotesEleve);let moyGenClasse="-";if(opt.moyClasse)moyGenClasse=calculerMoyenne(notesC(P));
+ const histoStr=calculerHistorique(eleveNom);
+ return`<div class="bulletin-page" id="bulletin-${eleveNom.replace(/\s+/g,"-")}"><div>
+ <div style="border-bottom:2px solid #0f172a;padding-bottom:4px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:flex-end;"><div><div style="font-size:11pt;font-weight:700;color:#0f172a;font-family:'Libre Baskerville',serif;">École élémentaire Jean des Vignes Rouges</div><div style="font-size:8pt;color:#475569;">21200 Bligny-lès-Beaune</div></div><div style="text-align:right;"><div style="font-size:10pt;font-weight:800;color:#0f172a;">BULLETIN SCOLAIRE</div><div style="font-size:8pt;color:#334155;">Année scolaire 2026/2027 &bull; <b>Période ${P}</b></div></div></div>
+ <table style="width:100%;border-collapse:collapse;margin-bottom:6px;border:1px solid #0f172a;"><tr style="background-color:#f8fafc;"><td style="padding:4px 8px;width:65%;border-right:1px solid #0f172a;"><span style="font-size:7pt;text-transform:uppercase;color:#64748b;font-weight:700;">Élève :</span><div style="font-size:10.5pt;font-weight:800;color:#0f172a;">${eleveNom}</div></td><td style="padding:4px 8px;"><span style="font-size:7pt;text-transform:uppercase;color:#64748b;font-weight:700;">Classe :</span><div style="font-size:10.5pt;font-weight:800;color:#0f172a;">CM2</div></td></tr></table>
+ <table style="width:100%;border-collapse:collapse;margin-bottom:4px;"><thead><tr style="background-color:#e2e8f0;border:1px solid #94a3b8;"><th style="padding:4px 6px;text-align:left;font-size:7.5pt;text-transform:uppercase;letter-spacing:0.4px;color:#0f172a;">Domaines d'enseignement & Évaluations</th><th style="padding:4px 6px;text-align:center;font-size:7.5pt;text-transform:uppercase;letter-spacing:0.4px;width:70px;color:#0f172a;">Note / 20</th>${opt.moyClasse?`<th style="padding:4px 6px;text-align:center;font-size:7.5pt;text-transform:uppercase;letter-spacing:0.4px;width:65px;color:#475569;">Moy. Classe</th>`:""}</tr></thead><tbody>
+ ${corps||`<tr><td colspan="${opt.moyClasse?3:2}" style="padding:14px;text-align:center;color:#94a3b8;font-style:italic;border:1px solid #cbd5e1;">Aucune évaluation enregistrée pour cette période.</td></tr>`}
+ <tr style="background-color:#e2e8f0;border-top:2px solid #0f172a;font-weight:800;"><td style="padding:4px 6px;font-size:8.5pt;text-align:right;text-transform:uppercase;letter-spacing:0.5px;color:#0f172a;border:1px solid #94a3b8;">Moyenne générale de la période :</td><td style="padding:4px 6px;font-size:9pt;text-align:center;color:#0f172a;border:1px solid #94a3b8;">${moyGen} / 20</td>${opt.moyClasse?`<td style="padding:4px 6px;font-size:9pt;text-align:center;color:#0f172a;border:1px solid #94a3b8;">${moyGenClasse} / 20</td>`:""}</tr></tbody></table>
+ ${opt.histo?`<div style="font-size:7.2pt;color:#475569;text-align:right;margin-bottom:4px;">Historique des périodes précédentes : <span>${histoStr}</span></div>`:""}</div>
+ <div><div style="font-size:7.5pt;color:#334155;margin-bottom:4px;">Fait à Bligny-lès-Beaune, le ${dateStr}</div>
+ <table style="width:100%;border-collapse:collapse;"><tr><td style="width:48%;vertical-align:top;border:1px solid #94a3b8;padding:4px 6px;height:${sigHeight};"><div style="font-size:7.5pt;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:0.4px;">Signature des parents :</div></td><td style="width:4%;"></td>
+ <td style="width:48%;vertical-align:top;border:1.5px solid #0f172a;background-color:#ffffff;padding:4px 6px;height:${sigHeight};position:relative;"><div style="font-size:7.5pt;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:0.4px;">La Directrice d'école :</div>
+ <div style="position:absolute;top:6px;right:10px;bottom:14px;left:20px;display:flex;align-items:center;justify-content:flex-end;">${sig?`<img src="${sig}" alt="Signature" style="max-height:40px;max-width:120px;object-fit:contain;">`:""}</div>
+ <div style="position:absolute;bottom:3px;right:6px;font-size:7.5pt;font-weight:700;color:#0f172a;">Mme Estelle CHIRAT</div></td></tr></table></div></div>`}
+const PDFO=n=>({margin:0,filename:n,image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true,logging:false},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}});
+function pdfOne(){const el=document.querySelector("#zone .bulletin-page");if(el)html2pdf().set(PDFO(`bulletin_${cur.replace(/\s+/g,"_")}_P${P}.pdf`)).from(el).save()}
+function pdfAll(){const b=$("bAll");b.textContent="Création du livret...";b.style.pointerEvents="none";
+ const z=document.createElement("div");z.style.cssText="width:210mm;margin:0;padding:0;background:#fff";
+ E.forEach(e=>{const w=document.createElement("div");w.innerHTML=construireHTMLBulletinSobre(e);const p=w.firstElementChild;p.style.cssText+=";margin:0;box-shadow:none;border-radius:0;page-break-after:always;break-after:page";z.appendChild(p)});document.body.appendChild(z);
+ const end=()=>{if(z.parentNode)document.body.removeChild(z);b.textContent="Télécharger tout (17 PDF)";b.style.pointerEvents=""};
+ html2pdf().set(PDFO(`bulletins_CM2_periode_${P}_complet.pdf`)).from(z).save().then(end).catch(er=>{console.error(er);end();alert("Erreur lors de la génération. Utilisez le bouton 'Imprimer'.")})}
+function imprimer(){const z=$("printZone");z.innerHTML="";E.forEach(e=>{const w=document.createElement("div");w.innerHTML=construireHTMLBulletinSobre(e);const p=w.firstElementChild;p.style.cssText+=";margin:0;box-shadow:none;border-radius:0";z.appendChild(p)});setTimeout(()=>{print();z.innerHTML=""},350)}
+ 
+/* ---------- cloud, signature, sauvegarde ---------- */
+function save(){docRef.set({baseDonnees:DB,signature:sig||null,derniereMaj:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})}
+function normDB(d){if(!d||typeof d!=="object")return null;const o={};for(let p=1;p<=5;p++){const x=d[p]||{evals:[],notes:{}};if(!Array.isArray(x.evals)||!x.notes||typeof x.notes!=="object"||!x.evals.every(e=>e&&typeof e.id==="string"&&typeof e.titre==="string"&&typeof e.matiere==="string"))return null;o[p]=x}return o}
+function lastP(){const has=x=>Object.values(x||{}).some(v=>v!==""&&v!=null);for(let p=5;p>=1;p--)if(D(p).evals.some(e=>has(D(p).notes[e.id])))return String(p);for(let p=5;p>=1;p--)if(D(p).evals.length)return String(p);return"1"}
+function ecouter(){if(unsub)unsub();unsub=docRef.onSnapshot(d=>{
+ if(d.exists){const x=d.data(),n=normDB(x.baseDonnees);if(n)DB=n;sig=typeof x.signature==="string"&&x.signature.startsWith("data:image/")?x.signature:null;majSig()}else save();
+ const was=loaded;let ch=false;if(!userP){const l=lastP();if(l!==P){P=l;F="TOUS";ch=true}}
+ loaded=true;$("loader").classList.add("hide");$("rp").textContent=P;if(!was||ch)pills();R()},
+ err=>{console.error(err);$("loader").classList.remove("hide");$("loader").textContent="Accès refusé : ce compte n'est pas autorisé à lire les notes."})}
+function majSig(){$("txtSig").textContent=sig?"Signature active ✓":"Importer signature";$("btnSig").classList.toggle("hide",!sig)}
+function importSig(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");c.width=300;c.height=img.height*300/img.width;c.getContext("2d").drawImage(img,0,0,c.width,c.height);sig=c.toDataURL("image/png");majSig();save();R()};img.src=e.target.result};r.readAsDataURL(file)}
+function delSig(){if(!confirm("Retirer la signature actuelle ?"))return;sig=null;majSig();save();R()}
+function exportJSON(){const a=document.createElement("a");a.href="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(DB,null,2));a.download=`bulletins_cm2_sauvegarde_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove()}
+function importJSON(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const d=normDB(JSON.parse(e.target.result));if(!d)throw 0;if(confirm("Remplacer les données actuelles par cette sauvegarde ?")){DB=d;save();R();alert("Restauration terminée avec succès !")}}catch(x){alert("Erreur de fichier JSON.")}};r.readAsText(file)}
+function resetP(){if(!confirm(`Supprimer toutes les notes de la Période ${P} ?`))return;DB[P]={evals:[],notes:{}};save();R()}
+$("mbtn").onclick=e=>{e.stopPropagation();$("menu").classList.toggle("hide")};
+document.addEventListener("click",e=>{if(!e.target.closest("#menu"))$("menu").classList.add("hide")});
+ 
+/* ---------- accès sécurisé (Firebase Auth) ---------- */
+let idleT;
+function idle(){clearTimeout(idleT);if(auth.currentUser)idleT=setTimeout(()=>auth.signOut(),30*60*1000)}
+["click","keydown","mousemove","touchstart"].forEach(t=>addEventListener(t,idle,{passive:true}));
+function login(e){e.preventDefault();const b=$("lbtn"),er=$("aerr");b.disabled=true;er.classList.add("hide");
+ auth.signInWithEmailAndPassword(EMAIL_COMPTE,$("pass").value).catch(x=>{er.textContent=x.code==="auth/too-many-requests"?"Trop de tentatives. Réessayez dans quelques minutes.":"E-mail ou mot de passe incorrect.";er.classList.remove("hide");const c=$("authCard");c.style.animation="shake .4s";setTimeout(()=>c.style.animation="",450)}).finally(()=>{b.disabled=false;$("pass").value=""})}
+function resetPw(){const m=EMAIL_COMPTE;auth.sendPasswordResetEmail(m).then(()=>alert("Si ce compte existe, un e-mail de réinitialisation vient d'être envoyé.")).catch(()=>alert("Impossible d'envoyer l'e-mail pour le moment."))}
+function logout(){auth.signOut()}
+auth.onAuthStateChanged(u=>{
+ if(u){$("auth").classList.add("hide");$("app").classList.remove("hide");$("loader").classList.remove("hide");$("loader").textContent="Chargement des notes…";ecouter();idle()}
+ else{if(unsub){unsub();unsub=null}DB=normDB({});sig=null;loaded=false;userP=false;P="1";F="TOUS";cur=E[0];
+  ["v-dash","evGrid","zone","side","sheet","printZone"].forEach(i=>$(i).innerHTML="");$("sheet").classList.remove("open");$("mSai").classList.add("hide");$("mCre").classList.add("hide");
+  $("app").classList.add("hide");$("auth").classList.remove("hide")}});
+</script>
 </body>
 </html>
+ 
