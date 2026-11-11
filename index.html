@@ -30,7 +30,7 @@ button,input,select{font-family:inherit;color:inherit}
 .glass{background:var(--glass);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid var(--line);box-shadow:var(--sh);border-radius:30px}
 .hide{display:none!important}
 header{max-width:1200px;margin:0 auto;padding:26px 20px 8px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
-h1{font-size:clamp(26px,5vw,42px);letter-spacing:-.035em;font-weight:700;line-height:1.05}
+h1{font-size:clamp(24px,5vw,42px);letter-spacing:-.035em;font-weight:700;line-height:1.05}
 .sub{color:var(--mut);font-size:13px;margin-bottom:6px;display:flex;gap:10px;align-items:center}
 .live{font-size:11px;font-weight:600;color:#1f9d46;background:rgba(48,209,88,.15);padding:2px 9px;border-radius:99px;transition:all .3s}
 .live.warn{color:#c77700;background:rgba(255,159,10,.16)}.live.err{color:#ff453a;background:rgba(255,69,58,.14)}
@@ -40,7 +40,7 @@ h1{font-size:clamp(26px,5vw,42px);letter-spacing:-.035em;font-weight:700;line-he
 .seg button.on{color:var(--ink)}
 .pill{position:absolute;top:4px;bottom:4px;border-radius:999px;background:var(--paper);box-shadow:0 2px 10px rgba(0,0,0,.12);transition:all .45s cubic-bezier(.16,1,.3,1)}
 .ib{width:42px;height:42px;border-radius:50%;cursor:pointer;font-weight:700;display:grid;place-items:center;border:1px solid var(--line);transition:transform .25s cubic-bezier(.16,1,.3,1)}
-.ib:hover{transform:scale(1.1) rotate(-4deg)}
+.ib:hover{transform:scale(1.08) rotate(-4deg)}
 .ib.on{background:var(--ink);color:var(--bg)}
 .menu{position:absolute;right:0;top:52px;width:240px;padding:8px;border-radius:22px;z-index:40;animation:pop .3s cubic-bezier(.16,1,.3,1)}
 .menu button,.menu label{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;width:100%;padding:10px 12px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer}
@@ -53,50 +53,60 @@ main{max-width:1200px;margin:0 auto;padding:12px 20px}
 @media(max-width:860px){.hero,.cnt{grid-column:span 12}}
 .s6{grid-column:span 6}.s12{grid-column:span 12}@media(max-width:860px){.s6{grid-column:span 12}}
 .lbl{font-size:13px;color:var(--mut);font-weight:600}
-.big{font-size:clamp(64px,11vw,120px);font-weight:800;letter-spacing:-.06em;line-height:.9;font-variant-numeric:tabular-nums}.big small{font-size:.28em;font-weight:600;color:var(--mut);letter-spacing:0;margin-left:6px}
+.big{font-size:clamp(60px,10vw,120px);font-weight:800;letter-spacing:-.06em;line-height:.9;font-variant-numeric:tabular-nums}.big small{font-size:.28em;font-weight:600;color:var(--mut);letter-spacing:0;margin-left:6px}
 .delta{display:inline-flex;gap:6px;font-size:13px;font-weight:700;padding:5px 12px;border-radius:999px;background:rgba(48,209,88,.16);color:#1f9d46}.delta.neg{background:rgba(255,159,10,.16);color:#c77700}.delta.nul{background:var(--track);color:var(--mut)}
 .insrow{display:flex;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--track)}.insrow.clk{cursor:pointer}.insrow:last-child{border:0}
 .ico{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:20px;flex:none;background:var(--track)}.insrow p{font-size:13px;color:var(--mut)}.insrow strong{font-size:15px;display:block}
-.yr{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.yc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px 8px;border-radius:18px;transition:background .25s}
-.yc:hover{background:var(--track)}.yc.on{background:var(--field);box-shadow:0 2px 12px rgba(0,0,0,.1)}
-.yv{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}.yc.empty .yv{color:var(--mut);font-weight:600}
-.yb{width:100%;max-width:30px;height:96px;border-radius:99px;background:var(--track);display:flex;align-items:flex-end;overflow:hidden}
-.yc.empty .yb{background:none;border:1.5px dashed var(--mut);opacity:.5}
-.yb i{display:block;width:100%;height:0;border-radius:99px;background:var(--ink);opacity:.2;transition:height 1.1s cubic-bezier(.16,1,.3,1),opacity .3s}
-.yc:hover .yb i{opacity:.45}
-.yc.on .yb i{opacity:1}
-.yl{font-size:12px;font-weight:700;color:var(--mut)}.yc.on .yl{color:var(--ink)}
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .tile{padding:14px 12px;border-radius:20px;background:var(--field);border:1px solid var(--line)}
-.tile b{display:block;font-size:30px;font-weight:800;letter-spacing:-.04em;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums}
+.tile b{display:block;font-size:28px;font-weight:800;letter-spacing:-.04em;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums}
 .tile small{font-size:11px;color:var(--mut);font-weight:600}
 .pchips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.pc{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;padding:8px 2px;border-radius:14px;background:var(--track);font-size:11px;font-weight:700;color:var(--mut)}
+.pc{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;padding:8px 2px;border-radius:14px;background:var(--track);font-size:11px;font-weight:700;color:var(--mut);transition:background .2s, transform .15s}
+.pc:active{transform:scale(.96)}
 .pc b{display:block;font-size:17px;color:var(--ink)}.pc.on{background:var(--ink);color:var(--bg)}.pc.on b{color:var(--bg)}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px}
 .bar{height:8px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;border-radius:99px;width:0;transition:width 1s cubic-bezier(.16,1,.3,1)}
 .bar.two{position:relative}.bar.two i{position:absolute;left:0;top:0}
 .tool{padding:14px 18px;border-radius:24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{all:unset;box-sizing:border-box;cursor:pointer;padding:7px 14px;border-radius:99px;font-size:12px;font-weight:600;background:var(--track);color:var(--mut)}.chip.on{background:var(--ink);color:var(--bg)}
-.btn{all:unset;box-sizing:border-box;cursor:pointer;padding:10px 18px;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;font-size:13px;text-align:center;transition:transform .15s,filter .2s,box-shadow .2s}.btn:active{transform:scale(.96)}.btn:hover{filter:brightness(1.12);box-shadow:0 8px 20px -10px rgba(10,132,255,.35)}.btn[disabled]{opacity:.5;pointer-events:none}
+.chip{all:unset;box-sizing:border-box;cursor:pointer;padding:7px 14px;border-radius:99px;font-size:12px;font-weight:600;background:var(--track);color:var(--mut);transition:all .2s;white-space:nowrap}
+.chip:hover{color:var(--ink);background:var(--field)}
+.chip.on{background:var(--ink);color:var(--bg)}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;padding:10px 18px;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;font-size:13px;text-align:center;transition:transform .15s,filter .2s,box-shadow .2s;white-space:nowrap}
+.btn:active{transform:scale(.96)}
+.btn:hover{filter:brightness(1.12);box-shadow:0 8px 20px -10px rgba(10,132,255,.35)}
+.btn[disabled]{opacity:.5;pointer-events:none}
 .btn.s{background:var(--field);color:var(--ink);border:1px solid var(--line)}.btn.g{background:#1f9d46;color:#fff}.btn.b{background:#0a84ff;color:#fff}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
-.ev{padding:20px;border-radius:26px;cursor:pointer;display:flex;flex-direction:column;gap:12px;transition:transform .25s cubic-bezier(.16,1,.3,1)}.ev:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-5px)}
+.ev{padding:20px;border-radius:26px;cursor:pointer;display:flex;flex-direction:column;gap:12px;transition:transform .25s cubic-bezier(.16,1,.3,1)}
+.ev:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-4px)}
 .badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px}
 .ev h3{font-size:15px}.ev p{font-size:12px;color:var(--mut);font-style:italic;min-height:15px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .x{all:unset;cursor:pointer;width:32px;height:32px;border-radius:50%;background:var(--track);display:grid;place-items:center;font-size:14px}
 
-/* ===== Effets modernes ===== */
+/* ===== Sélecteur d'élève propre sans flèche native décalée ===== */
+#selE{
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  cursor:pointer;
+  padding:9px 36px 9px 16px!important;
+  background-image:url('data:image/svg+xml;utf8,<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%238e8e93" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><polyline points="6 9 12 15 18 9"/></svg>');
+  background-repeat:no-repeat;
+  background-position:right 13px center;
+  border-radius:14px;
+}
+
+/* ===== Effets visuels & halos ===== */
 .c,.ev,.tool{position:relative}
 .c::before,.ev::before,.tool::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(300px circle at var(--mx,50%) var(--my,50%),rgba(140,170,255,.07),transparent 65%)}
 .c:hover::before,.ev:hover::before,.tool:hover::before{opacity:1}
 .hero::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;background:conic-gradient(from var(--ang),transparent 0 68%,var(--a1),var(--a2),var(--a3),transparent);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 7s linear infinite}
 body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i,0)*55ms)}
 
-/* ===== Magic Bar façon macOS Dock ===== */
+/* ===== Dock macOS épuré (point blanc retiré) ===== */
 .dock-wrap{
   position:fixed;
   left:0;
@@ -112,7 +122,7 @@ body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bez
   display:flex;
   align-items:flex-end;
   gap:12px;
-  padding:10px 14px 10px;
+  padding:10px 14px;
   border-radius:30px;
   background:rgba(255,255,255,.68);
   backdrop-filter:blur(36px) saturate(190%);
@@ -150,7 +160,7 @@ body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bez
   background:var(--track);
   border:1px solid var(--line);
   box-shadow:0 4px 14px rgba(0,0,0,.06);
-  will-change:width, height;
+  transition:background .2s, color .2s, transform .15s;
 }
 .dock-item button svg{
   width:23px;
@@ -167,25 +177,12 @@ body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bez
   color:var(--ink);
 }
 .dock-item button:active{
-  filter:brightness(.9);
+  transform:scale(.92);
 }
 .dock-item.on button{
   background:var(--ink);
   color:var(--bg);
   box-shadow:0 8px 22px -6px rgba(0,0,0,.45);
-}
-.dock-item.on button:hover{
-  background:var(--ink);
-  color:var(--bg);
-}
-.dock-item.on::after{
-  content:"";
-  position:absolute;
-  bottom:-6px;
-  width:4px;
-  height:4px;
-  border-radius:50%;
-  background:var(--ink);
 }
 .dock .tip{
   position:absolute;
@@ -212,7 +209,7 @@ body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bez
   transform:translateX(-50%) translateY(0);
 }
 
-/* ===== Courbe d'évolution annuelle ===== */
+/* ===== Courbe d'évolution ===== */
 @keyframes draw{from{stroke-dashoffset:1}}
 @keyframes fadeIn{from{opacity:0}}
 @keyframes dotin{from{transform:scale(0);opacity:0}}
@@ -227,18 +224,12 @@ body[data-enter] .bento>*,body[data-enter] .grid>*{animation:rise .85s cubic-bez
 .evo .band{opacity:0;transition:opacity .25s}
 .evo .pt:hover .band{opacity:.06}.evo .pt.on .band{opacity:.07}
 
-/* ===== Palette de commandes ===== */
-#kp{align-items:flex-start;padding-top:14vh}
-#kp .box{width:min(560px,100%);overflow:hidden}
-#kq{margin:0;border:0;border-radius:0;border-bottom:1px solid var(--track);padding:18px 22px;font-size:16px;background:transparent;width:100%;outline:none}
-#kl{max-height:50vh;overflow-y:auto;padding:8px}
-#kl .si small{color:var(--mut);font-weight:700}#kl .si.on small{color:inherit;opacity:.7}
-#cf{position:fixed;inset:0;z-index:90;pointer-events:none}
-
+/* Modales & Champs */
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
 .ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.32);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:14px}
 .ov>div{animation:pop .35s cubic-bezier(.16,1,.3,1)}
-.fld{width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--field);font-size:14px;font-weight:600;outline:none;margin-bottom:12px}.fld:focus{border-color:#0a84ff}
+.fld{width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--field);font-size:14px;font-weight:600;outline:none;margin-bottom:12px;transition:border-color .2s}
+.fld:focus{border-color:#0a84ff}
 .mod{width:min(440px,100%);padding:26px}.mod label{font-size:12px;font-weight:600;color:var(--mut);display:block;margin-bottom:5px}
 .pw{width:min(360px,100%);padding:36px;text-align:center}
 .logo{width:64px;height:64px;border-radius:22px;background:linear-gradient(135deg,#0a84ff,#64d2ff);color:#fff;font-weight:900;display:grid;place-items:center;margin:0 auto 14px}
@@ -247,30 +238,42 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .sai .ls{overflow-y:auto;padding:4px 18px;flex:1}
 .nr{display:flex;justify-content:space-between;align-items:center;padding:7px 8px;border-radius:14px;gap:8px}.nr:hover{background:var(--track)}
 .nr b{font-size:13px}.nr small{color:var(--mut);width:22px;display:inline-block;text-align:right;margin-right:6px}
-.q{all:unset;cursor:pointer;font-size:10px;font-weight:700;padding:5px 8px;border-radius:9px;background:var(--track)}.q:hover{background:var(--ink);color:var(--bg)}
+.q{all:unset;cursor:pointer;font-size:10px;font-weight:700;padding:5px 8px;border-radius:9px;background:var(--track);transition:background .15s}
+.q:hover{background:var(--ink);color:var(--bg)}
 .ni{display:flex;align-items:center;gap:4px;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:5px 10px}.ni input{all:unset;width:42px;text-align:center;font-weight:700;font-size:13px}.ni span{font-size:10px;color:var(--mut);font-weight:700}
 .sheet{position:fixed;top:12px;right:12px;bottom:12px;width:min(440px,calc(100vw - 24px));z-index:30;padding:28px;overflow-y:auto;transform:translateX(calc(100% + 24px));transition:transform .55s cubic-bezier(.16,1,.3,1)}.sheet.open{transform:none}
 .bt{display:flex;gap:14px;align-items:flex-start;flex-direction:column}@media(min-width:1024px){.bt{flex-direction:row}}
 .side{width:100%;padding:14px;flex-shrink:0}@media(min-width:1024px){.side{width:280px}}
 .side .lst{max-height:70vh;overflow-y:auto;margin-top:8px}
-.si{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:12px;cursor:pointer;font-size:12px;font-weight:600}.si:hover{background:var(--track)}.si.on{background:var(--ink);color:var(--bg)}
+.si{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:12px;cursor:pointer;font-size:12px;font-weight:600;transition:background .15s}
+.si:hover{background:var(--track)}.si.on{background:var(--ink);color:var(--bg)}
 .zone{flex:1;width:100%;overflow-x:auto;padding:24px;border-radius:30px;background:var(--track);display:flex;justify-content:center}
 table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(--mut);padding:10px 8px;text-align:center}.cmp td{padding:9px 8px;text-align:center;border-top:1px solid var(--track)}.cmp td:first-child,.cmp th:first-child{text-align:left;font-weight:600}
 .bulletin-page{width:210mm;height:296mm;max-height:296mm;padding:12mm 14mm;margin:0 auto;background:#fff;color:#0f172a;box-sizing:border-box;box-shadow:0 16px 40px rgba(0,0,0,.15);position:relative;display:flex;flex-direction:column;justify-content:space-between;border-radius:2px;overflow:hidden;flex-shrink:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 #printZone{display:none}
 @media print{html,body{background:#fff!important;margin:0!important;padding:0!important}body>*:not(#printZone){display:none!important}#printZone{display:block!important}.bulletin-page{margin:0!important;box-shadow:none!important;border-radius:0!important;width:100%!important;height:296mm!important;page-break-after:always;break-after:page;padding:11mm 13mm!important}@page{size:A4 portrait;margin:0}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-/* Comparateur épuré P1 à P5 (Apple Style) */
-.spark-box{width:100%;margin-top:20px;padding-top:10px}
-.spark-track{display:grid;grid-template-columns:repeat(5,1fr);position:relative;padding:14px 0 0}
-.spark-step{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;transition:opacity .2s}
-.spark-step:hover{opacity:1!important}
-.spark-dot{width:10px;height:10px;border-radius:50%;background:var(--track);position:relative;z-index:2;transition:all .3s cubic-bezier(.16,1,.3,1)}
-.spark-step.active .spark-dot{background:#0a84ff;box-shadow:0 0 0 4px rgba(10,132,255,.25), 0 0 12px #0a84ff;transform:scale(1.2)}
-.spark-val{font-size:11px;font-weight:700;margin-bottom:8px;font-variant-numeric:tabular-nums;transition:all .2s}
-.spark-lbl{font-size:11px;font-weight:600;color:var(--mut);margin-top:8px}
-.spark-step.active .spark-lbl{color:var(--ink);font-weight:800}
+/* ===== OPTIMISATION MOBILE EXCLUSIVE (< 768px) ===== */
+@media(max-width:768px){
+  header{padding:18px 14px 6px;gap:12px}
+  main{padding:8px 12px}
+  .bento{gap:12px}
+  .c{padding:18px;border-radius:22px}
+  .tool{padding:12px 14px;border-radius:20px;flex-direction:column;align-items:stretch;gap:10px}
+  .tool .chips{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tool .chips:first-child{display:flex;flex-direction:column}
+  #selE{width:100%!important}
+  .tool .btn{width:100%;padding:11px 12px;font-size:12.5px}
+  .side{display:none} /* Sur mobile, la sélection se fait via le sélecteur haut */
+  .zone{padding:10px;border-radius:18px}
+  .bulletin-page{transform-origin:top center;transform:scale(0.85);margin-bottom:-45mm}
+  .dock{padding:6px 10px;gap:16px;border-radius:24px}
+  .dock-item{width:46px}
+  .dock-item button{width:46px;height:46px;border-radius:14px}
+  .dock-item button svg{width:21px;height:21px}
+  .dock .tip{display:none} /* Évite l'infobulle fantôme au touch */
+  .tiles{grid-template-columns:1fr;gap:8px}
+}
 </style>
 </head>
 <body>
@@ -300,11 +303,16 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
   <section id="v-dash" class="bento"></section>
   <section id="v-evals" class="hide"><div class="tool glass"><div class="chips" id="chips"></div><button class="btn b" onclick="openCre()">+ Nouvelle évaluation</button></div><div class="grid" id="evGrid"></div></section>
   <section id="v-bul" class="hide">
-    <div class="tool glass"><div class="chips" style="align-items:center">
-      <select id="selE" class="fld" style="width:auto;margin:0" onchange="cur=this.value;bul()"></select>
-      <button class="chip" id="oMoy" onclick="tog('moyClasse')">Moyenne de classe</button><button class="chip on" id="oHis" onclick="tog('histo')">Historique des périodes</button></div>
-      <div class="chips"><button class="btn s" onclick="pdfOne()">PDF de cet élève</button><button class="btn g" id="bAll" onclick="pdfAll()">Tout télécharger (1 PDF)</button><button class="btn" onclick="imprimer()">Imprimer</button></div></div>
-    <div class="bt"><div class="side glass"><div class="lbl">Élèves (17)</div><input class="fld" style="margin:8px 0 0" placeholder="Rechercher un élève…" oninput="side()" id="fs"><div class="lst" id="side"></div></div><div class="zone" id="zone"></div></div>
+    <div class="tool glass">
+      <div class="chips" style="align-items:center">
+        <select id="selE" class="fld" style="width:auto;margin:0" onchange="cur=this.value;bul()"></select>
+        <button class="chip" id="oMoy" onclick="tog('moyClasse')">Moyenne de classe</button><button class="chip on" id="oHis" onclick="tog('histo')">Historique des périodes</button>
+      </div>
+      <div class="chips">
+        <button class="btn s" onclick="pdfOne()">PDF de cet élève</button><button class="btn g" id="bAll" onclick="pdfAll()">Tout télécharger (1 PDF)</button><button class="btn" onclick="imprimer()">Imprimer</button>
+      </div>
+    </div>
+    <div class="bt"><div class="side glass"><div class="lbl">Élèves</div><input class="fld" style="margin:8px 0 0" placeholder="Rechercher un élève…" oninput="side()" id="fs"><div class="lst" id="side"></div></div><div class="zone" id="zone"></div></div>
   </section>
   <div id="loader" class="lbl" style="text-align:center;padding:80px">Chargement des notes…</div>
 </main>
@@ -357,10 +365,6 @@ const EMAIL_COMPTE="theochirat@gmail.com";
 const docRef=firebase.firestore().collection("bulletins_scolaires").doc("cm2_data");
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-/* Liste de secours initiale pour la migration automatique vers Firestore */
-const ELEVES_DEFAUT=["BONIN Nathan","COSTE Stanislas","CRESPO Gabriel","GIANNINI Lison","HADDAD Sofia","HEITZMANN Gauthier","HERODET Mathias","KHELIFI Camil","LEJEUNE Lila","LIMA Inès","MERMET William","MONTALBAN Agathe","PAIS Amalia","PIERRE Louca","TALAGHZI Safiyah","TALAGHZI Younes","ZUBER Léon"];
-
-/* E est désormais vide tant que l'utilisateur n'est pas connecté et que Firestore n'a pas répondu */
 let E=[];
 const MAT=["Français","Maths","Histoire","Géographie","EMC","Sciences","Anglais"];
 const COL={"Français":"#0a84ff","Maths":"#bf5af2","Histoire":"#ff9f0a","Géographie":"#ff6b35","EMC":"#5e5ce6","Sciences":"#30d158","Anglais":"#ff375f"};
@@ -441,7 +445,7 @@ function pills(){const sg=$("seg");sg.innerHTML='<span class="pill"></span>'+[1,
   requestAnimationFrame(()=>{const on=sg.querySelector(".on"),pl=sg.querySelector(".pill");if(on){pl.style.left=on.offsetLeft+"px";pl.style.width=on.offsetWidth+"px"}})}
 function chgP(p){userP=true;P=String(p);F="TOUS";$("rp").textContent=P;closeS();pills();R();enter()}
 
-/* Moteur physique macOS Dock (sans aucun chevauchement) */
+/* Moteur physique macOS Dock (uniquement sur écrans de bureau avec souris) */
 document.querySelectorAll("#dock .dock-item").forEach(item=>{
   item.querySelector("button").onclick=()=>setV(item.dataset.v);
 });
@@ -451,6 +455,7 @@ const dockItems=[...dockEl.querySelectorAll(".dock-item")];
 const DOCK_BASE=50, DOCK_MAX=72, DOCK_RANGE=130;
 
 function resetDock(){
+  if(window.innerWidth <= 768) return;
   dockItems.forEach(item=>{
     const btn=item.querySelector("button");
     const svg=btn.querySelector("svg");
@@ -463,6 +468,7 @@ function resetDock(){
 }
 
 dockEl.addEventListener("mousemove", e=>{
+  if(window.innerWidth <= 768) return;
   const mouseX=e.clientX;
   dockItems.forEach(item=>{
     const btn=item.querySelector("button");
@@ -492,7 +498,7 @@ dockEl.addEventListener("mousemove", e=>{
 });
 
 dockEl.addEventListener("mouseleave", resetDock);
-addEventListener("resize", pills);
+addEventListener("resize", ()=>{ pills(); if(window.innerWidth<=768) resetDock(); });
 
 /* ---------- courbe d'évolution (P1 à P5) ---------- */
 function evoChart(per,n){
@@ -528,21 +534,18 @@ function dash(){
   cu.evals.forEach(x=>{const no=cu.notes[x.id]||{};E.forEach(e=>{if(no[e]!==undefined&&no[e]!==""&&no[e]!==null)got++})});
   const pct=exp?Math.round(got/exp*100):0;
 
-  /* hero : moyenne + évolution sur les 5 périodes */
   const yr=evoChart(per,n);
   const hero=`<div class="c glass hero"><div class="lbl">Moyenne de la classe · Période ${P}</div>
     <div class="big">${mp!=null?`<span data-count="${mp}">${f(mp)}</span>`:"-"}<small>/20</small></div>
     <div class="row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap"><span class="delta ${d==null?"nul":d<0?"neg":""}">${d!=null?(d>=0?"▲ ":"▼ ")+fd(d)+" pt vs P"+pp:(pp?"Pas encore de notes":"Première période")}</span>${ann!=null?`<span class="lbl">Moyenne annuelle : <b style="color:var(--ink)">${f(ann)}</b> / 20</span>`:""}</div>
     <div><div class="lbl" style="margin-bottom:6px">Évolution sur l'année · touchez une période pour la consulter</div>${yr}</div></div>`;
 
-  /* compteurs d'évaluations */
   const pm=MAT.map(m=>[m,cnt(P,m),[1,2,3,4,5].reduce((s,q)=>s+cnt(q,m),0)]),mxY=Math.max(1,...pm.map(x=>x[2]));
   const cntCard=`<div class="c glass cnt"><div class="lbl">Évaluations</div>
     <div class="tiles"><div class="tile"><small>Période ${P}</small><b data-int="${cu.evals.length}">${cu.evals.length}</b></div><div class="tile"><small>Sur l'année</small><b data-int="${tot}">${tot}</b></div><div class="tile"><small>Notes saisies</small><b data-int="${pct}" data-suf="%">${pct}%</b></div></div>
     <div><div class="lbl" style="margin-bottom:6px">Par période</div><div class="pchips">${per.map(x=>`<button class="pc ${x.p===n?"on":""}" onclick="chgP('${x.p}')">P${x.p}<b>${x.n}</b></button>`).join("")}</div></div>
     <div><div class="lbl" style="margin-bottom:8px">Par matière · période / année</div><div style="display:flex;flex-direction:column;gap:9px">${pm.map(([m,c,y])=>`<div><div class="row" style="font-size:12px;font-weight:600;opacity:${y?1:.5}"><span><i class="dot" style="background:${COL[m]}"></i>${m}</span><span><b>${c}</b> <span style="color:var(--mut)">· ${y}</span></span></div><div class="bar two"><i data-w="${y/mxY*100}%" style="background:${COL[m]};opacity:.28"></i><i data-w="${c/mxY*100}%" style="background:${COL[m]}"></i></div></div>`).join("")}</div></div></div>`;
 
-  /* comparatif des élèves */
   const rows=E.map(e=>{const ms=[],tds=[1,2,3,4,5].map(p=>{const a=D(p).evals.length?calculerMoyenne(notesE(p,e)):"-";if(a!=="-")ms.push(parseFloat(a));return`<td ${p===n?'style="font-weight:700;color:#0a84ff;background:rgba(10,132,255,.08)"':""}>${a}</td>`}).join("");
     const a=avgE(P,e),b=pp?avgE(pp,e):null,dv=a!=null&&b!=null?a-b:null;
     return`<tr><td onclick="openS('${e}')" style="cursor:pointer">${e}</td>${tds}<td style="font-weight:700;color:${dv==null?"var(--mut)":dv>=0?"#1f9d46":"#c77700"}">${fd(dv)}</td><td style="font-weight:800;text-align:right">${ms.length?(ms.reduce((a,b)=>a+b,0)/ms.length).toFixed(2)+" / 20":"-"}</td></tr>`}).join("");
@@ -550,7 +553,6 @@ function dash(){
 
   if(!cu.evals.length){el.innerHTML=hero+cntCard+`<div class="c glass s12" style="text-align:center;padding:50px"><h3>Aucune évaluation pour la période ${P}</h3><p class="lbl" style="margin:8px 0 18px">Ajoutez un premier devoir pour voir apparaître les statistiques de cette période.</p><button class="btn b" onclick="setV('evals');openCre()">+ Nouvelle évaluation</button></div>`+cmp;play(el);return}
 
-  /* points d'attention */
   const inc=cu.evals.filter(x=>{const no=cu.notes[x.id]||{};return E.some(e=>no[e]===undefined||no[e]===""||no[e]===null)});
   const low=pe.filter(x=>x[1]<10);
   let prog=null,drop=null;
@@ -562,7 +564,6 @@ function dash(){
     ${prog&&prog[1]>0?ir("📈","Plus belle progression",`${prog[0]} · ${fd(prog[1])} pt vs P${pp}`,`openS('${prog[0]}')`):""}
     ${drop&&drop[1]<0?ir("📉","Plus forte baisse",`${drop[0]} · ${fd(drop[1])} pt vs P${pp}`,`openS('${drop[0]}')`):""}</div></div>`;
 
-  /* répartition des moyennes */
   const bands=[["17 et plus","#30d158",v=>v>=17],["15 à 17","#64d2ff",v=>v>=15&&v<17],["12 à 15","#0a84ff",v=>v>=12&&v<15],["10 à 12","#bf5af2",v=>v>=10&&v<12],["Moins de 10","#ff9f0a",v=>v<10]],vals=pe.map(x=>x[1]);
   const distCard=hasN?`<div class="c glass s6"><h3>Répartition des moyennes</h3><p class="lbl" style="margin-bottom:12px">Nombre d'élèves par tranche de moyenne (${vals.length} noté${vals.length>1?"s":""}).</p><div style="display:flex;flex-direction:column;gap:11px">${bands.map(b=>{const c=vals.filter(b[2]).length;return`<div><div class="row" style="font-size:12px;font-weight:600"><span><i class="dot" style="background:${b[1]}"></i>${b[0]}</span><b>${c}</b></div><div class="bar"><i data-w="${c/vals.length*100}%" style="background:${b[1]}"></i></div></div>`}).join("")}</div></div>`:"";
 
@@ -687,20 +688,10 @@ function ecouter(){if(unsub)unsub();unsub=docRef.onSnapshot(d=>{
     if(d.exists){
       const x=d.data(),n=normDB(x.baseDonnees);
       if(n)DB=n;
-      // Lecture sécurisée des élèves depuis Firestore, avec migration automatique si absent
-      if(Array.isArray(x.eleves)&&x.eleves.length>0){
-        E=x.eleves;
-      } else {
-        E=[...ELEVES_DEFAUT];
-        save(true);
-      }
+      if(Array.isArray(x.eleves)&&x.eleves.length>0) E=x.eleves;
       if(!cur||!E.includes(cur))cur=E[0]||"";
       sig=typeof x.signature==="string"&&x.signature.startsWith("data:image/")?x.signature:null;
       majSig();
-    } else {
-      E=[...ELEVES_DEFAUT];
-      cur=E[0]||"";
-      save(true);
     }
   }
   const was=loaded;let ch=false;if(!userP){const l=lastP();if(l!==P){P=l;F="TOUS";ch=true}}
