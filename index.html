@@ -28,7 +28,8 @@ button,input,select{font-family:inherit;color:inherit}
 header{max-width:1200px;margin:0 auto;padding:26px 20px 8px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
 h1{font-size:clamp(26px,5vw,42px);letter-spacing:-.035em;font-weight:700;line-height:1.05}
 .sub{color:var(--mut);font-size:13px;margin-bottom:6px;display:flex;gap:10px;align-items:center}
-.live{font-size:11px;font-weight:600;color:#1f9d46;background:rgba(48,209,88,.15);padding:2px 9px;border-radius:99px}
+.live{font-size:11px;font-weight:600;color:#1f9d46;background:rgba(48,209,88,.15);padding:2px 9px;border-radius:99px;transition:all .3s}
+.live.warn{color:#c77700;background:rgba(255,159,10,.16)}.live.err{color:#ff453a;background:rgba(255,69,58,.14)}
 .hr{display:flex;gap:10px;align-items:center}
 .seg{display:flex;padding:4px;border-radius:999px;position:relative}
 .seg button{all:unset;cursor:pointer;padding:8px 15px;font-size:13px;font-weight:600;border-radius:999px;position:relative;z-index:1;color:var(--mut);transition:color .3s}
@@ -41,22 +42,39 @@ h1{font-size:clamp(26px,5vw,42px);letter-spacing:-.035em;font-weight:700;line-he
 main{max-width:1200px;margin:0 auto;padding:12px 20px}
 .bento{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
 .c{padding:26px;overflow:hidden}
-.hero{grid-column:span 7;min-height:300px;display:flex;flex-direction:column;justify-content:space-between}.rings{grid-column:span 5;display:flex;flex-direction:column;align-items:center;gap:14px}.ins{grid-column:span 5}.heat{grid-column:span 7;overflow-x:auto}
-@media(max-width:860px){.hero,.rings,.ins,.heat{grid-column:span 12}}
+.hero{grid-column:span 7;min-height:300px;display:flex;flex-direction:column;justify-content:space-between;gap:14px}
+.cnt{grid-column:span 5;display:flex;flex-direction:column;gap:16px}
+@media(max-width:860px){.hero,.cnt{grid-column:span 12}}
 .s6{grid-column:span 6}.s12{grid-column:span 12}@media(max-width:860px){.s6{grid-column:span 12}}
 .lbl{font-size:13px;color:var(--mut);font-weight:600}
 .big{font-size:clamp(64px,11vw,120px);font-weight:800;letter-spacing:-.06em;line-height:.9;font-variant-numeric:tabular-nums}.big small{font-size:.28em;font-weight:600;color:var(--mut);letter-spacing:0;margin-left:6px}
-.delta{display:inline-flex;gap:6px;font-size:13px;font-weight:700;padding:5px 12px;border-radius:999px;background:rgba(48,209,88,.16);color:#1f9d46}.delta.neg{background:rgba(255,159,10,.16);color:#c77700}
-.leg{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;font-size:12px;width:100%}.leg div{display:flex;justify-content:space-between}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px}
-.insrow{display:flex;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--track);cursor:pointer}.insrow:last-child{border:0}
-.ico{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:20px;flex:none}.insrow p{font-size:13px;color:var(--mut)}.insrow strong{font-size:15px;display:block}
-table.h{border-collapse:separate;border-spacing:3px;width:100%;font-size:12px}table.h th{font-weight:600;color:var(--mut);font-size:11px}
-td.n{font-weight:600;white-space:nowrap;padding-right:10px;cursor:pointer}td.v{text-align:center;border-radius:9px;padding:7px 0;font-weight:700;min-width:38px;transition:transform .25s cubic-bezier(.16,1,.3,1)}td.v:hover{transform:scale(1.25)}
+.delta{display:inline-flex;gap:6px;font-size:13px;font-weight:700;padding:5px 12px;border-radius:999px;background:rgba(48,209,88,.16);color:#1f9d46}.delta.neg{background:rgba(255,159,10,.16);color:#c77700}.delta.nul{background:var(--track);color:var(--mut)}
+.insrow{display:flex;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--track)}.insrow.clk{cursor:pointer}.insrow:last-child{border:0}
+.ico{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:20px;flex:none;background:var(--track)}.insrow p{font-size:13px;color:var(--mut)}.insrow strong{font-size:15px;display:block}
+/* évolution annuelle */
+.yr{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.yc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px 8px;border-radius:18px;transition:background .25s}
+.yc:hover{background:var(--track)}.yc.on{background:var(--field);box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.yv{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}.yc.empty .yv{color:var(--mut);font-weight:600}
+.yb{width:100%;max-width:56px;height:96px;border-radius:12px;background:var(--track);display:flex;align-items:flex-end;overflow:hidden}
+.yc.empty .yb{background:none;border:1.5px dashed var(--mut);opacity:.5}
+.yb i{display:block;width:100%;height:0;border-radius:12px;background:rgba(10,132,255,.38);transition:height 1s cubic-bezier(.16,1,.3,1)}.yc.on .yb i{background:linear-gradient(180deg,#64d2ff,#0a84ff)}
+.yl{font-size:12px;font-weight:700;color:var(--mut)}.yc.on .yl{color:var(--ink)}
+/* compteurs */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{padding:14px 12px;border-radius:20px;background:var(--field);border:1px solid var(--line)}
+.tile b{display:block;font-size:30px;font-weight:800;letter-spacing:-.04em;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums}
+.tile small{font-size:11px;color:var(--mut);font-weight:600}
+.pchips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pc{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;padding:8px 2px;border-radius:14px;background:var(--track);font-size:11px;font-weight:700;color:var(--mut)}
+.pc b{display:block;font-size:17px;color:var(--ink)}.pc.on{background:var(--ink);color:var(--bg)}.pc.on b{color:var(--bg)}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px}
 .bar{height:8px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;border-radius:99px;width:0;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.bar.two{position:relative}.bar.two i{position:absolute;left:0;top:0}
 .tool{padding:14px 18px;border-radius:24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{all:unset;box-sizing:border-box;cursor:pointer;padding:7px 14px;border-radius:99px;font-size:12px;font-weight:600;background:var(--track);color:var(--mut)}.chip.on{background:var(--ink);color:var(--bg)}
-.btn{all:unset;box-sizing:border-box;cursor:pointer;padding:10px 18px;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;font-size:13px;text-align:center;transition:transform .15s}.btn:active{transform:scale(.96)}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;padding:10px 18px;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;font-size:13px;text-align:center;transition:transform .15s}.btn:active{transform:scale(.96)}.btn[disabled]{opacity:.5;pointer-events:none}
 .btn.s{background:var(--field);color:var(--ink);border:1px solid var(--line)}.btn.g{background:#1f9d46;color:#fff}.btn.b{background:#0a84ff;color:#fff}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
 .ev{padding:20px;border-radius:26px;cursor:pointer;display:flex;flex-direction:column;gap:12px;transition:transform .25s cubic-bezier(.16,1,.3,1)}.ev:hover{transform:translateY(-4px)}
@@ -74,7 +92,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .fld{width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--field);font-size:14px;font-weight:600;outline:none;margin-bottom:12px}.fld:focus{border-color:#0a84ff}
 .mod{width:min(440px,100%);padding:26px}.mod label{font-size:12px;font-weight:600;color:var(--mut);display:block;margin-bottom:5px}
 .pw{width:min(360px,100%);padding:36px;text-align:center}
-.dots{display:flex;gap:12px;justify-content:center;margin:20px 0}.dots i{width:12px;height:12px;border-radius:50%;border:1px solid var(--mut);transition:all .2s}.dots i.on{background:#0a84ff;border-color:#0a84ff;transform:scale(1.15)}
 .logo{width:64px;height:64px;border-radius:22px;background:linear-gradient(135deg,#0a84ff,#64d2ff);color:#fff;font-weight:900;display:grid;place-items:center;margin:0 auto 14px}
 .sai{width:min(620px,100%);max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
 .sai>.hd,.sai>.ft{padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:10px}.sai>.ft{font-size:12px;color:var(--mut)}
@@ -84,15 +101,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .q{all:unset;cursor:pointer;font-size:10px;font-weight:700;padding:5px 8px;border-radius:9px;background:var(--track)}.q:hover{background:var(--ink);color:var(--bg)}
 .ni{display:flex;align-items:center;gap:4px;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:5px 10px}.ni input{all:unset;width:42px;text-align:center;font-weight:700;font-size:13px}.ni span{font-size:10px;color:var(--mut);font-weight:700}
 .sheet{position:fixed;top:12px;right:12px;bottom:12px;width:min(440px,calc(100vw - 24px));z-index:30;padding:28px;overflow-y:auto;transform:translateX(calc(100% + 24px));transition:transform .55s cubic-bezier(.16,1,.3,1)}.sheet.open{transform:none}
-.pal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.32);backdrop-filter:blur(8px);display:flex;justify-content:center;padding-top:14vh}.pal>div{width:min(560px,92vw);padding:12px;height:fit-content;animation:pop .3s cubic-bezier(.16,1,.3,1)}
-.pal input{all:unset;width:100%;padding:14px 16px;font-size:18px;box-sizing:border-box}.pal li{list-style:none;padding:11px 16px;border-radius:14px;cursor:pointer;display:flex;justify-content:space-between;font-size:14px;font-weight:600}.pal li.on{background:var(--track)}
 .bt{display:flex;gap:14px;align-items:flex-start;flex-direction:column}@media(min-width:1024px){.bt{flex-direction:row}}
 .side{width:100%;padding:14px;flex-shrink:0}@media(min-width:1024px){.side{width:280px}}
 .side .lst{max-height:70vh;overflow-y:auto;margin-top:8px}
 .si{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:12px;cursor:pointer;font-size:12px;font-weight:600}.si:hover{background:var(--track)}.si.on{background:var(--ink);color:var(--bg)}
 .zone{flex:1;width:100%;overflow-x:auto;padding:24px;border-radius:30px;background:var(--track);display:flex;justify-content:center}
-.stat{padding:22px}.stat .t{font-size:30px;font-weight:800;letter-spacing:-.03em;margin-top:6px}
-.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:16px}
 table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(--mut);padding:10px 8px;text-align:center}.cmp td{padding:9px 8px;text-align:center;border-top:1px solid var(--track)}.cmp td:first-child,.cmp th:first-child{text-align:left;font-weight:600}
 .bulletin-page{width:210mm;height:296mm;max-height:296mm;padding:12mm 14mm;margin:0 auto;background:#fff;color:#0f172a;box-sizing:border-box;box-shadow:0 16px 40px rgba(0,0,0,.15);position:relative;display:flex;flex-direction:column;justify-content:space-between;border-radius:2px;overflow:hidden;flex-shrink:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 #printZone{display:none}
@@ -112,7 +125,7 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
 
 <div id="app" class="hide">
 <header>
-  <div><div class="sub">CM2 · Année scolaire 2026/2027 <span class="live">● En direct</span></div><h1>École Jean des Vignes</h1></div>
+  <div><div class="sub">CM2 · Année scolaire 2026/2027 <span class="live" id="live">● En direct</span></div><h1>École Jean des Vignes</h1></div>
   <div class="hr"><div class="seg glass" id="seg"></div>
     <div style="position:relative"><button class="ib glass" id="mbtn" aria-label="Options">•••</button>
     <div id="menu" class="glass menu hide">
@@ -128,8 +141,8 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
   <section id="v-bul" class="hide">
     <div class="tool glass"><div class="chips" style="align-items:center">
       <select id="selE" class="fld" style="width:auto;margin:0" onchange="cur=this.value;bul()"></select>
-      <button class="chip" id="oMoy" onclick="tog('moyClasse')">Moyenne de classe</button><button class="chip on" id="oHis" onclick="tog('histo')">Historique P1-P5</button></div>
-      <div class="chips"><button class="btn s" onclick="pdfOne()">PDF de cet élève</button><button class="btn g" id="bAll" onclick="pdfAll()">Télécharger tout (17 PDF)</button><button class="btn" onclick="imprimer()">Imprimer</button></div></div>
+      <button class="chip" id="oMoy" onclick="tog('moyClasse')">Moyenne de classe</button><button class="chip on" id="oHis" onclick="tog('histo')">Historique des périodes</button></div>
+      <div class="chips"><button class="btn s" onclick="pdfOne()">PDF de cet élève</button><button class="btn g" id="bAll" onclick="pdfAll()">Tout télécharger (1 PDF)</button><button class="btn" onclick="imprimer()">Imprimer</button></div></div>
     <div class="bt"><div class="side glass"><div class="lbl">Élèves (17)</div><input class="fld" style="margin:8px 0 0" placeholder="Rechercher un élève…" oninput="side()" id="fs"><div class="lst" id="side"></div></div><div class="zone" id="zone"></div></div>
   </section>
   <div id="loader" class="lbl" style="text-align:center;padding:80px">Chargement des notes…</div>
@@ -142,7 +155,7 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
 <aside class="sheet glass" id="sheet"></aside>
 
 <div id="mCre" class="ov hide"><div class="glass mod">
-  <div class="row" style="margin-bottom:16px"><h3>Nouvelle évaluation</h3><button class="x" onclick="$('mCre').classList.add('hide')">✕</button></div>
+  <div class="row" style="margin-bottom:16px"><h3>Nouvelle évaluation</h3><button class="x" onclick="$('mCre').classList.add('hide')" aria-label="Fermer">✕</button></div>
   <label>Matière</label><select id="cMat" class="fld" onchange="subs()"></select>
   <label>Sous-domaine (facultatif)</label><select id="cThe" class="fld"></select>
   <label>Titre de l'évaluation</label><input id="cTit" class="fld" placeholder="Ex : Bilan numération, Dictée n°2…" onkeydown="if(event.key==='Enter')creer()">
@@ -151,7 +164,7 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
 <div id="mSai" class="ov hide"><div class="glass sai">
   <div class="hd"><div><span id="sBadge" class="badge"></span><h3 id="sTit" style="margin-top:6px"></h3><p id="sThe" class="lbl" style="font-style:italic"></p></div><button class="btn s" onclick="closeSai()">Fermer</button></div>
   <div class="ls" id="sList"></div>
-  <div class="ft"><span>Raccourcis : <b>NE</b>, <b>ABS</b></span><button class="btn" onclick="closeSai()">Valider et fermer</button></div></div></div>
+  <div class="ft"><span>Raccourcis : <b>NE</b>, <b>ABS</b> · décimales avec . ou ,</span><button class="btn" onclick="closeSai()">Valider et fermer</button></div></div></div>
 </div>
 <div id="printZone"></div>
 
@@ -166,6 +179,7 @@ const E=["BONIN Nathan","COSTE Stanislas","CRESPO Gabriel","GIANNINI Lison","HAD
 const MAT=["Français","Maths","Histoire","Géographie","EMC","Sciences","Anglais"];
 const COL={"Français":"#0a84ff","Maths":"#bf5af2","Histoire":"#ff9f0a","Géographie":"#ff6b35","EMC":"#5e5ce6","Sciences":"#30d158","Anglais":"#ff375f"};
 const SUB={"Français":["Grammaire","Conjugaison","Orthographe","Lexique","Lecture","Poésie"],"Maths":["Numération","Calcul","Grandeur et Mesure","Géométrie","Résolution de problèmes"]};
+const STAT=["NE","ABS","DISP"];
 let DB={1:{evals:[],notes:{}},2:{evals:[],notes:{}},3:{evals:[],notes:{}},4:{evals:[],notes:{}},5:{evals:[],notes:{}}};
 let P="1",V="dash",F="TOUS",cur=E[0],sig=null,evId=null,loaded=false,userP=false,unsub=null,opt={moyClasse:false,histo:true};
 
@@ -173,53 +187,90 @@ let P="1",V="dash",F="TOUS",cur=E[0],sig=null,evId=null,loaded=false,userP=false
 const ok=v=>v!==undefined&&v!==null&&v!==""&&!isNaN(parseFloat(v));
 const av=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 const f=n=>n==null?"-":n.toFixed(2).replace(".",",");
+const fd=n=>n==null?"-":(n>=0?"+":"−")+f(Math.abs(n));
 const calculerMoyenne=t=>{const v=t.map(n=>parseFloat(n)).filter(n=>!isNaN(n));return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(2):"-"};
 const D=p=>DB[p]||{evals:[],notes:{}};
 const notesE=(p,e,m)=>D(p).evals.filter(x=>!m||x.matiere===m).map(x=>(D(p).notes[x.id]||{})[e]).filter(ok).map(parseFloat);
 const avgE=(p,e,m)=>av(notesE(p,e,m));
 const notesC=(p,m)=>E.flatMap(e=>notesE(p,e,m));
 const avgC=(p,m)=>av(notesC(p,m));
+const cnt=(p,m)=>D(p).evals.filter(x=>!m||x.matiere===m).length;
 const prevP=()=>{for(let q=+P-1;q>=1;q--)if(D(q).evals.length)return q;return null};
-const heat=v=>{if(v==null)return"var(--track)";const t=Math.max(0,Math.min(1,(v-8)/11));return`hsl(${Math.round(25+t*120)} 85% ${58-t*8}% / .${Math.round(35+t*30)})`};
 
 /* ---------- visuels ---------- */
 function ring(vals,size,w){const c=size/2;let o=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="transform:rotate(-90deg)">`;
  vals.forEach((v,i)=>{const R=c-w/2-i*(w+3),L=2*Math.PI*R;if(R<4)return;o+=`<circle cx="${c}" cy="${c}" r="${R}" fill="none" stroke="${COL[MAT[i]]}" stroke-opacity=".16" stroke-width="${w}"/><circle class="rg" cx="${c}" cy="${c}" r="${R}" fill="none" stroke="${COL[MAT[i]]}" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${L}" data-to="${L*(1-(v||0)/20)}" style="transition:stroke-dashoffset 1.3s cubic-bezier(.16,1,.3,1) ${i*90}ms"/>`});return o+"</svg>"}
-function play(root){requestAnimationFrame(()=>requestAnimationFrame(()=>{root.querySelectorAll(".rg").forEach(e=>e.style.strokeDashoffset=e.dataset.to);root.querySelectorAll("[data-w]").forEach(e=>e.style.width=e.dataset.w);
- root.querySelectorAll("[data-count]").forEach(e=>{const to=+e.dataset.count,t0=performance.now();(function k(t){const q=Math.min(1,(t-t0)/1100);e.textContent=f(to*(1-Math.pow(1-q,4)));if(q<1)requestAnimationFrame(k)})(t0)})}))}
-function spark(){const pts=[1,2,3,4,5].map(p=>[p,avgC(p)]).filter(x=>x[1]!=null);if(!pts.length)return"";const vs=pts.map(x=>x[1]),mn=Math.min(...vs)-1,mx=Math.max(...vs)+1;
- const xy=pts.map((q,i)=>[20+i*(pts.length>1?260/(pts.length-1):120),66-(q[1]-mn)/(mx-mn)*54]);
- return`<svg viewBox="0 0 300 82" width="100%" height="82"><path d="${xy.map((q,i)=>(i?"L":"M")+q[0]+" "+q[1]).join(" ")}" fill="none" stroke="#0a84ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>${xy.map((q,i)=>`<circle cx="${q[0]}" cy="${q[1]}" r="5" fill="#0a84ff"/><text x="${q[0]}" y="80" font-size="10" text-anchor="middle" fill="currentColor" opacity=".55">P${pts[i][0]}</text>`).join("")}</svg>`}
+function play(root){requestAnimationFrame(()=>requestAnimationFrame(()=>{
+ root.querySelectorAll(".rg").forEach(e=>e.style.strokeDashoffset=e.dataset.to);
+ root.querySelectorAll("[data-w]").forEach(e=>e.style.width=e.dataset.w);
+ root.querySelectorAll("[data-h]").forEach(e=>e.style.height=e.dataset.h);
+ root.querySelectorAll("[data-count]").forEach(e=>{const to=+e.dataset.count,t0=performance.now();(function k(t){const q=Math.min(1,(t-t0)/1100);e.textContent=f(to*(1-Math.pow(1-q,4)));if(q<1)requestAnimationFrame(k)})(t0)});
+ root.querySelectorAll("[data-int]").forEach(e=>{const to=+e.dataset.int,t0=performance.now(),sf=e.dataset.suf||"";(function k(t){const q=Math.min(1,(t-t0)/900);e.textContent=Math.round(to*(1-Math.pow(1-q,4)))+sf;if(q<1)requestAnimationFrame(k)})(t0)})}))}
 
 /* ---------- navigation ---------- */
 function R(){if(!loaded)return;({dash,evals,bul})[V]()}
 function setV(v){V=v;["dash","evals","bul"].forEach(k=>$("v-"+k).classList.toggle("hide",k!==v));document.querySelectorAll("#dock [data-v]").forEach(b=>b.classList.toggle("on",b.dataset.v===v));R()}
 function pills(){const sg=$("seg");sg.innerHTML='<span class="pill"></span>'+[1,2,3,4,5].map(p=>`<button class="${String(p)===P?"on":""}" onclick="chgP('${p}')">P${p}</button>`).join("");
  requestAnimationFrame(()=>{const on=sg.querySelector(".on"),pl=sg.querySelector(".pill");if(on){pl.style.left=on.offsetLeft+"px";pl.style.width=on.offsetWidth+"px"}})}
-function chgP(p){userP=true;P=String(p);F="TOUS";$("rp").textContent=P;pills();R()}
+function chgP(p){userP=true;P=String(p);F="TOUS";$("rp").textContent=P;closeS();pills();R()}
 document.querySelectorAll("#dock [data-v]").forEach(b=>b.onclick=()=>setV(b.dataset.v));
 const dk=$("dock"),dbs=[...dk.querySelectorAll("button")];
 dk.onmousemove=e=>dbs.forEach(b=>{const q=b.getBoundingClientRect();b.style.transform=`scale(${1+.5*Math.max(0,1-Math.abs(e.clientX-(q.left+q.width/2))/110)})`});
 dk.onmouseleave=()=>dbs.forEach(b=>b.style.transform="");
 addEventListener("resize",pills);
 
-/* ---------- tableau de bord (statistiques) ---------- */
+/* ---------- tableau de bord ---------- */
 function dash(){
  const el=$("v-dash"),cu=D(P),n=+P,pp=prevP(),mp=avgC(P),mpr=pp?avgC(pp):null,d=mp!=null&&mpr!=null?mp-mpr:null;
- const pe=E.map(e=>[e,avgE(P,e)]).filter(x=>x[1]!=null).sort((a,b)=>b[1]-a[1]);
+ const per=[1,2,3,4,5].map(p=>({p,a:avgC(p),n:cnt(p)})),ann=av(per.filter(x=>x.a!=null).map(x=>x.a)),tot=per.reduce((s,x)=>s+x.n,0);
+ const pe=E.map(e=>[e,avgE(P,e)]).filter(x=>x[1]!=null).sort((a,b)=>b[1]-a[1]),hasN=pe.length>0;
+ let got=0;const exp=cu.evals.length*E.length;
+ cu.evals.forEach(x=>{const no=cu.notes[x.id]||{};E.forEach(e=>{if(no[e]!==undefined&&no[e]!==""&&no[e]!==null)got++})});
+ const pct=exp?Math.round(got/exp*100):0;
+
+ /* hero : moyenne + évolution sur les 5 périodes */
+ const yr=`<div class="yr">${per.map(x=>`<button class="yc ${x.p===n?"on":""} ${x.a==null?"empty":""}" onclick="chgP('${x.p}')" aria-label="Période ${x.p}"><span class="yv">${x.a!=null?f(x.a):"—"}</span><span class="yb"><i data-h="${(x.a||0)*5}%"></i></span><span class="yl">P${x.p}</span></button>`).join("")}</div>`;
+ const hero=`<div class="c glass hero"><div class="lbl">Moyenne de la classe · Période ${P}</div>
+  <div class="big">${mp!=null?`<span data-count="${mp}">${f(mp)}</span>`:"-"}<small>/20</small></div>
+  <div class="row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap"><span class="delta ${d==null?"nul":d<0?"neg":""}">${d!=null?(d>=0?"▲ ":"▼ ")+fd(d)+" pt vs P"+pp:(pp?"Pas encore de notes":"Première période")}</span>${ann!=null?`<span class="lbl">Moyenne annuelle : <b style="color:var(--ink)">${f(ann)}</b> / 20</span>`:""}</div>
+  <div><div class="lbl" style="margin-bottom:6px">Évolution sur l'année · touchez une période pour la consulter</div>${yr}</div></div>`;
+
+ /* compteurs d'évaluations */
+ const pm=MAT.map(m=>[m,cnt(P,m),[1,2,3,4,5].reduce((s,q)=>s+cnt(q,m),0)]),mxY=Math.max(1,...pm.map(x=>x[2]));
+ const cntCard=`<div class="c glass cnt"><div class="lbl">Évaluations</div>
+  <div class="tiles"><div class="tile"><small>Période ${P}</small><b data-int="${cu.evals.length}">${cu.evals.length}</b></div><div class="tile"><small>Sur l'année</small><b data-int="${tot}">${tot}</b></div><div class="tile"><small>Notes saisies</small><b data-int="${pct}" data-suf="%">${pct}%</b></div></div>
+  <div><div class="lbl" style="margin-bottom:6px">Par période</div><div class="pchips">${per.map(x=>`<button class="pc ${x.p===n?"on":""}" onclick="chgP('${x.p}')">P${x.p}<b>${x.n}</b></button>`).join("")}</div></div>
+  <div><div class="lbl" style="margin-bottom:8px">Par matière · période / année</div><div style="display:flex;flex-direction:column;gap:9px">${pm.map(([m,c,y])=>`<div><div class="row" style="font-size:12px;font-weight:600;opacity:${y?1:.5}"><span><i class="dot" style="background:${COL[m]}"></i>${m}</span><span><b>${c}</b> <span style="color:var(--mut)">· ${y}</span></span></div><div class="bar two"><i data-w="${y/mxY*100}%" style="background:${COL[m]};opacity:.28"></i><i data-w="${c/mxY*100}%" style="background:${COL[m]}"></i></div></div>`).join("")}</div></div></div>`;
+
+ /* comparatif des élèves */
  const rows=E.map(e=>{const ms=[],tds=[1,2,3,4,5].map(p=>{const a=D(p).evals.length?calculerMoyenne(notesE(p,e)):"-";if(a!=="-")ms.push(parseFloat(a));return`<td ${p===n?'style="font-weight:700;color:#0a84ff;background:rgba(10,132,255,.08)"':""}>${a}</td>`}).join("");
-  return`<tr><td onclick="openS('${e}')" style="cursor:pointer">${e}</td>${tds}<td style="font-weight:800;text-align:right">${ms.length?(ms.reduce((a,b)=>a+b,0)/ms.length).toFixed(2)+" / 20":"-"}</td></tr>`}).join("");
- const cmp=`<div class="c glass s12" style="overflow-x:auto"><h3>Comparatif des 17 élèves sur les 5 périodes</h3><p class="lbl" style="margin-bottom:10px">Moyennes de chaque période et moyenne annuelle · cliquez un élève pour ouvrir sa fiche.</p><table class="cmp"><thead><tr><th>Élève</th><th>Période 1</th><th>Période 2</th><th>Période 3</th><th>Période 4</th><th>Période 5</th><th style="text-align:right">Moyenne annuelle</th></tr></thead><tbody>${rows}</tbody></table></div>`;
- if(!cu.evals.length){el.innerHTML=`<div class="c glass s12" style="text-align:center;padding:60px"><h3>Aucune évaluation pour la période ${P}</h3><p class="lbl" style="margin:8px 0 18px">Ajoutez un premier devoir pour voir apparaître les statistiques.</p><button class="btn b" onclick="setV('evals');openCre()">+ Nouvelle évaluation</button></div>`+cmp;return}
- const sm=MAT.map(m=>avgC(P,m));
+  const a=avgE(P,e),b=pp?avgE(pp,e):null,dv=a!=null&&b!=null?a-b:null;
+  return`<tr><td onclick="openS('${e}')" style="cursor:pointer">${e}</td>${tds}<td style="font-weight:700;color:${dv==null?"var(--mut)":dv>=0?"#1f9d46":"#c77700"}">${fd(dv)}</td><td style="font-weight:800;text-align:right">${ms.length?(ms.reduce((a,b)=>a+b,0)/ms.length).toFixed(2)+" / 20":"-"}</td></tr>`}).join("");
+ const cmp=`<div class="c glass s12" style="overflow-x:auto"><h3>Comparatif des 17 élèves sur les 5 périodes</h3><p class="lbl" style="margin-bottom:10px">Moyennes de chaque période, évolution vs période précédente et moyenne annuelle · cliquez un élève pour ouvrir sa fiche.</p><table class="cmp"><thead><tr><th>Élève</th><th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>Évol. P${n}</th><th style="text-align:right">Moy. annuelle</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+
+ if(!cu.evals.length){el.innerHTML=hero+cntCard+`<div class="c glass s12" style="text-align:center;padding:50px"><h3>Aucune évaluation pour la période ${P}</h3><p class="lbl" style="margin:8px 0 18px">Ajoutez un premier devoir pour voir apparaître les statistiques de cette période.</p><button class="btn b" onclick="setV('evals');openCre()">+ Nouvelle évaluation</button></div>`+cmp;play(el);return}
+
+ /* points d'attention */
+ const inc=cu.evals.filter(x=>{const no=cu.notes[x.id]||{};return E.some(e=>no[e]===undefined||no[e]===""||no[e]===null)});
+ const low=pe.filter(x=>x[1]<10);
+ let prog=null,drop=null;
+ if(pp){const dl=E.map(e=>{const a=avgE(P,e),b=avgE(pp,e);return a!=null&&b!=null?[e,a-b]:null}).filter(Boolean).sort((a,b)=>b[1]-a[1]);if(dl.length){prog=dl[0];drop=dl[dl.length-1]}}
+ const ir=(ic,t,p,click)=>`<div class="insrow ${click?"clk":""}" ${click?`onclick="${click}"`:""}><div class="ico">${ic}</div><div><strong>${t}</strong><p>${p}</p></div></div>`;
+ const att=`<div class="c glass ${hasN?"s6":"s12"}"><h3>Points d'attention</h3><div style="margin-top:6px">
+  ${inc.length?ir("📝",`${inc.length} évaluation${inc.length>1?"s":""} à compléter`,inc.slice(0,3).map(x=>esc(x.titre)).join(", ")+(inc.length>3?"…":""),"setV('evals')"):ir("✅","Toutes les notes sont saisies","Aucune évaluation incomplète sur cette période.")}
+  ${hasN?(low.length?ir("⚠️",`${low.length} élève${low.length>1?"s":""} sous 10 / 20`,low.map(x=>x[0]).join(", "),`openS('${low[0][0]}')`):ir("👍","Aucun élève sous 10 / 20","Tous les élèves notés ont 10 ou plus de moyenne.")):""}
+  ${prog&&prog[1]>0?ir("📈","Plus belle progression",`${prog[0]} · ${fd(prog[1])} pt vs P${pp}`,`openS('${prog[0]}')`):""}
+  ${drop&&drop[1]<0?ir("📉","Plus forte baisse",`${drop[0]} · ${fd(drop[1])} pt vs P${pp}`,`openS('${drop[0]}')`):""}</div></div>`;
+
+ /* répartition des moyennes */
+ const bands=[["17 et plus","#30d158",v=>v>=17],["15 à 17","#64d2ff",v=>v>=15&&v<17],["12 à 15","#0a84ff",v=>v>=12&&v<15],["10 à 12","#bf5af2",v=>v>=10&&v<12],["Moins de 10","#ff9f0a",v=>v<10]],vals=pe.map(x=>x[1]);
+ const distCard=hasN?`<div class="c glass s6"><h3>Répartition des moyennes</h3><p class="lbl" style="margin-bottom:12px">Nombre d'élèves par tranche de moyenne (${vals.length} noté${vals.length>1?"s":""}).</p><div style="display:flex;flex-direction:column;gap:11px">${bands.map(b=>{const c=vals.filter(b[2]).length;return`<div><div class="row" style="font-size:12px;font-weight:600"><span><i class="dot" style="background:${b[1]}"></i>${b[0]}</span><b>${c}</b></div><div class="bar"><i data-w="${c/vals.length*100}%" style="background:${b[1]}"></i></div></div>`}).join("")}</div></div>`:"";
+
  const bw=(l,x,c)=>`<div class="c glass s6" ${x?`onclick="openS('${x[0]}')" style="cursor:pointer"`:""}><div class="lbl" style="color:${c}">${l}</div><div class="big" style="font-size:56px;color:${c};margin:10px 0 6px">${x?f(x[1]):"-"}<small>/20</small></div><div style="font-weight:700">${x?x[0]:"-"}</div></div>`;
  const det=cu.evals.map((x,i)=>{const t=Object.values(cu.notes[x.id]||{}).map(parseFloat).filter(v=>!isNaN(v)),c=COL[x.matiere]||"#0a84ff";
   return`<div class="glass" style="padding:18px;border-radius:22px"><div class="row lbl"><b style="color:${c}">#${i+1} ${esc(x.matiere)}</b><span>${t.length}/17 notés</span></div><div style="font-weight:700;margin:4px 0 10px">${esc(x.titre)}</div><div class="row" style="text-align:center;border-top:1px solid var(--track);padding-top:10px;font-size:12px"><div><div class="lbl">Moyenne</div><b>${calculerMoyenne(t)}</b></div><div><div class="lbl">Plus haute</div><b style="color:#1f9d46">${t.length?Math.max(...t).toFixed(2):"-"}</b></div><div><div class="lbl">Plus basse</div><b style="color:#c77700">${t.length?Math.min(...t).toFixed(2):"-"}</b></div></div></div>`}).join("");
- el.innerHTML=`<div class="c glass hero"><div class="lbl">Moyenne de la classe · Période ${P}</div><div class="big"><span data-count="${mp||0}">0</span><small>/20</small></div>
-  <div class="row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap"><span class="delta ${d!=null&&d<0?"neg":""}">${d!=null?(d>=0?"▲ +":"▼ ")+f(Math.abs(d))+" pt vs P"+pp:"Première période"}</span>${mpr!=null?`<span class="lbl">Période précédente : ${f(mpr)} / 20</span>`:""}</div>${spark()}</div>
- <div class="c glass rings"><div class="lbl" style="align-self:flex-start">Moyenne de classe par matière</div>${ring(sm,210,12)}<div style="width:100%;display:flex;flex-direction:column;gap:8px">${MAT.map((m,i)=>sm[i]==null?"":`<div><div class="row" style="font-size:12px;font-weight:600"><span><i class="dot" style="background:${COL[m]}"></i>${m}</span><b>${f(sm[i])}</b></div><div class="bar"><i data-w="${sm[i]*5}%" style="background:${COL[m]}"></i></div></div>`).join("")}</div></div>
- ${bw("Meilleure moyenne",pe[0],"#1f9d46")}${bw("Moins bonne moyenne",pe[pe.length-1],"#c77700")}${cmp}
- <div class="c glass s12"><h3>Détails par évaluation (Période ${P})</h3><p class="lbl" style="margin-bottom:14px">Moyenne, plus haute et plus basse note pour chaque devoir.</p><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">${det}</div></div>`;
+ el.innerHTML=hero+cntCard+att+distCard+(hasN?bw("Meilleure moyenne",pe[0],"#1f9d46")+bw("Moins bonne moyenne",pe[pe.length-1],"#c77700"):"")+cmp+
+  `<div class="c glass s12"><h3>Détails par évaluation (Période ${P})</h3><p class="lbl" style="margin-bottom:14px">Moyenne, plus haute et plus basse note pour chaque devoir.</p><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">${det}</div></div>`;
  play(el)}
 
 /* ---------- fiche élève ---------- */
@@ -231,38 +282,46 @@ function openS(n){const sh=$("sheet"),sm=MAT.map(m=>avgE(P,n,m)),a=avgE(P,n);
  <button class="btn" style="width:100%;margin-top:18px" onclick="cur='${n}';closeS();setV('bul')">Voir le bulletin A4</button>`;
  sh.classList.add("open");play(sh)}
 const closeS=()=>$("sheet").classList.remove("open");
-addEventListener("keydown",e=>{if(e.key==="Escape")closeS()});
+addEventListener("keydown",e=>{if(e.key!=="Escape")return;closeS();$("mCre").classList.add("hide");if(!$("mSai").classList.contains("hide"))closeSai();$("menu").classList.add("hide")});
 
 /* ---------- évaluations ---------- */
-function evals(){const cu=D(P),ev=cu.evals||[],cnt={TOUS:ev.length};ev.forEach(x=>cnt[x.matiere]=(cnt[x.matiere]||0)+1);
- $("chips").innerHTML=Object.entries(cnt).map(([m,c])=>`<button class="chip ${F===m?"on":""}" data-m="${esc(m)}" onclick="F=this.dataset.m;evals()">${m==="TOUS"?"Tous":esc(m)} (${c})</button>`).join("");
+function evals(){const cu=D(P),ev=cu.evals||[],cn={TOUS:ev.length};ev.forEach(x=>cn[x.matiere]=(cn[x.matiere]||0)+1);
+ if(!(F in cn))F="TOUS";
+ $("chips").innerHTML=Object.entries(cn).map(([m,c])=>`<button class="chip ${F===m?"on":""}" data-m="${esc(m)}" onclick="F=this.dataset.m;evals()">${m==="TOUS"?"Tous":esc(m)} (${c})</button>`).join("");
  const list=ev.filter(x=>F==="TOUS"||x.matiere===F),g=$("evGrid");
- if(!list.length){g.innerHTML=`<div class="glass" style="grid-column:1/-1;padding:60px;text-align:center"><h3>Aucune évaluation affichée</h3><p class="lbl" style="margin-top:6px">Changez de filtre ou ajoutez un nouveau devoir.</p></div>`;return}
+ if(!list.length){g.innerHTML=`<div class="glass" style="grid-column:1/-1;padding:60px;text-align:center"><h3>Aucune évaluation en période ${P}</h3><p class="lbl" style="margin-top:6px">Ajoutez un nouveau devoir avec le bouton « + Nouvelle évaluation ».</p></div>`;return}
  g.innerHTML=list.map(x=>{const i=ev.findIndex(y=>y.id===x.id),no=cu.notes[x.id]||{},nb=Object.values(no).filter(v=>v!==""&&v!=null).length,m=calculerMoyenne(Object.values(no)),c=COL[x.matiere]||"#0a84ff",full=nb===E.length;
-  return`<div class="ev glass" data-id="${esc(x.id)}" onclick="if(!event.target.closest('button'))openSai(this.dataset.id)"><div class="row"><span class="badge" style="background:${c}22;color:${c}">#${i+1} ${esc(x.matiere)}</span><button class="x" title="Supprimer" onclick="delEv(this.closest('.ev').dataset.id)">🗑</button></div>
+  return`<div class="ev glass" data-id="${esc(x.id)}" onclick="if(!event.target.closest('button'))openSai(this.dataset.id)"><div class="row"><span class="badge" style="background:${c}22;color:${c}">#${i+1} ${esc(x.matiere)}</span><button class="x" title="Supprimer" aria-label="Supprimer" onclick="delEv(this.closest('.ev').dataset.id)">🗑</button></div>
   <div><h3>${esc(x.titre)}</h3><p>${esc(x.theme||"")}</p></div>
   <div><div class="row lbl"><span>Statut</span><b style="color:${full?"#1f9d46":"#c77700"}">${full?"✓":"!"} ${nb} / 17</b></div><div class="bar"><i style="width:${nb/E.length*100}%;background:${full?"#30d158":c}"></i></div></div>
   <div class="row"><b>${m!=="-"?m+"/20":"-"}</b><button class="btn s" onclick="openSai(this.closest('.ev').dataset.id)">Saisir</button></div></div>`}).join("")}
-function delEv(id){if(!confirm("Supprimer définitivement cette évaluation et ses notes ?"))return;DB[P].evals=DB[P].evals.filter(e=>e.id!==id);delete DB[P].notes[id];save();R()}
+function delEv(id){if(!confirm("Supprimer définitivement cette évaluation et ses notes ?"))return;DB[P].evals=DB[P].evals.filter(e=>e.id!==id);delete DB[P].notes[id];save(true);R()}
 function subs(){const m=$("cMat").value,s=$("cThe");s.innerHTML='<option value="">Aucun (général)</option>'+(SUB[m]||[]).map(t=>`<option>${t}</option>`).join("")}
 function openCre(){$("cMat").innerHTML=MAT.map(m=>`<option>${m}</option>`).join("");$("cTit").value="";subs();$("mCre").classList.remove("hide");setTimeout(()=>$("cTit").focus(),100)}
 function creer(){const titre=$("cTit").value.trim();if(!titre){$("cTit").focus();return}
- if(!DB[P])DB[P]={evals:[],notes:{}};const id="ev_"+Date.now();DB[P].evals.push({id,matiere:$("cMat").value,theme:$("cThe").value,titre});DB[P].notes[id]={};save();$("mCre").classList.add("hide");R();openSai(id)}
+ if(!DB[P])DB[P]={evals:[],notes:{}};const id="ev_"+Date.now();DB[P].evals.push({id,matiere:$("cMat").value,theme:$("cThe").value,titre});DB[P].notes[id]={};save(true);$("mCre").classList.add("hide");R();openSai(id)}
 function openSai(id){evId=id;const cu=D(P),i=cu.evals.findIndex(e=>e.id===id);if(i<0)return;const x=cu.evals[i],c=COL[x.matiere]||"#0a84ff";
  $("sBadge").textContent=`#${i+1} ${x.matiere}`;$("sBadge").style.cssText=`background:${c}22;color:${c}`;$("sTit").textContent=x.titre;$("sThe").textContent=x.theme?"Sous-domaine : "+x.theme:"";
- $("sList").innerHTML=E.map((e,k)=>`<div class="nr"><span><small>${k+1}.</small><b>${e}</b></span><span class="row">${["20","10","NE","ABS"].map(v=>`<button class="q" onclick="rn(${k},'${v}')">${v}</button>`).join("")}<span class="ni"><input type="text" value="${esc((cu.notes[id]||{})[e]||"")}" placeholder="-" data-i="${k}" oninput="setNote(${k},this.value,this)" onkeydown="nav(event,${k})"><span>/20</span></span></span></div>`).join("");
+ $("sList").innerHTML=E.map((e,k)=>`<div class="nr"><span><small>${k+1}.</small><b>${e}</b></span><span class="row">${["20","10","NE","ABS"].map(v=>`<button class="q" onclick="rn(${k},'${v}')">${v}</button>`).join("")}<span class="ni"><input type="text" inputmode="decimal" autocomplete="off" value="${esc((cu.notes[id]||{})[e]||"")}" placeholder="-" data-i="${k}" oninput="setNote(${k},this.value,this)" onkeydown="nav(event,${k})"><span>/20</span></span></span></div>`).join("");
  $("mSai").classList.remove("hide");setTimeout(()=>{const a=document.querySelector('[data-i="0"]');if(a){a.focus();a.select()}},50)}
 const inp=k=>document.querySelector(`[data-i="${k}"]`);
 function rn(k,v){setNote(k,v,inp(k));const n=inp(k+1);if(n){n.focus();n.select()}}
-function setNote(k,val,el){let r=val.trim().toUpperCase().replace(",","."),o="";
- if(r===""||r==="-")o="";else if(["NE","ABS","DISP"].includes(r))o=r;else{const n=parseFloat(r);if(!isNaN(n)&&n>=0&&n<=20)o=String(n);else if(r.length>2)o="";else o=r}
- if(el)el.value=o;if(!DB[P].notes[evId])DB[P].notes[evId]={};DB[P].notes[evId][E[k]]=o;save()}
+function setNote(k,val,el){
+ if(!evId||!DB[P])return;
+ const r=String(val).trim().toUpperCase().replace(",","."),prev=(DB[P].notes[evId]||{})[E[k]]||"";
+ let show=r,o=null;
+ if(r===""||r==="-"){o="";show=""}
+ else if(/^\d{1,2}(\.\d{0,2})?$/.test(r)){const n=parseFloat(r);if(n<=20)o=String(n);else show=prev}
+ else if(STAT.some(s=>s.startsWith(r))){o=STAT.includes(r)?r:""}
+ else show=prev;
+ if(el&&el.value!==show)el.value=show;
+ if(o!==null){if(!DB[P].notes[evId])DB[P].notes[evId]={};DB[P].notes[evId][E[k]]=o;save()}}
 function nav(e,k){if(e.key==="Enter"||e.key==="ArrowDown"){e.preventDefault();const n=inp(k+1);if(n){n.focus();n.select()}}else if(e.key==="ArrowUp"){e.preventDefault();const n=inp(k-1);if(n){n.focus();n.select()}}}
-function closeSai(){$("mSai").classList.add("hide");evId=null;R()}
+function closeSai(){$("mSai").classList.add("hide");evId=null;flush();R()}
 
 /* ---------- bulletins ---------- */
 function tog(k){opt[k]=!opt[k];$(k==="moyClasse"?"oMoy":"oHis").classList.toggle("on",opt[k]);bul()}
-function bul(){$("selE").innerHTML=E.map(e=>`<option ${e===cur?"selected":""}>${e}</option>`).join("");side();$("zone").innerHTML=construireHTMLBulletinSobre(cur)}
+function bul(){$("selE").innerHTML=E.map(e=>`<option ${e===cur?"selected":""}>${e}</option>`).join("");$("oMoy").classList.toggle("on",opt.moyClasse);side();$("zone").innerHTML=construireHTMLBulletinSobre(cur)}
 function side(){const q=($("fs")?.value||"").toLowerCase();$("side").innerHTML=E.filter(e=>e.toLowerCase().includes(q)).map(e=>{const a=avgE(P,e),c=a==null?"var(--mut)":a>=15?"#30d158":a>=12?"#0a84ff":"#ff9f0a";
  return`<div class="si ${e===cur?"on":""}" onclick="cur='${e}';bul()"><span><i class="dot" style="background:${c}"></i>${e}</span><span style="opacity:.6">${a!=null?a.toFixed(2):"-"}</span></div>`}).join("")}
 function moyEval(){const m={};D(P).evals.forEach(ev=>m[ev.id]=calculerMoyenne(Object.values(D(P).notes[ev.id]||{})));return m}
@@ -276,10 +335,10 @@ function construireHTMLBulletinSobre(eleveNom){
  const nb=current.evals?current.evals.length:0;let cellPad="3.5px 6px",fontSize="8.5pt",headerPad="4px 6px",sigHeight="68px";
  if(nb>8){cellPad="2px 5px";fontSize="8pt";headerPad="3px 5px";sigHeight="60px"}if(nb>12){cellPad="1.5px 4px";fontSize="7.5pt";headerPad="2px 4px";sigHeight="54px"}
  let corps="";
- for(const[matiere,themes]of Object.entries(matieresMap)){let nm=[],sl="";
+ for(const[matiere,themes]of Object.entries(matieresMap).sort((a,b)=>MAT.indexOf(a[0])-MAT.indexOf(b[0]))){let nm=[],sl="";
   for(const[theme,devoirs]of Object.entries(themes)){
    if(theme&&theme.trim()!=="")sl+=`<tr style="background-color:#fafafa;"><td colspan="${opt.moyClasse?3:2}" style="padding:1.5px 5px;font-size:7.2pt;font-style:italic;color:#475569;border:1px solid #cbd5e1;line-height:1.15;">${esc(theme)}</td></tr>`;
-   devoirs.forEach(dev=>{if(ok(dev.note))nm.push(parseFloat(dev.note));const st=["NE","ABS","DISP"].includes(dev.note),an=dev.note!==""?(st?`<span style="color:#64748b;font-weight:700;">${esc(dev.note)}</span>`:`${esc(dev.note)}`):"-";
+   devoirs.forEach(dev=>{if(ok(dev.note))nm.push(parseFloat(dev.note));const st=STAT.includes(dev.note),an=dev.note!==""?(st?`<span style="color:#64748b;font-weight:700;">${esc(dev.note)}</span>`:`${esc(dev.note)}`):"-";
     sl+=`<tr><td style="padding:${cellPad};font-size:${fontSize};color:#0f172a;border:1px solid #cbd5e1;line-height:1.2;">${esc(dev.titre)}</td><td style="padding:${cellPad};font-size:${fontSize};font-weight:700;text-align:center;border:1px solid #cbd5e1;width:70px;">${an}</td>${opt.moyClasse?`<td style="padding:${cellPad};font-size:${fontSize};color:#64748b;text-align:center;border:1px solid #cbd5e1;width:65px;">${dev.moyClasse!=="-"?dev.moyClasse:"-"}</td>`:""}</tr>`})}
   const mm=calculerMoyenne(nm),mc=moyClasseParMatiereMap[matiere]||"-";
   corps+=`<tr style="background-color:#f1f5f9;font-weight:700;"><td style="padding:${headerPad};font-size:${fontSize};color:#0f172a;border:1px solid #94a3b8;text-transform:uppercase;letter-spacing:0.3px;">${esc(matiere)}</td><td style="padding:${headerPad};font-size:${fontSize};text-align:center;border:1px solid #94a3b8;color:#0f172a;">${mm!=="-"?mm:"-"}</td>${opt.moyClasse?`<td style="padding:${headerPad};font-size:${fontSize};text-align:center;border:1px solid #94a3b8;color:#0f172a;font-weight:700;">${mc!=="-"?mc:"-"}</td>`:""}</tr>${sl}`}
@@ -299,44 +358,53 @@ function construireHTMLBulletinSobre(eleveNom){
  <div style="position:absolute;bottom:3px;right:6px;font-size:7.5pt;font-weight:700;color:#0f172a;">Mme Estelle CHIRAT</div></td></tr></table></div></div>`}
 const PDFO=n=>({margin:0,filename:n,image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true,logging:false},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}});
 function pdfOne(){const el=document.querySelector("#zone .bulletin-page");if(el)html2pdf().set(PDFO(`bulletin_${cur.replace(/\s+/g,"_")}_P${P}.pdf`)).from(el).save()}
-function pdfAll(){const b=$("bAll");b.textContent="Création du livret...";b.style.pointerEvents="none";
+function pdfAll(){const b=$("bAll"),lab="Tout télécharger (1 PDF)";b.textContent="Création du livret...";b.style.pointerEvents="none";
  const z=document.createElement("div");z.style.cssText="width:210mm;margin:0;padding:0;background:#fff";
  E.forEach(e=>{const w=document.createElement("div");w.innerHTML=construireHTMLBulletinSobre(e);const p=w.firstElementChild;p.style.cssText+=";margin:0;box-shadow:none;border-radius:0;page-break-after:always;break-after:page";z.appendChild(p)});document.body.appendChild(z);
- const end=()=>{if(z.parentNode)document.body.removeChild(z);b.textContent="Télécharger tout (17 PDF)";b.style.pointerEvents=""};
+ const end=()=>{if(z.parentNode)document.body.removeChild(z);b.textContent=lab;b.style.pointerEvents=""};
  html2pdf().set(PDFO(`bulletins_CM2_periode_${P}_complet.pdf`)).from(z).save().then(end).catch(er=>{console.error(er);end();alert("Erreur lors de la génération. Utilisez le bouton 'Imprimer'.")})}
 function imprimer(){const z=$("printZone");z.innerHTML="";E.forEach(e=>{const w=document.createElement("div");w.innerHTML=construireHTMLBulletinSobre(e);const p=w.firstElementChild;p.style.cssText+=";margin:0;box-shadow:none;border-radius:0";z.appendChild(p)});setTimeout(()=>{print();z.innerHTML=""},350)}
 
 /* ---------- cloud, signature, sauvegarde ---------- */
-function save(){docRef.set({baseDonnees:DB,signature:sig||null,derniereMaj:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})}
+let saveT=null,dirty=false,liveT=null;
+function setLive(t,cls){const l=$("live");l.textContent="● "+t;l.className="live"+(cls?" "+cls:"")}
+function save(now){dirty=true;clearTimeout(saveT);setLive("Modifications…","warn");if(now)flush();else saveT=setTimeout(flush,600)}
+function flush(){clearTimeout(saveT);saveT=null;if(!dirty||!auth.currentUser)return;dirty=false;
+ /* set sans merge : les évaluations/notes supprimées ou vidées disparaissent vraiment du cloud */
+ docRef.set({baseDonnees:DB,signature:sig||null,derniereMaj:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{if(dirty)return;setLive("Enregistré ✓");clearTimeout(liveT);liveT=setTimeout(()=>{if(!dirty)setLive("En direct")},2000)}).catch(er=>{console.error(er);dirty=true;setLive("Échec de l'enregistrement","err")})}
+addEventListener("pagehide",flush);document.addEventListener("visibilitychange",()=>{if(document.hidden)flush()});
+addEventListener("online",()=>{if(dirty)flush()});
 function normDB(d){if(!d||typeof d!=="object")return null;const o={};for(let p=1;p<=5;p++){const x=d[p]||{evals:[],notes:{}};if(!Array.isArray(x.evals)||!x.notes||typeof x.notes!=="object"||!x.evals.every(e=>e&&typeof e.id==="string"&&typeof e.titre==="string"&&typeof e.matiere==="string"))return null;o[p]=x}return o}
-function lastP(){const has=x=>Object.values(x||{}).some(v=>v!==""&&v!=null);for(let p=5;p>=1;p--)if(D(p).evals.some(e=>has(D(p).notes[e.id])))return String(p);for(let p=5;p>=1;p--)if(D(p).evals.length)return String(p);return"1"}
+/* période la plus récente = dernière période qui contient au moins une évaluation (notes saisies ou non) */
+function lastP(){for(let p=5;p>=1;p--)if(D(p).evals.length)return String(p);return"1"}
 function ecouter(){if(unsub)unsub();unsub=docRef.onSnapshot(d=>{
- if(d.exists){const x=d.data(),n=normDB(x.baseDonnees);if(n)DB=n;sig=typeof x.signature==="string"&&x.signature.startsWith("data:image/")?x.signature:null;majSig()}else save();
+ if(!dirty){
+  if(d.exists){const x=d.data(),n=normDB(x.baseDonnees);if(n)DB=n;sig=typeof x.signature==="string"&&x.signature.startsWith("data:image/")?x.signature:null;majSig()}else save(true)}
  const was=loaded;let ch=false;if(!userP){const l=lastP();if(l!==P){P=l;F="TOUS";ch=true}}
  loaded=true;$("loader").classList.add("hide");$("rp").textContent=P;if(!was||ch)pills();R()},
  err=>{console.error(err);$("loader").classList.remove("hide");$("loader").textContent="Accès refusé : ce compte n'est pas autorisé à lire les notes."})}
 function majSig(){$("txtSig").textContent=sig?"Signature active ✓":"Importer signature";$("btnSig").classList.toggle("hide",!sig)}
-function importSig(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");c.width=300;c.height=img.height*300/img.width;c.getContext("2d").drawImage(img,0,0,c.width,c.height);sig=c.toDataURL("image/png");majSig();save();R()};img.src=e.target.result};r.readAsDataURL(file)}
-function delSig(){if(!confirm("Retirer la signature actuelle ?"))return;sig=null;majSig();save();R()}
+function importSig(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");c.width=300;c.height=Math.max(1,Math.round(img.height*300/img.width));c.getContext("2d").drawImage(img,0,0,c.width,c.height);sig=c.toDataURL("image/png");majSig();save(true);R()};img.onerror=()=>alert("Image illisible.");img.src=e.target.result};r.readAsDataURL(file);ev.target.value=""}
+function delSig(){if(!confirm("Retirer la signature actuelle ?"))return;sig=null;majSig();save(true);R()}
 function exportJSON(){const a=document.createElement("a");a.href="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(DB,null,2));a.download=`bulletins_cm2_sauvegarde_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove()}
-function importJSON(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const d=normDB(JSON.parse(e.target.result));if(!d)throw 0;if(confirm("Remplacer les données actuelles par cette sauvegarde ?")){DB=d;save();R();alert("Restauration terminée avec succès !")}}catch(x){alert("Erreur de fichier JSON.")}};r.readAsText(file)}
-function resetP(){if(!confirm(`Supprimer toutes les notes de la Période ${P} ?`))return;DB[P]={evals:[],notes:{}};save();R()}
+function importJSON(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const d=normDB(JSON.parse(e.target.result));if(!d)throw 0;if(confirm("Remplacer les données actuelles par cette sauvegarde ?")){DB=d;save(true);R();alert("Restauration terminée avec succès !")}}catch(x){alert("Erreur de fichier JSON.")}};r.readAsText(file);ev.target.value=""}
+function resetP(){if(!confirm(`Supprimer toutes les notes de la Période ${P} ?`))return;DB[P]={evals:[],notes:{}};save(true);R()}
 $("mbtn").onclick=e=>{e.stopPropagation();$("menu").classList.toggle("hide")};
-document.addEventListener("click",e=>{if(!e.target.closest("#menu"))$("menu").classList.add("hide")});
+document.addEventListener("click",e=>{if(!e.target.closest("#menu")&&!e.target.closest("#mbtn"))$("menu").classList.add("hide")});
 
 /* ---------- accès sécurisé (Firebase Auth) ---------- */
 let idleT;
-function idle(){clearTimeout(idleT);if(auth.currentUser)idleT=setTimeout(()=>auth.signOut(),30*60*1000)}
+function idle(){clearTimeout(idleT);if(auth.currentUser)idleT=setTimeout(()=>{flush();auth.signOut()},30*60*1000)}
 ["click","keydown","mousemove","touchstart"].forEach(t=>addEventListener(t,idle,{passive:true}));
 function login(e){e.preventDefault();const b=$("lbtn"),er=$("aerr");b.disabled=true;er.classList.add("hide");
  auth.signInWithEmailAndPassword(EMAIL_COMPTE,$("pass").value).catch(x=>{er.textContent=x.code==="auth/too-many-requests"?"Trop de tentatives. Réessayez dans quelques minutes.":"E-mail ou mot de passe incorrect.";er.classList.remove("hide");const c=$("authCard");c.style.animation="shake .4s";setTimeout(()=>c.style.animation="",450)}).finally(()=>{b.disabled=false;$("pass").value=""})}
-function resetPw(){const m=EMAIL_COMPTE;auth.sendPasswordResetEmail(m).then(()=>alert("Si ce compte existe, un e-mail de réinitialisation vient d'être envoyé.")).catch(()=>alert("Impossible d'envoyer l'e-mail pour le moment."))}
-function logout(){auth.signOut()}
+function resetPw(){auth.sendPasswordResetEmail(EMAIL_COMPTE).then(()=>alert("Si ce compte existe, un e-mail de réinitialisation vient d'être envoyé.")).catch(()=>alert("Impossible d'envoyer l'e-mail pour le moment."))}
+function logout(){flush();auth.signOut()}
 auth.onAuthStateChanged(u=>{
  if(u){$("auth").classList.add("hide");$("app").classList.remove("hide");$("loader").classList.remove("hide");$("loader").textContent="Chargement des notes…";ecouter();idle()}
- else{if(unsub){unsub();unsub=null}DB=normDB({});sig=null;loaded=false;userP=false;P="1";F="TOUS";cur=E[0];
+ else{if(unsub){unsub();unsub=null}clearTimeout(saveT);dirty=false;DB=normDB({});sig=null;loaded=false;userP=false;P="1";F="TOUS";cur=E[0];V="dash";setLive("En direct");
   ["v-dash","evGrid","zone","side","sheet","printZone"].forEach(i=>$(i).innerHTML="");$("sheet").classList.remove("open");$("mSai").classList.add("hide");$("mCre").classList.add("hide");
-  $("app").classList.add("hide");$("auth").classList.remove("hide")}});
+  setV("dash");$("app").classList.add("hide");$("auth").classList.remove("hide")}});
 </script>
 </body>
 </html>
