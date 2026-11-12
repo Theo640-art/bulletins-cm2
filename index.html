@@ -243,6 +243,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .ov>div{animation:pop .35s cubic-bezier(.16,1,.3,1)}
 .fld{width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--field);font-size:14px;font-weight:600;outline:none;margin-bottom:12px;transition:border-color .2s}
 .fld:focus{border-color:#0a84ff}
+select.fld{color-scheme:light dark}
+select.fld option{background:var(--paper);color:var(--ink)}
 .mod{width:min(440px,100%);padding:26px}.mod label{font-size:12px;font-weight:600;color:var(--mut);display:block;margin-bottom:5px}
 .pw{width:min(360px,100%);padding:36px;text-align:center}
 .logo{width:64px;height:64px;border-radius:22px;background:linear-gradient(135deg,#0a84ff,#64d2ff);color:#fff;font-weight:900;display:grid;place-items:center;margin:0 auto 14px}
@@ -296,7 +298,17 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
 }
 #printZone{display:none}
-@media print{html,body{background:#fff!important;margin:0!important;padding:0!important}body>*:not(#printZone){display:none!important}#printZone{display:block!important}.bulletin-page{margin:0!important;box-shadow:none!important;border-radius:0!important;width:100%!important;height:296mm!important;page-break-after:always;break-after:page;padding:11mm 13mm!important}@page{size:A4 portrait;margin:0}}
+@media print{
+  html,body{background:#fff!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important;overflow:visible!important}
+  body>*:not(#printZone){display:none!important}
+  #printZone{display:block!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .bulletin-page{margin:0!important;box-shadow:none!important;border-radius:0!important;zoom:1!important;
+    width:210mm!important;height:296mm!important;min-height:0!important;max-height:296mm!important;
+    padding:12mm 14mm!important;overflow:hidden;break-inside:avoid;break-after:page;page-break-after:always}
+  .bulletin-page:last-child{break-after:auto;page-break-after:auto}
+  @page{size:A4 portrait;margin:0}
+}
 
 /* ===== Optimisation Mobile propre (< 768px) ===== */
 @media(max-width:768px){
@@ -336,6 +348,7 @@ table.cmp{width:100%;font-size:12px;border-collapse:collapse}.cmp th{color:var(-
 <header>
   <div><div class="sub">CM2 · Année scolaire 2026/2027 <span class="live" id="live">● En direct</span></div><h1>École Jean des Vignes</h1></div>
   <div class="hr"><div class="seg glass" id="seg"></div>
+    <button class="ib glass" id="tbtn" title="Changer d'ambiance" aria-label="Changer d'ambiance" onclick="cycleTheme()"><i class="thm-dot" id="tdot" style="width:20px;height:20px"></i></button>
     <button class="ib glass" id="kbtn" title="Recherche rapide (Ctrl/⌘ K)" aria-label="Recherche rapide" onclick="openK()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
     <div style="position:relative"><button class="ib glass" id="mbtn" aria-label="Options">•••</button>
     <div id="menu" class="glass menu hide">
@@ -436,9 +449,10 @@ const avgC=(p,m)=>av(notesC(p,m));
 const cnt=(p,m)=>D(p).evals.filter(x=>!m||x.matiere===m).length;
 const prevP=()=>{for(let q=+P-1;q>=1;q--)if(D(q).evals.length)return q;return null};
 
-/* ---------- palette des thèmes visuels (étendus) ---------- */
+/* ---------- palette des thèmes visuels ---------- */
+/* "Classique" = null : aucune surcharge, on retrouve le rendu d'origine (clair et sombre) */
 const ACC={
-  "Océan":["#7aa8ff","#d7a4ff","#8be9c8"],
+  "Classique":null,
   "Sunset":["#ff9a6b","#ff6fa8","#ffd36b"],
   "Forêt":["#6be0a0","#6bc3e0","#e0e06b"],
   "Nuit":["#5b6cff","#9b5bff","#5bd0ff"],
@@ -446,25 +460,26 @@ const ACC={
   "Aurore Boréale":["#10b981","#06b6d4","#8b5cf6"],
   "Lavande":["#a78bfa","#f472b6","#c4b5fd"]
 };
-let curTheme="Océan";
+let curTheme="Classique";
 
 function setAcc(n){
   try{
-    const themeName=ACC[n]?n:"Océan";
-    curTheme=themeName;
-    const a=ACC[themeName];
-    a.forEach((c,i)=>document.documentElement.style.setProperty("--a"+(i+1),c));
-    localStorage.setItem("acc",themeName);
+    const name=(n in ACC)?n:"Classique";curTheme=name;
+    const a=ACC[name],st=document.documentElement.style;
+    [1,2,3].forEach(i=>a?st.setProperty("--a"+i,a[i-1]):st.removeProperty("--a"+i));
+    localStorage.setItem("acc",name);
+    const d=$("tdot");if(d)d.style.background=a?`linear-gradient(135deg,${a[0]},${a[1]})`:"linear-gradient(135deg,var(--a1),var(--a2))";
     renderThemeMenu();
   }catch(e){}
 }
+function cycleTheme(){const k=Object.keys(ACC);setAcc(k[(k.indexOf(curTheme)+1)%k.length])}
 
 function renderThemeMenu(){
   const box=$("themeList");
   if(!box)return;
   box.innerHTML=Object.entries(ACC).map(([nom,colors])=>{
     const on=nom===curTheme;
-    const grad=`linear-gradient(135deg, ${colors[0]}, ${colors[1]})`;
+    const grad=colors?`linear-gradient(135deg, ${colors[0]}, ${colors[1]})`:"linear-gradient(135deg, var(--a1), var(--a2))";
     return `<button onclick="setAcc('${nom}')">
       <span style="display:flex;align-items:center;gap:10px">
         <i class="thm-dot" style="background:${grad}"></i>
@@ -475,7 +490,7 @@ function renderThemeMenu(){
   }).join("");
 }
 
-try{setAcc(localStorage.getItem("acc")||"Océan")}catch(e){}
+try{setAcc(localStorage.getItem("acc")||"Classique")}catch(e){}
 
 let enterT=null;const done=new Set();
 function enter(){try{document.body.dataset.enter=1;document.querySelectorAll(".bento>*,.grid>*").forEach((e,i)=>e.style.setProperty("--i",Math.min(i,14)));clearTimeout(enterT);enterT=setTimeout(()=>{delete document.body.dataset.enter},1500)}catch(e){console.error(e)}}
@@ -754,7 +769,9 @@ const PDFO=n=>({margin:0,filename:n,image:{type:"jpeg",quality:.98},html2canvas:
 function pdfOne(){const el=document.querySelector("#zone .bulletin-page");if(el)html2pdf().set(PDFO(`bulletin_${cur.replace(/\s+/g,"_")}_P${P}.pdf`)).from(el).save()}
 function pdfAll(){const b=$("bAll"),lab="Tout télécharger (1 PDF)";b.textContent="Création du livret...";b.style.pointerEvents="none";
   const z=document.createElement("div");z.style.cssText="width:210mm;margin:0;padding:0;background:#fff";
-  E.forEach(e=>{const w=document.createElement("div");w.innerHTML=construireHTMLBulletinSobre(e);const p=w.firstElementChild;p.style.cssText+=";margin:0;box-shadow:none;border-radius:0;page-break-after:always;break-after:page";z.appendChild(p)});document.body.appendChild(z);
+  E.forEach(e=>{const w=document.createElement("div");w.innerHTML=construireHTMLBulletinSobre(e);const p=w.firstElementChild;p.style.cssText+=";margin:0;box-shadow:none;border-radius:0;page-break-after:always;break-after:page";z.appendChild(p)});
+  if(z.lastElementChild){z.lastElementChild.style.pageBreakAfter="auto";z.lastElementChild.style.breakAfter="auto"}
+  document.body.appendChild(z);
   const end=()=>{if(z.parentNode)document.body.removeChild(z);b.textContent=lab;b.style.pointerEvents=""};
   html2pdf().set(PDFO(`bulletins_CM2_periode_${P}_complet.pdf`)).from(z).save().then(end).catch(er=>{console.error(er);end();alert("Erreur lors de la génération. Utilisez le bouton 'Imprimer'.")})}
 function imprimer(){const z=$("printZone");z.innerHTML="";E.forEach(e=>{const w=document.createElement("div");w.innerHTML=construireHTMLBulletinSobre(e);const p=w.firstElementChild;p.style.cssText+=";margin:0;box-shadow:none;border-radius:0";z.appendChild(p)});setTimeout(()=>{print();z.innerHTML=""},350)}
