@@ -245,6 +245,18 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .fld:focus{border-color:#0a84ff}
 select.fld{color-scheme:light dark}
 select.fld option{background:var(--paper);color:var(--ink)}
+/* ===== Menu déroulant maison (même DA que le reste) ===== */
+.cs{position:relative;margin-bottom:12px}
+.cs>select{display:none}
+.cs-btn{all:unset;box-sizing:border-box;width:100%;padding:11px 38px 11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--field);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:border-color .2s;
+  background-image:url('data:image/svg+xml;utf8,<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%238e8e93" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><polyline points="6 9 12 15 18 9"/></svg>');background-repeat:no-repeat;background-position:right 14px center}
+.cs-btn:hover,.cs-btn.open{border-color:#0a84ff}
+.cs-btn:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
+.cs-list{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:60;padding:6px;border-radius:18px;max-height:240px;overflow-y:auto;background:var(--paper);border:1px solid var(--line);box-shadow:0 18px 45px -10px rgba(0,0,0,.35);animation:pop .2s cubic-bezier(.16,1,.3,1)}
+.cs-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink);transition:background .15s}
+.cs-opt:hover{background:var(--track)}
+.cs-opt.on{background:var(--ink);color:var(--bg)}
+.cs-opt span{display:flex;align-items:center}
 .mod{width:min(440px,100%);padding:26px}.mod label{font-size:12px;font-weight:600;color:var(--mut);display:block;margin-bottom:5px}
 .pw{width:min(360px,100%);padding:36px;text-align:center}
 .logo{width:64px;height:64px;border-radius:22px;background:linear-gradient(135deg,#0a84ff,#64d2ff);color:#fff;font-weight:900;display:grid;place-items:center;margin:0 auto 14px}
@@ -698,8 +710,21 @@ function evals(){const cu=D(P),ev=cu.evals||[],cn={TOUS:ev.length};ev.forEach(x=
     <div><div class="row lbl"><span>Statut</span><b style="color:${full?"#1f9d46":"#c77700"}">${full?"✓":"!"} ${nb} / ${E.length}</b></div><div class="bar"><i style="width:${(E.length?nb/E.length:0)*100}%;background:${full?"#30d158":c}"></i></div></div>
     <div class="row"><b>${m!=="-"?m+"/20":"-"}</b><button class="btn s" onclick="openSai(this.closest('.ev').dataset.id)">Saisir</button></div></div>`}).join("")}
 function delEv(id){if(!confirm("Supprimer définitivement cette évaluation et ses notes ?"))return;DB[P].evals=DB[P].evals.filter(e=>e.id!==id);delete DB[P].notes[id];save(true);R()}
-function subs(){const m=$("cMat").value,s=$("cThe");s.innerHTML='<option value="">Aucun (général)</option>'+(SUB[m]||[]).map(t=>`<option>${t}</option>`).join("")}
-function openCre(){$("cMat").innerHTML=MAT.map(m=>`<option>${m}</option>`).join("");$("cTit").value="";subs();$("mCre").classList.remove("hide");setTimeout(()=>$("cTit").focus(),100)}
+const closeCs=()=>document.querySelectorAll(".cs-list").forEach(l=>l.classList.add("hide"));
+document.addEventListener("click",e=>{if(!e.target.closest(".cs"))closeCs()});
+addEventListener("keydown",e=>{if(e.key==="Escape")closeCs()});
+function csel(id){const s=$(id);let w=s.parentNode.classList.contains("cs")?s.parentNode:null;
+  if(!w){w=document.createElement("div");w.className="cs";s.parentNode.insertBefore(w,s);w.appendChild(s);
+    w.insertAdjacentHTML("beforeend",'<button type="button" class="cs-btn"></button><div class="cs-list hide"></div>');
+    const b=w.querySelector(".cs-btn"),l=w.querySelector(".cs-list");
+    b.onclick=e=>{e.stopPropagation();const h=l.classList.contains("hide");closeCs();document.querySelectorAll(".cs-btn").forEach(x=>x.classList.remove("open"));if(h){l.classList.remove("hide");b.classList.add("open")}};
+    l.onclick=e=>{const o=e.target.closest(".cs-opt");if(!o)return;e.stopPropagation();s.value=o.dataset.v;s.dispatchEvent(new Event("change"));csel(id);closeCs();b.classList.remove("open")}}
+  const dot=t=>COL[t]?`<i class="dot" style="background:${COL[t]}"></i>`:"";
+  const cu=s.options[s.selectedIndex];
+  w.querySelector(".cs-btn").innerHTML=dot(cu?cu.text:"")+esc(cu?cu.text:"");
+  w.querySelector(".cs-list").innerHTML=[...s.options].map(o=>`<div class="cs-opt ${o.value===s.value?"on":""}" data-v="${esc(o.value)}"><span>${dot(o.text)}${esc(o.text)}</span>${o.value===s.value?"✓":""}</div>`).join("")}
+function subs(){const m=$("cMat").value,s=$("cThe");s.innerHTML='<option value="">Aucun (général)</option>'+(SUB[m]||[]).map(t=>`<option>${t}</option>`).join("");csel("cThe")}
+function openCre(){$("cMat").innerHTML=MAT.map(m=>`<option>${m}</option>`).join("");$("cTit").value="";subs();csel("cMat");closeCs();$("mCre").classList.remove("hide");setTimeout(()=>$("cTit").focus(),100)}
 function creer(){const titre=$("cTit").value.trim();if(!titre){$("cTit").focus();return}
   if(!DB[P])DB[P]={evals:[],notes:{}};const id="ev_"+Date.now();DB[P].evals.push({id,matiere:$("cMat").value,theme:$("cThe").value,titre});DB[P].notes[id]={};save(true);$("mCre").classList.add("hide");R();openSai(id)}
 function openSai(id){evId=id;const cu=D(P),i=cu.evals.findIndex(e=>e.id===id);if(i<0)return;const x=cu.evals[i],c=COL[x.matiere]||"#0a84ff";
